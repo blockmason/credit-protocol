@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "./AbstractHarmony.sol";
+import "./AbstractFoundation.sol";
 
 /* TODO
 
@@ -9,8 +9,8 @@ import "./AbstractHarmony.sol";
 
 contract FriendInDebt {
 
-  AbstractHarmony ah;
-  bytes32 adminHarmonyId;
+  AbstractFoundation af;
+  bytes32 adminFoundationId;
   mapping ( bytes32 => bool ) currencyCodes;
   uint nextDebtId;
 
@@ -47,12 +47,12 @@ contract FriendInDebt {
   bytes32 second;
 
   modifier isIdOwner(address _caller, bytes32 _name) {
-    if ( ! ah.isHarmonized(_caller, _name) ) throw;
+    if ( ! af.isUnified(_caller, _name) ) throw;
     _;
   }
 
   modifier isAdmin(address _caller) {
-    if ( ! ah.idEq(adminHarmonyId, ah.resolveToName(_caller))) throw;
+    if ( ! af.idEq(adminFoundationId, af.resolveToName(_caller))) throw;
     _;
   }
 
@@ -76,9 +76,9 @@ contract FriendInDebt {
     _;
   }
 
-  function FriendInDebt(bytes32 _adminId, address harmonyContract) {
-    ah = AbstractHarmony(harmonyContract);
-    adminHarmonyId = _adminId;
+  function FriendInDebt(bytes32 _adminId, address foundationContract) {
+    af = AbstractFoundation(foundationContract);
+    adminFoundationId = _adminId;
     initCurrencyCodes();
     nextDebtId = 0;
   }
@@ -115,13 +115,13 @@ contract FriendInDebt {
     }
     if ( fs.isMutual ) return;
 
-    if ( ah.idEq(fs.f1Id, myId) ) fs.f1Confirmed = true;
-    if ( ah.idEq(fs.f2Id, myId) ) fs.f2Confirmed = true;
+    if ( af.idEq(fs.f1Id, myId) ) fs.f1Confirmed = true;
+    if ( af.idEq(fs.f2Id, myId) ) fs.f2Confirmed = true;
 
     //if friend has confirmed already, friendship is mutual
-    if ( ( ah.idEq(fs.f1Id, friendId) && fs.f1Confirmed)
+    if ( ( af.idEq(fs.f1Id, friendId) && fs.f1Confirmed)
          ||
-         ( ah.idEq(fs.f2Id, friendId) && fs.f2Confirmed) ) {
+         ( af.idEq(fs.f2Id, friendId) && fs.f2Confirmed) ) {
       fs.isMutual = true;
       fs.isPending = false;
 
@@ -139,11 +139,11 @@ contract FriendInDebt {
   }
 
   bytes32[] cFriends; //"local" variable for fn
-  function confirmedFriends(bytes32 _harmonyId) constant returns (bytes32[]) {
+  function confirmedFriends(bytes32 _foundationId) constant returns (bytes32[]) {
     cFriends.length = 0;
-    for ( uint i=0; i<friendIdList[_harmonyId].length; i++ ) {
-      bytes32 currFriendId = friendIdList[_harmonyId][i];
-      if ( friendships[_harmonyId][currFriendId].isMutual )
+    for ( uint i=0; i<friendIdList[_foundationId].length; i++ ) {
+      bytes32 currFriendId = friendIdList[_foundationId][i];
+      if ( friendships[_foundationId][currFriendId].isMutual )
         cFriends.push(currFriendId);
     }
     return cFriends;
@@ -151,11 +151,11 @@ contract FriendInDebt {
 
   bytes32[] pFriends; //"local" variable for fn
   bytes32[] idsNeededToConfirmF;
-  function pendingFriends(bytes32 _harmonyId) constant returns (bytes32[] friendIds, bytes32[] confirmerIds) {
+  function pendingFriends(bytes32 _foundationId) constant returns (bytes32[] friendIds, bytes32[] confirmerIds) {
     pFriends.length = 0;
-    for ( uint i=0; i<friendIdList[_harmonyId].length; i++ ) {
-      bytes32 currFriendId = friendIdList[_harmonyId][i];
-      Friendship memory fs = friendships[_harmonyId][currFriendId];
+    for ( uint i=0; i<friendIdList[_foundationId].length; i++ ) {
+      bytes32 currFriendId = friendIdList[_foundationId][i];
+      Friendship memory fs = friendships[_foundationId][currFriendId];
       if ( fs.isPending ) {
         pFriends.push(currFriendId);
         if ( fs.f1Confirmed )
@@ -239,9 +239,9 @@ contract FriendInDebt {
     (index, success) = findPendingDebt(myId, friendId, debtId);
     if ( ! success ) return;
     Debt memory d = debts[first][second][index];
-    if ( ah.idEq(myId, d.debtorId) && !d.debtorConfirmed && d.creditorConfirmed )
+    if ( af.idEq(myId, d.debtorId) && !d.debtorConfirmed && d.creditorConfirmed )
       d.debtorConfirmed = true;
-    if ( ah.idEq(myId, d.creditorId) && !d.creditorConfirmed && d.debtorConfirmed )
+    if ( af.idEq(myId, d.creditorId) && !d.creditorConfirmed && d.debtorConfirmed )
       d.creditorConfirmed = true;
     d.isPending = false;
     debts[first][second][index] = d;
@@ -252,7 +252,7 @@ contract FriendInDebt {
   /***********  Helpers  ************/
   function idMember(bytes32 s, bytes32[] l) constant returns(bool) {
     for ( uint i=0; i<l.length; i++ ) {
-      if ( ah.idEq(l[i], s)) return true;
+      if ( af.idEq(l[i], s)) return true;
     }
     return false;
   }
