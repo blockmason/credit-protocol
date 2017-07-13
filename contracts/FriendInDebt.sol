@@ -16,7 +16,7 @@ contract FriendInDebt {
 
   struct Debt {
     uint id;
-    int amount;
+    uint amount;
     bytes32 currencyCode;
     bytes32 debtorId;
     bytes32 creditorId;
@@ -79,13 +79,7 @@ contract FriendInDebt {
   function FriendInDebt(bytes32 _adminId, address foundationContract) {
     af = AbstractFoundation(foundationContract);
     adminFoundationId = _adminId;
-    initCurrencyCodes();
     nextDebtId = 0;
-  }
-
-  function initCurrencyCodes() private {
-    currencyCodes[stringToBytes32("USDcents")] = true;
-    currencyCodes[stringToBytes32("EURcents")] = true;
   }
 
   function addCurrencyCode(bytes32 _currencyCode) isAdmin(msg.sender) {
@@ -170,11 +164,11 @@ contract FriendInDebt {
   uint[] pDebts; //"local"
   bytes32[] idsNeededToConfirmD;
   bytes32[] currencyD;
-  int[] amountsD;
+  uint[] amountsD;
   bytes32[] descsD;
   bytes32[] debtorsD;
   bytes32[] creditorsD;
-  function pendingDebts(bytes32 p1, bytes32 p2)  debtIndices(p1, p2) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+  function pendingDebts(bytes32 p1, bytes32 p2)  debtIndices(p1, p2) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, uint[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
     pDebts.length = 0;
     idsNeededToConfirmD.length = 0;
     currencyD.length = 0;
@@ -200,14 +194,46 @@ contract FriendInDebt {
     return (pDebts, idsNeededToConfirmD, currencyD, amountsD, descsD, debtorsD, creditorsD);
   }
 
-  function confirmedDebts(bytes32 p1, bytes32 p2) constant returns (bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors)  {
+  /*
+  //returns positive for debt owed, negative for owed from other party
+  function confirmedDebtBalances(bytes32 _foundationId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds) {
+    bytes32[] memory friends = confirmedFriends(_foundationId);
+    currencyD.length = 0;
+    amountsD.length = 0;
+    creditorsD.length = 0;
+    for( uint i=0; i < friends.length; i++ ) {
+      uint dBalance = 0;
+      Debt[] memory d1 = debts[_foundationId][friends[i]];
+      Debt[] memory d2 = debts[friends[i]][_foundationId];
+      Debt[] memory ds;
+      if ( d1.length == 0 )
+        ds = d2;
+      else
+        ds = d1;
+      for ( uint j=0; j < ds.length; j++ ) {
+        if ( !ds[j].isPending && !ds[j].isRejected ) {
+          if ( af.idEq(ds[j].debtorId, _foundationId) )
+            dBalance += ds[j].amount;
+          else
+            dBalance -= ds[j].amount;
+        }
+      }
+      //PROBLEM: how to handle multiple currencies??????
+    }
+    return (currencyD, amountsD, creditorsD);
+  }
+  */
+
+  //add a feature to create new debt with creditor/debtor id
+
+  function confirmedDebts(bytes32 p1, bytes32 p2) debtIndices(p1, p2) constant returns (bytes32[] currency, uint[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
     currencyD.length = 0;
     amountsD.length = 0;
     descsD.length = 0;
     debtorsD.length = 0;
     creditorsD.length = 0;
-    for ( uint i=0; i<debts[p1][p2].length; i++ ) {
-      Debt memory d = debts[p1][p2][i];
+    for ( uint i=0; i < debts[first][second].length; i++ ) {
+      Debt memory d = debts[first][second][i];
       if ( ! d.isPending && ! d.isRejected ) {
         currencyD.push(d.currencyCode);
         amountsD.push(d.amount);
@@ -219,9 +245,13 @@ contract FriendInDebt {
     return (currencyD, amountsD, descsD, debtorsD, creditorsD);
   }
 
-  //if debt amount is negative, debt is owed by friend to me
-  function newDebt(bytes32 myId, bytes32 friendId, bytes32 currencyCode, int amount, bytes32 _desc) isIdOwner(msg.sender, myId) currencyValid(currencyCode) {
+  function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, uint amount, bytes32 _desc) currencyValid(currencyCode) {
+    if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
+      throw;
+
     if ( amount == 0 ) return;
+
+    bytes32 confirmerName = af.resolveToName(msg.sender);
 
     uint debtId = nextDebtId;
     nextDebtId++;
@@ -230,26 +260,20 @@ contract FriendInDebt {
     d.currencyCode = currencyCode;
     d.isPending = true;
     d.desc = _desc;
+    d.amount = amount;
+    d.debtorId = debtorId;
+    d.creditorId = creditorId;
 
-
-    if ( amount > 0 ) {
-      d.amount = amount;
-      d.debtorId = myId;
-      d.creditorId = friendId;
+    if ( af.idEq(confirmerName, debtorId) )
       d.debtorConfirmed = true;
-    }
-    else {
-      d.amount = amount * -1;
-      d.debtorId = friendId;
-      d.creditorId = myId;
-      d.creditorConfirmed = true;
-    }
-
-    //if friend's debt array for me isn't initialized, use mine
-    if ( debts[friendId][myId].length == 0 )
-      debts[myId][friendId].push(d);
     else
-      debts[friendId][myId].push(d);
+      d.creditorConfirmed = true;
+
+    //if first debt array for me isn't initialized, use second
+    if ( debts[debtorId][creditorId].length == 0 )
+      debts[creditorId][debtorId].push(d);
+    else
+      debts[debtorId][creditorId].push(d);
   }
 
   function confirmDebt(bytes32 myId, bytes32 friendId, uint debtId) debtIndices(myId, friendId) isIdOwner(msg.sender, myId) {
@@ -302,11 +326,5 @@ contract FriendInDebt {
         return (i, true);
     }
     return (i, false);
-  }
-
-  function stringToBytes32(string memory source) private constant returns (bytes32 result) {
-    assembly {
-        result := mload(add(source, 32))
-    }
   }
 }

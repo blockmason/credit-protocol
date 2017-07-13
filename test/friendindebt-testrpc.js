@@ -1,9 +1,10 @@
 var FriendInDebt = artifacts.require("./FriendInDebt.sol");
 
-var foundation = "0xbf99c13aad44d7141eab30a601033106484edaa2";
-var adminId = "foundationadmin";
+var foundation = "0x38d9c595d3da9d5023ed01a29f19789bf02187ef";
+var adminId = "timg";
 var user2 = "timg";
 var user3 = "jaredb";
+var currency = "USDcents";
 
 var b2s = function(bytes) {
     var s = "";
@@ -26,6 +27,8 @@ contract('FriendInDebt', function(accounts) {
         var fid;
         return FriendInDebt.new(adminId, foundation).then(function(instance) {
             fid = instance;
+            return fid.addCurrencyCode(currency, {from: account2});
+        }).then(function(v) {
             return fid.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
             return fid.pendingFriends(user3);
@@ -69,22 +72,23 @@ contract('FriendInDebt', function(accounts) {
 
     it("create debt; check,confirm it; create debt; check,reject it", function() {
         var fid;
-        var currency = "EURcents";
-        var posAmt = 2000;
-        var negAmt = -3000;
-        var desc1 = "stuff";
-        var desc2 = "bad thigns";
+        var amt1 = 2000;
+        var amt2 = 3000;
+        var desc1 = "stuff you bought";
+        var desc2 = "bad things I owe for";
 
         var debts;
         return FriendInDebt.new(adminId, foundation).then(function(instance) {
             fid = instance;
+            return fid.addCurrencyCode(currency, {from: account2});
+        }).then(function(v) {
             return fid.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
             return fid.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
-            return fid.newDebt(user2, user3, currency, posAmt, desc1, {from: account2});
+            return fid.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
         }).then(function(v) {
-            return fid.newDebt(user2, user3, currency, negAmt, desc2, {from: account2});
+            return fid.newDebt(user3, user2, currency, amt2, desc2, {from: account2});
         }).then(function(v) {
             return fid.pendingDebts(user2, user3);
         }).then(function(v) {
@@ -96,7 +100,6 @@ contract('FriendInDebt', function(accounts) {
             assert.equal(debts[0].debtor, user2, "1st debt debtor should be user2");
             assert.equal(debts[1].creditor, user2, "2nd debt creditor should be user2");
             assert.equal(debts[1].debtor, user3, "2nd debt debtor should be user3");
-
             return fid.confirmDebt(user3, user2, debts[0].id, {from: account3});
         }).then(function(v) {
             return fid.pendingDebts(user3, user2);
@@ -115,7 +118,7 @@ contract('FriendInDebt', function(accounts) {
         }).then(function(v) {
             debts = confirmedDebts2Js(v.valueOf());
             assert.equal(debts.length, 1, "user2 should have 1 confirmed debt");
-            assert.equal(debts[0].amount, posAmt, "amount should be " + posAmt);
+            assert.equal(debts[0].amount, amt1, "amount should be " + amt1);
         });
     });
 });
