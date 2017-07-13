@@ -16,7 +16,7 @@ contract FriendInDebt {
 
   struct Debt {
     uint id;
-    uint amount;
+    int amount;
     bytes32 currencyCode;
     bytes32 debtorId;
     bytes32 creditorId;
@@ -164,11 +164,11 @@ contract FriendInDebt {
   uint[] pDebts; //"local"
   bytes32[] idsNeededToConfirmD;
   bytes32[] currencyD;
-  uint[] amountsD;
+  int[] amountsD;
   bytes32[] descsD;
   bytes32[] debtorsD;
   bytes32[] creditorsD;
-  function pendingDebts(bytes32 p1, bytes32 p2)  debtIndices(p1, p2) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, uint[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+  function pendingDebts(bytes32 p1, bytes32 p2)  debtIndices(p1, p2) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
     pDebts.length = 0;
     idsNeededToConfirmD.length = 0;
     currencyD.length = 0;
@@ -194,17 +194,20 @@ contract FriendInDebt {
     return (pDebts, idsNeededToConfirmD, currencyD, amountsD, descsD, debtorsD, creditorsD);
   }
 
-  /*
+  mapping ( bytes32 => mapping (bytes32 => int )) currencyToIdToAmount;
+  bytes32[] cdCurrencies;
+  int[] amountsCD;
   //returns positive for debt owed, negative for owed from other party
   function confirmedDebtBalances(bytes32 _foundationId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds) {
     bytes32[] memory friends = confirmedFriends(_foundationId);
     currencyD.length = 0;
-    amountsD.length = 0;
+    amountsCD.length = 0;
     creditorsD.length = 0;
     for( uint i=0; i < friends.length; i++ ) {
-      uint dBalance = 0;
-      Debt[] memory d1 = debts[_foundationId][friends[i]];
-      Debt[] memory d2 = debts[friends[i]][_foundationId];
+      bytes32 cFriend = friends[i];
+      cdCurrencies.length = 0;
+      Debt[] memory d1 = debts[_foundationId][cFriend];
+      Debt[] memory d2 = debts[cFriend][_foundationId];
       Debt[] memory ds;
       if ( d1.length == 0 )
         ds = d2;
@@ -212,21 +215,24 @@ contract FriendInDebt {
         ds = d1;
       for ( uint j=0; j < ds.length; j++ ) {
         if ( !ds[j].isPending && !ds[j].isRejected ) {
+          if ( ! currencyMember(ds[j].currencyCode, cdCurrencies) )
+            cdCurrencies.push(ds[j].currencyCode);
           if ( af.idEq(ds[j].debtorId, _foundationId) )
-            dBalance += ds[j].amount;
+            currencyToIdToAmount[ds[j].currencyCode][cFriend] += ds[j].amount;
           else
-            dBalance -= ds[j].amount;
+            currencyToIdToAmount[ds[j].currencyCode][cFriend] -= ds[j].amount;
         }
       }
-      //PROBLEM: how to handle multiple currencies??????
+      for ( uint k=0; k < cdCurrencies.length; k++ ) {
+        currencyD.push(cdCurrencies[k]);
+        amountsCD.push(currencyToIdToAmount[cdCurrencies[k]][cFriend]);
+        creditorsD.push(cFriend);
+      }
     }
-    return (currencyD, amountsD, creditorsD);
+    return (currencyD, amountsCD, creditorsD);
   }
-  */
 
-  //add a feature to create new debt with creditor/debtor id
-
-  function confirmedDebts(bytes32 p1, bytes32 p2) debtIndices(p1, p2) constant returns (bytes32[] currency, uint[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+  function confirmedDebts(bytes32 p1, bytes32 p2) debtIndices(p1, p2) constant returns (bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
     currencyD.length = 0;
     amountsD.length = 0;
     descsD.length = 0;
@@ -245,7 +251,7 @@ contract FriendInDebt {
     return (currencyD, amountsD, descsD, debtorsD, creditorsD);
   }
 
-  function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, uint amount, bytes32 _desc) currencyValid(currencyCode) {
+  function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 _desc) currencyValid(currencyCode) {
     if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
       throw;
 
@@ -305,6 +311,13 @@ contract FriendInDebt {
 
   /***********  Helpers  ************/
   function idMember(bytes32 s, bytes32[] l) constant returns(bool) {
+    for ( uint i=0; i<l.length; i++ ) {
+      if ( af.idEq(l[i], s)) return true;
+    }
+    return false;
+  }
+
+  function currencyMember(bytes32 s, bytes32[] l) constant returns(bool) {
     for ( uint i=0; i<l.length; i++ ) {
       if ( af.idEq(l[i], s)) return true;
     }
