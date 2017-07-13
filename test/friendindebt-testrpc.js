@@ -99,13 +99,23 @@ contract('FriendInDebt', function(accounts) {
 
             return fid.confirmDebt(user3, user2, debts[0].id, {from: account3});
         }).then(function(v) {
+            return fid.pendingDebts(user3, user2);
+        }).then(function(v) {
             return fid.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
             assert.equal(debts.length, 1, "Should only have one pending debt left");
-            //            return fid.rejectDebt(user3, user2, x[0][0]);
+            return fid.rejectDebt(user3, user2, debts[0].id, {from: account3}); //reject it
         }).then(function(v) {
-//            console.log(v);
+            return fid.pendingDebts(user2, user3);
+        }).then(function(v) {
+            debts = pendingDebts2Js(v.valueOf());
+            assert.equal(debts.length, 0, "user2 should have no pending debts");
+            return fid.confirmedDebts(user2, user3);
+        }).then(function(v) {
+            debts = confirmedDebts2Js(v.valueOf());
+            assert.equal(debts.length, 1, "user2 should have 1 confirmed debt");
+            assert.equal(debts[0].amount, posAmt, "amount should be " + posAmt);
         });
     });
 });
@@ -149,13 +159,15 @@ var pendingDebts2Js = function(debts) {
     return debtList;
 };
 
-var confirmedDebts2Js = function() {
-
+var confirmedDebts2Js = function(debts) {
+    var debtList = [];
+    for ( var i=0; i < debts[0].length; i++ ) {
+        var debt = { currency: b2s(debts[0][i]),
+                     amount: debts[1][i].toNumber(),
+                     desc: b2s(debts[2][i]),
+                     debtor: b2s(debts[3][i]),
+                     creditor: b2s(debts[4][i])  };
+        debtList.push(debt);
+    }
+    return debtList;
 };
-
-
-//TODO: test for retrieiving debts
-
-
-//[ [ pDebts ]
-//  , [  ]]

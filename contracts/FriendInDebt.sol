@@ -69,7 +69,7 @@ contract FriendInDebt {
   modifier debtIndices(bytes32 p1, bytes32 p2) {
     first = p1;
     second = p2;
-    if ( debts[p1][p2].length ==0 ) {
+    if ( debts[p1][p2].length == 0 ) {
       first = p2;
       second = p1;
     }
@@ -174,7 +174,7 @@ contract FriendInDebt {
   bytes32[] descsD;
   bytes32[] debtorsD;
   bytes32[] creditorsD;
-  function pendingDebts(bytes32 p1, bytes32 p2) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+  function pendingDebts(bytes32 p1, bytes32 p2)  debtIndices(p1, p2) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
     pDebts.length = 0;
     idsNeededToConfirmD.length = 0;
     currencyD.length = 0;
@@ -182,8 +182,8 @@ contract FriendInDebt {
     descsD.length = 0;
     debtorsD.length = 0;
     creditorsD.length = 0;
-    for ( uint i=0; i<debts[p1][p2].length; i++ ) {
-      Debt memory d = debts[p1][p2][i];
+    for ( uint i=0; i < debts[first][second].length; i++ ) {
+      Debt memory d = debts[first][second][i];
       if ( d.isPending ) {
         pDebts.push(d.id);
         currencyD.push(d.currencyCode);
@@ -208,7 +208,7 @@ contract FriendInDebt {
     creditorsD.length = 0;
     for ( uint i=0; i<debts[p1][p2].length; i++ ) {
       Debt memory d = debts[p1][p2][i];
-      if ( ! d.isPending ) {
+      if ( ! d.isPending && ! d.isRejected ) {
         currencyD.push(d.currencyCode);
         amountsD.push(d.amount);
         descsD.push(d.desc);
@@ -266,7 +266,18 @@ contract FriendInDebt {
     debts[first][second][index] = d;
   }
 
-  //  function rejectDebt(bytes32 myId, bytes32 friendId
+  function rejectDebt(bytes32 myId, bytes32 friendId, uint debtId) debtIndices(myId, friendId) isIdOwner(msg.sender, myId) {
+    uint index;
+    bool success;
+    (index, success) = findPendingDebt(myId, friendId, debtId);
+    if ( ! success ) return;
+    Debt memory d = debts[first][second][index];
+    d.isPending = false;
+    d.isRejected = true;
+    d.debtorConfirmed = false;
+    d.creditorConfirmed = false;
+    debts[first][second][index] = d;
+  }
 
   /***********  Helpers  ************/
   function idMember(bytes32 s, bytes32[] l) constant returns(bool) {
@@ -281,7 +292,7 @@ contract FriendInDebt {
   function findPendingDebt(bytes32 p1, bytes32 p2, uint debtId) debtIndices(p1, p2) private constant returns (uint index, bool success) {
     bytes32 f = p1;
     bytes32 s = p2;
-    if ( debts[f][s].length ==0 ) {
+    if ( debts[f][s].length == 0 ) {
       f = p2;
       s = p1;
     }
