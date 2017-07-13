@@ -74,8 +74,10 @@ contract('FriendInDebt', function(accounts) {
         var fid;
         var amt1 = 2000;
         var amt2 = 3000;
+        var amt3 = 8000;
         var desc1 = "stuff you bought";
         var desc2 = "bad things I owe for";
+        var desc3 = "hookers and blow";
 
         var debts;
         return FriendInDebt.new(adminId, foundation).then(function(instance) {
@@ -89,6 +91,8 @@ contract('FriendInDebt', function(accounts) {
             return fid.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
         }).then(function(v) {
             return fid.newDebt(user3, user2, currency, amt2, desc2, {from: account2});
+        }).then(function(v) {
+            return fid.newDebt(user3, user2, currency, amt3, desc3, {from: account3});
         }).then(function(v) {
             return fid.pendingDebts(user2, user3);
         }).then(function(v) {
@@ -107,18 +111,32 @@ contract('FriendInDebt', function(accounts) {
             return fid.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
-            assert.equal(debts.length, 1, "Should only have one pending debt left");
+            assert.equal(debts.length, 2, "Should have two pending debts left");
             return fid.rejectDebt(user3, user2, debts[0].id, {from: account3}); //reject it
         }).then(function(v) {
             return fid.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
-            assert.equal(debts.length, 0, "user2 should have no pending debts");
+            assert.equal(debts.length, 1, "user2 should have 1 pending debt");
             return fid.confirmedDebts(user2, user3);
         }).then(function(v) {
             debts = confirmedDebts2Js(v.valueOf());
             assert.equal(debts.length, 1, "user2 should have 1 confirmed debt");
             assert.equal(debts[0].amount, amt1, "amount should be " + amt1);
+            return fid.pendingDebts(user2, user3);
+        }).then(function(v) {
+            debts = pendingDebts2Js(v.valueOf());
+            return fid.confirmDebt(user2, user3, debts[0].id, {from: account2});
+        }).then(function(v) {
+            return fid.confirmedDebtBalances(user2);
+        }).then(function(v) {
+            debts = debtBalances2Js(v.valueOf());
+            assert.equal(debts[0].amount, -6000, "user2 should be owed 6000 from user3");
+            return fid.confirmedDebtBalances(user3);
+        }).then(function(v) {
+            debts = debtBalances2Js(v.valueOf());
+            assert.equal(debts[0].amount, 6000, "user3 should owe 6000 to user2");
+            console.log(debtBalances2Js(v.valueOf()));
         });
     });
 });
@@ -173,4 +191,15 @@ var confirmedDebts2Js = function(debts) {
         debtList.push(debt);
     }
     return debtList;
+};
+
+var debtBalances2Js = function(debts) {
+    var balanceList = [];
+    for ( var i=0; i < debts[0].length; i++ ) {
+        var debt = { currency: b2s(debts[0][i]),
+                     amount: debts[1][i].toNumber(),
+                     creditor: b2s(debts[2][i]) };
+        balanceList.push(debt);
+    }
+    return balanceList;
 };
