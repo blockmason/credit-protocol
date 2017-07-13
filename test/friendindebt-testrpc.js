@@ -1,7 +1,7 @@
 var FriendInDebt = artifacts.require("./FriendInDebt.sol");
 
-var harmony = "0x4c553e1e284472acda8acbc06ed88fcf16947a88";
-var adminId = "harmonyadmin";
+var foundation = "0xbf99c13aad44d7141eab30a601033106484edaa2";
+var adminId = "foundationadmin";
 var user2 = "timg";
 var user3 = "jaredb";
 
@@ -21,41 +21,49 @@ contract('FriendInDebt', function(accounts) {
     var account2 = accounts[1];
     var account3 = accounts[2];
 
+    var friends;
     it("add a friend, have pending, confirm friend, no more pending", function() {
         var fid;
-        return FriendInDebt.new(adminId, harmony).then(function(instance) {
+        return FriendInDebt.new(adminId, foundation).then(function(instance) {
             fid = instance;
             return fid.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
             return fid.pendingFriends(user3);
         }).then(function(v) {
-            assert.equal(b2s(v.valueOf()[0][0]), user2, "user2 not in the pending list");
-            assert.equal(b2s(v.valueOf()[1][0]), user3, "user3 not in the ids to confirm list");
+            friends = pendingFriends2Js(v.valueOf());
+            assert.equal(friends[0].friendId, user2, "user2 not in the pending list");
+            assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
             return fid.pendingFriends(user2);
         }).then(function(v) {
-            assert.equal(b2s(v.valueOf()[0][0]), user3, "user3 not in the pending list");
-            assert.equal(b2s(v.valueOf()[1][0]), user3, "user3 not in the ids to confirm list");
-
+            friends = pendingFriends2Js(v.valueOf());
+            assert.equal(friends[0].friendId, user3, "user3 not in the pending list");
+            assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
             return fid.confirmedFriends(user2);
         }).then(function(v) {
-            assert.equal(v.valueOf().length, 0, "should not have confirmed friends");
+            friends = confirmedFriends2Js(v.valueOf());
+            assert.equal(friends.length, 0, "should not have confirmed friends");
             return fid.confirmedFriends(user3);
         }).then(function(v) {
-            assert.equal(v.valueOf().length, 0, "should not have confirmed friends");
+            friends = confirmedFriends2Js(v.valueOf());
+            assert.equal(friends.length, 0, "should not have confirmed friends");
             return fid.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
             return fid.pendingFriends(user2);
         }).then(function(v) {
-            assert.equal(v.valueOf()[0].length, 0, "user2 should not have pending friends");
+            friends = pendingFriends2Js(v.valueOf());
+            assert.equal(friends.length, 0, "user2 should not have pending friends");
             return fid.pendingFriends(user3);
         }).then(function(v) {
-            assert.equal(v.valueOf()[0].length, 0, "user3 should not have pending friends");
+            friends = pendingFriends2Js(v.valueOf());
+            assert.equal(friends.length, 0, "user3 should not have pending friends");
             return fid.confirmedFriends(user3);
         }).then(function(v) {
-            assert.equal(b2s(v.valueOf()[0]), user2, "user3 has no confirmed friends");
+            friends = confirmedFriends2Js(v.valueOf());
+            assert.equal(friends[0].friendId, user2, "user3 should have confirmed friends");
             return fid.confirmedFriends(user2);
         }).then(function(v) {
-            assert.equal(b2s(v.valueOf()[0]), user3, "user2 has no confirmed friends");
+            friends = confirmedFriends2Js(v.valueOf());
+            assert.equal(friends[0].friendId, user3, "user2 should have confirmed friends");
         });
     });
 
@@ -64,11 +72,11 @@ contract('FriendInDebt', function(accounts) {
         var currency = "EURcents";
         var posAmt = 2000;
         var negAmt = -3000;
-        var desc1 = "butt stuff";
+        var desc1 = "stuff";
         var desc2 = "bad thigns";
 
-        var x;
-        return FriendInDebt.new(adminId, harmony).then(function(instance) {
+        var debts;
+        return FriendInDebt.new(adminId, foundation).then(function(instance) {
             fid = instance;
             return fid.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
@@ -80,24 +88,74 @@ contract('FriendInDebt', function(accounts) {
         }).then(function(v) {
             return fid.pendingDebts(user2, user3);
         }).then(function(v) {
-            x = v.valueOf();
-            assert.equal(x[0][0], 0, "1st pending id not 0");
-            assert.equal(x[0][1], 1, "2nd pending id not 1");
-            assert.equal(b2s(x[1][0]), user3, "user3 should be on the hook to confirm first debt");
-            assert.equal(b2s(x[6][0]), user3, "1st debt creditor should be user3");
-            assert.equal(b2s(x[5][0]), user2, "1st debt debtor should be user2");
-            assert.equal(b2s(x[6][1]), user2, "2nd debt creditor should be user2");
-            assert.equal(b2s(x[5][1]), user3, "2nd debt debtor should be user3");
+            debts = pendingDebts2Js(v.valueOf());
+            assert.equal(debts[0].id, 0, "1st pending id not 0");
+            assert.equal(debts[1].id, 1, "2nd pending id not 1");
+            assert.equal(debts[0].confirmerId, user3, "user3 should be on the hook to confirm first debt");
+            assert.equal(debts[0].creditor, user3, "1st debt creditor should be user3");
+            assert.equal(debts[0].debtor, user2, "1st debt debtor should be user2");
+            assert.equal(debts[1].creditor, user2, "2nd debt creditor should be user2");
+            assert.equal(debts[1].debtor, user3, "2nd debt debtor should be user3");
 
-            return fid.confirmDebt(user3, user2, x[0][0], {from: account3});
+            return fid.confirmDebt(user3, user2, debts[0].id, {from: account3});
         }).then(function(v) {
             return fid.pendingDebts(user2, user3);
         }).then(function(v) {
-            x = v.valueOf();
-            assert.equal(x[0].length, 1, "Should only have one pending debt left");
+            debts = pendingDebts2Js(v.valueOf());
+            assert.equal(debts.length, 1, "Should only have one pending debt left");
             //            return fid.rejectDebt(user3, user2, x[0][0]);
         }).then(function(v) {
-            console.log(v);
+//            console.log(v);
         });
     });
 });
+
+var confirmedFriends2Js = function(friends) {
+    var friendList = [];
+    for ( var i=0; i < friends.length; i++ ) {
+        var friend = {
+            friendId: b2s(friends[i])
+        };
+        friendList.push(friend);
+    }
+    return friendList;
+};
+
+var pendingFriends2Js = function(friends) {
+    var friendList = [];
+    for ( var i=0; i < friends[0].length; i++ ) {
+        var friend = {
+            friendId: b2s(friends[0][i]),
+            confirmerId: b2s(friends[1][i])
+        };
+        friendList.push(friend);
+    }
+    return friendList;
+};
+
+var pendingDebts2Js = function(debts) {
+    var debtList = [];
+    //debts[0] is all the debtIds, debts[1] is confirmerIds, etc
+    for ( var i=0; i < debts[0].length; i++ ) {
+        var debt = { id: debts[0][i].toNumber(),
+                     confirmerId: b2s(debts[1][i]),
+                     currency: b2s(debts[2][i]),
+                     amount: debts[3][i].toNumber(),
+                     desc: b2s(debts[4][i]),
+                     debtor: b2s(debts[5][i]),
+                     creditor: b2s(debts[6][i])  };
+        debtList.push(debt);
+    }
+    return debtList;
+};
+
+var confirmedDebts2Js = function() {
+
+};
+
+
+//TODO: test for retrieiving debts
+
+
+//[ [ pDebts ]
+//  , [  ]]

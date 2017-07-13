@@ -200,6 +200,25 @@ contract FriendInDebt {
     return (pDebts, idsNeededToConfirmD, currencyD, amountsD, descsD, debtorsD, creditorsD);
   }
 
+  function confirmedDebts(bytes32 p1, bytes32 p2) constant returns (bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors)  {
+    currencyD.length = 0;
+    amountsD.length = 0;
+    descsD.length = 0;
+    debtorsD.length = 0;
+    creditorsD.length = 0;
+    for ( uint i=0; i<debts[p1][p2].length; i++ ) {
+      Debt memory d = debts[p1][p2][i];
+      if ( ! d.isPending ) {
+        currencyD.push(d.currencyCode);
+        amountsD.push(d.amount);
+        descsD.push(d.desc);
+        debtorsD.push(d.debtorId);
+        creditorsD.push(d.creditorId);
+      }
+    }
+    return (currencyD, amountsD, descsD, debtorsD, creditorsD);
+  }
+
   //if debt amount is negative, debt is owed by friend to me
   function newDebt(bytes32 myId, bytes32 friendId, bytes32 currencyCode, int amount, bytes32 _desc) isIdOwner(msg.sender, myId) currencyValid(currencyCode) {
     if ( amount == 0 ) return;
