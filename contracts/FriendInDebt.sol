@@ -310,6 +310,10 @@ contract FriendInDebt {
   }
 
   /***********  Helpers  ************/
+  function getMyFoundationId() constant returns (bytes32 foundationId) {
+    return af.resolveToName(msg.sender);
+  }
+
   function idMember(bytes32 s, bytes32[] l) constant returns(bool) {
     for ( uint i=0; i<l.length; i++ ) {
       if ( af.idEq(l[i], s)) return true;
