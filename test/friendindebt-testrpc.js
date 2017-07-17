@@ -1,8 +1,8 @@
 var FriendInDebt = artifacts.require("./FriendInDebt.sol");
 var Friendships  = artifacts.require("./Friendships.sol");
 
+//Note: replace this with Foundation's address when new one deployed on testrpc
 var foundation = "0x78a109cdcc01b4f9c6c6579a752d882043823fda";
-//var fships     = "0xc8c4653d1a7c15db19101b71952ab8c3f0b346f8";
 var adminId = "timg";
 var user2 = "timg";
 var user3 = "jaredb";
@@ -19,7 +19,6 @@ contract('FriendInDebt', function(accounts) {
         var fs;
         return Friendships.new(foundation).then(function(instance) {
             fs = instance;
-//            console.log(fs.contract.address);
             return FriendInDebt.new(adminId, foundation, fs.contract.address);
         }).then(function(instance) {
             fid = instance;
@@ -27,7 +26,6 @@ contract('FriendInDebt', function(accounts) {
         }).then(function(v) {
             return fs.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
-            console.log("Successfully added friend.");
             return fs.pendingFriends(user3);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
@@ -69,6 +67,7 @@ contract('FriendInDebt', function(accounts) {
 
     it("create debt; check,confirm it; create debt; check,reject it", function() {
         var fid;
+        var fs;
         var amt1 = 2000;
         var amt2 = 3000;
         var amt3 = 8000;
@@ -77,13 +76,16 @@ contract('FriendInDebt', function(accounts) {
         var desc3 = "hookers and blow";
 
         var debts;
-        return FriendInDebt.new(adminId, foundation, fships).then(function(instance) {
+        return Friendships.new(foundation).then(function(instance) {
+            fs = instance;
+            return FriendInDebt.new(adminId, foundation, fs.contract.address);
+        }).then(function(instance) {
             fid = instance;
             return fid.addCurrencyCode(currency, {from: account2});
         }).then(function(v) {
-            return fid.addFriend(user2, user3, {from: account2});
+            return fs.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
-            return fid.addFriend(user3, user2, {from: account3});
+            return fs.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
             return fid.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
         }).then(function(v) {
