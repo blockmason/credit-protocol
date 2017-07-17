@@ -1,6 +1,7 @@
 var FriendInDebt = artifacts.require("./FriendInDebt.sol");
 
 var foundation = "0x38d9c595d3da9d5023ed01a29f19789bf02187ef";
+var fships     = "";
 var adminId = "timg";
 var user2 = "timg";
 var user3 = "jaredb";
@@ -14,7 +15,7 @@ contract('FriendInDebt', function(accounts) {
     var friends;
     it("add a friend, have pending, confirm friend, no more pending", function() {
         var fid;
-        return FriendInDebt.new(adminId, foundation).then(function(instance) {
+        return FriendInDebt.new(adminId, foundation, fships).then(function(instance) {
             fid = instance;
             return fid.addCurrencyCode(currency, {from: account2});
         }).then(function(v) {
@@ -69,7 +70,7 @@ contract('FriendInDebt', function(accounts) {
         var desc3 = "hookers and blow";
 
         var debts;
-        return FriendInDebt.new(adminId, foundation).then(function(instance) {
+        return FriendInDebt.new(adminId, foundation, fships).then(function(instance) {
             fid = instance;
             return fid.addCurrencyCode(currency, {from: account2});
         }).then(function(v) {
