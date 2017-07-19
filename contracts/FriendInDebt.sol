@@ -67,6 +67,7 @@ contract FriendInDebt {
     afs = AbstractFriendships(friendshipsContract);
     adminFoundationId = _adminId;
     nextDebtId = 0;
+    initCurrencyCodes();
   }
 
   function initCurrencyCodes() private {
@@ -83,13 +84,19 @@ contract FriendInDebt {
   }
 
   uint[] pDebts; //"local"
+  bytes32[] friends;
   bytes32[] idsNeededToConfirmD;
   bytes32[] currencyD;
   int[] amountsD;
   bytes32[] descsD;
   bytes32[] debtorsD;
   bytes32[] creditorsD;
-  function pendingDebts(bytes32 p1, bytes32 p2)  debtIndices(p1, p2) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+  function pendingDebts(bytes32 _foundationId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+    friends.length = 0;
+    for ( uint m=0; m < afs.numFriends(_foundationId); m++ ) {
+      bytes32 tmp = afs.friendIdByIndex(_foundationId, m);
+      friends.push(tmp);
+    }
     pDebts.length = 0;
     idsNeededToConfirmD.length = 0;
     currencyD.length = 0;
@@ -97,19 +104,30 @@ contract FriendInDebt {
     descsD.length = 0;
     debtorsD.length = 0;
     creditorsD.length = 0;
-    for ( uint i=0; i < debts[first][second].length; i++ ) {
-      Debt memory d = debts[first][second][i];
-      if ( d.isPending ) {
-        pDebts.push(d.id);
-        currencyD.push(d.currencyCode);
-        amountsD.push(d.amount);
-        descsD.push(d.desc);
-        debtorsD.push(d.debtorId);
-        creditorsD.push(d.creditorId);
-        if ( d.debtorConfirmed )
-          idsNeededToConfirmD.push(d.creditorId);
-        else
-          idsNeededToConfirmD.push(d.debtorId);
+
+    for ( uint i=0; i < friends.length; i++) {
+      if ( debts[friends[i]][_foundationId].length > 0 ) {
+        first  = friends[i];
+        second = _foundationId;
+      }
+      else {
+        first = _foundationId;
+        second = friends[i];
+      }
+      for ( uint j=0; j < debts[first][second].length; j++ ) {
+        Debt memory d = debts[first][second][j];
+        if ( d.isPending ) {
+          pDebts.push(d.id);
+          currencyD.push(d.currencyCode);
+          amountsD.push(d.amount);
+          descsD.push(d.desc);
+          debtorsD.push(d.debtorId);
+          creditorsD.push(d.creditorId);
+          if ( d.debtorConfirmed )
+            idsNeededToConfirmD.push(d.creditorId);
+          else
+            idsNeededToConfirmD.push(d.debtorId);
+        }
       }
     }
     return (pDebts, idsNeededToConfirmD, currencyD, amountsD, descsD, debtorsD, creditorsD);
@@ -117,7 +135,6 @@ contract FriendInDebt {
 
   mapping ( bytes32 => mapping (bytes32 => int )) currencyToIdToAmount;
   bytes32[] cdCurrencies;
-  bytes32[] friends;
   int[] amountsCD;
   //returns positive for debt owed, negative for owed from other party
   function confirmedDebtBalances(bytes32 _foundationId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds) {
