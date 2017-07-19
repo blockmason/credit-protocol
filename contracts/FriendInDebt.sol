@@ -70,8 +70,8 @@ contract FriendInDebt {
   }
 
   function initCurrencyCodes() private {
-    currencyCodes[bytes32("USDcents")] = true;
-    currencyCodes[bytes32("EURcents")] = true;
+    currencyCodes[bytes32("USD")] = true;
+    currencyCodes[bytes32("EUR")] = true;
   }
 
   function addCurrencyCode(bytes32 _currencyCode) isAdmin(msg.sender) {

@@ -7,7 +7,7 @@ contract FriendInDebtNS {
   AbstractFoundation af;
 
   modifier isIdOwner(address _caller, bytes32 _name) {
-    if ( ! af.isUnified(_caller, _name) ) throw;
+    if ( ! af.isUnified(_caller, _name) ) revert();
     _;
   }
 
