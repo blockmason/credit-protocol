@@ -197,7 +197,7 @@ var debtBalances2Js = function(debts) {
     for ( var i=0; i < debts[0].length; i++ ) {
         var debt = { currency: b2s(debts[0][i]),
                      amount: debts[1][i].toNumber(),
-                     creditor: b2s(debts[2][i]) };
+                     counterParty: b2s(debts[2][i]) };
         balanceList.push(debt);
     }
     return balanceList;
