@@ -73,6 +73,17 @@ contract Friendships {
     }
   }
 
+  function deleteFriend(bytes32 myId, bytes32 friendId) isIdOwner(msg.sender, myId) {
+    friendships[myId][friendId].initialized = false;
+    friendships[friendId][myId].initialized = false;
+
+    friendships[myId][friendId].isMutual = false;
+    friendships[friendId][myId].isMutual = false;
+
+    friendships[myId][friendId].isPending = false;
+    friendships[friendId][myId].isPending = false;
+  }
+
   function numFriends(bytes32 _foundationId) constant returns (uint) {
     return friendIdList[_foundationId].length;
   }
