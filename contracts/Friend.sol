@@ -81,44 +81,42 @@ contract Friend {
     afd.fSetIsPending(friendId, myId, false);
   }
 
-  function numFriends(bytes32 _foundationId) constant returns (uint) {
-    return afd.numFriends(_foundationId);
+  function numFriends(bytes32 fId) constant returns (uint) {
+    return afd.numFriends(fId);
   }
 
-  function friendIdByIndex(bytes32 _foundationId, uint index) returns (bytes32) {
-    return afd.friendIdByIndex(_foundationId, index);
+  function friendIdByIndex(bytes32 fId, uint index) returns (bytes32) {
+    return afd.friendIdByIndex(fId, index);
   }
 
-  /*
-  bytes32[] cFriends; //"local" variable for fn
-  function confirmedFriends(bytes32 _foundationId) constant returns (bytes32[]) {
-    cFriends.length = 0;
-    for ( uint i=0; i<friendIdList[_foundationId].length; i++ ) {
-      bytes32 currFriendId = friendIdList[_foundationId][i];
-      if ( friendships[_foundationId][currFriendId].isMutual )
-        cFriends.push(currFriendId);
+  /*  Temporary variables */
+  bytes32[] ids1;
+  bytes32[] ids2;
+  function confirmedFriends(bytes32 fId) constant returns (bytes32[] confirmedFriends) {
+    ids1.length = 0;
+    for ( uint i=0; i < afd.numFriends(fId); i++ ) {
+      bytes32 currFriendId = friendIdByIndex(fId, i);
+      if ( afd.fIsMutual(fId, currFriendId) )
+        ids1.push(currFriendId);
     }
-    return cFriends;
+    return ids1;
   }
 
-  bytes32[] pFriends; //"local" variable for fn
-  bytes32[] idsNeededToConfirmF;
-  function pendingFriends(bytes32 _foundationId) constant returns (bytes32[] friendIds, bytes32[] confirmerIds) {
-    pFriends.length = 0;
-    for ( uint i=0; i<friendIdList[_foundationId].length; i++ ) {
-      bytes32 currFriendId = friendIdList[_foundationId][i];
-      Friendship memory fs = friendships[_foundationId][currFriendId];
-      if ( fs.isPending ) {
-        pFriends.push(currFriendId);
-        if ( fs.f1Confirmed )
-          idsNeededToConfirmF.push(fs.f2Id);
+  function pendingFriends(bytes32 fId) constant returns (bytes32[] friendIds, bytes32[] confirmerIds) {
+    ids1.length = 0;
+    ids2.length = 0;
+    for ( uint i=0; i < afd.numFriends(fId); i++ ) {
+      bytes32 friendId = friendIdByIndex(fId, i);
+      //      Friendship memory fs = friendships[fId][currFriendId];
+      if ( afd.fIsPending(fId, friendId) ) {
+        ids1.push(friendId);
+        if ( afd.ff1Confirmed(fId, friendId) )
+          ids2.push(afd.ff2Id(fId, friendId));
         else
-          idsNeededToConfirmF.push(fs.f1Id);
+          ids2.push(afd.ff1Id(fId, friendId));
       }
     }
-    return (pFriends, idsNeededToConfirmF);
+    return (ids1, ids2);
   }
-
-    */
 
 }
