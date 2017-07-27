@@ -14,6 +14,7 @@ contract FriendInDebt {
 
   struct Debt {
     uint id;
+    uint timestamp;
     int amount;
     bytes32 currencyCode;
     bytes32 debtorId;
