@@ -92,6 +92,7 @@ contract FriendInDebt {
   bytes32[] descsD;
   bytes32[] debtorsD;
   bytes32[] creditorsD;
+  uint[] timestampsD;
   function pendingDebts(bytes32 _foundationId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
     friends.length = 0;
     for ( uint m=0; m < afs.numFriends(_foundationId); m++ ) {
@@ -105,6 +106,7 @@ contract FriendInDebt {
     descsD.length = 0;
     debtorsD.length = 0;
     creditorsD.length = 0;
+    timestampsD.length = 0;
 
     for ( uint i=0; i < friends.length; i++) {
       if ( debts[friends[i]][_foundationId].length > 0 ) {
@@ -176,12 +178,13 @@ contract FriendInDebt {
     return (currencyD, amountsCD, creditorsD);
   }
 
-  function confirmedDebts(bytes32 p1, bytes32 p2) debtIndices(p1, p2) constant returns (bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+  function confirmedDebts(bytes32 p1, bytes32 p2) debtIndices(p1, p2) constant returns (bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors, uint[] timestamps) {
     currencyD.length = 0;
     amountsD.length = 0;
     descsD.length = 0;
     debtorsD.length = 0;
     creditorsD.length = 0;
+    timestampsD.length = 0;
     for ( uint i=0; i < debts[first][second].length; i++ ) {
       Debt memory d = debts[first][second][i];
       if ( ! d.isPending && ! d.isRejected ) {
@@ -190,9 +193,10 @@ contract FriendInDebt {
         descsD.push(d.desc);
         debtorsD.push(d.debtorId);
         creditorsD.push(d.creditorId);
+        timestampsD.push(d.timestamp);
       }
     }
-    return (currencyD, amountsD, descsD, debtorsD, creditorsD);
+    return (currencyD, amountsD, descsD, debtorsD, creditorsD, timestampsD);
   }
 
   function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 _desc) currencyValid(currencyCode) areFriends(debtorId, creditorId) {
@@ -207,6 +211,7 @@ contract FriendInDebt {
     nextDebtId++;
     Debt memory d;
     d.id = debtId;
+    d.timestamp = now;
     d.currencyCode = currencyCode;
     d.isPending = true;
     d.desc = _desc;
