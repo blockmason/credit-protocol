@@ -1,8 +1,10 @@
 pragma solidity ^0.4.11;
 
+/*
 import "./AbstractFoundation.sol";
 
 contract Friend {
+  AbstractFIDData afd;
   AbstractFoundation af;
 
   struct Friend {
@@ -19,6 +21,7 @@ contract Friend {
   mapping ( bytes32 => mapping ( bytes32 => Friendship )) friendships;
 
   function Friend(address dataContract, address foundationContract) {
+    afd = AbstractFIDData(dataContract);
     af  = AbstractFoundation(foundationContract);
   }
 
@@ -121,3 +124,4 @@ contract Friend {
     return (pFriends, idsNeededToConfirmF);
   }
 }
+*/

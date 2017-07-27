@@ -1,15 +1,15 @@
 pragma solidity ^0.4.11;
-
+/*
 import "./AbstractFoundation.sol";
-import "./AbstractFriendships.sol";
+import "./AbstractFriend.sol";
 
-contract FriendInDebt {
+contract Debt {
 
   AbstractFoundation af;
-  AbstractFriendships afs;
+  AbstractFriend afs;
+  AbstractFIDData afd;
 
   bytes32 adminFoundationId;
-
 
   modifier isIdOwner(address _caller, bytes32 _name) {
     if ( ! af.isUnified(_caller, _name) ) revert();
@@ -41,11 +41,11 @@ contract FriendInDebt {
     _;
   }
 
-  function FriendInDebt(bytes32 _adminId, address foundationContract, address friendshipsContract) {
+  function FriendInDebt(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
+    afd = AbstractFIDData(dataContract);
+    afs = AbstractFriend(friendContract);
     af  = AbstractFoundation(foundationContract);
-    afs = AbstractFriendships(friendshipsContract);
     adminFoundationId = _adminId;
-    nextDebtId = 0;
     initCurrencyCodes();
   }
 
@@ -233,6 +233,7 @@ contract FriendInDebt {
   }
 
   /***********  Helpers  ************/
+/*
   function getMyFoundationId() constant returns (bytes32 foundationId) {
     return af.resolveToName(msg.sender);
   }
@@ -268,3 +269,4 @@ contract FriendInDebt {
     return (i, false);
   }
 }
+*/
