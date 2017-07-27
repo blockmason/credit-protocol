@@ -86,12 +86,16 @@ contract Debt {
     timestampT = afd.dTimestamp(p1, p2, index);
   }
 
-  function pendingDebts(bytes32 fId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+  function setFriendsT(bytes32 fId) private {
     friendsT.length = 0;
     for ( uint m=0; m < afs.numFriends(fId); m++ ) {
       bytes32 tmp = afs.friendIdByIndex(fId, m);
       friendsT.push(tmp);
     }
+  }
+
+  function pendingDebts(bytes32 fId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+    setFriendsT(fId);
 
     debtIdsT.length = 0;
     confirmersT.length = 0;
@@ -122,13 +126,20 @@ contract Debt {
     return (debtIdsT, confirmersT, currenciesT, amountsT, descsT, debtorsT, creditorsT);
   }
 
-  /*
   function pendingDebtTimestamps(bytes32 fId) constant returns (uint[] timestamps) {
+    setFriendsT(fId);
     timestampsT.length = 0;
+    for ( uint i=0; i < friendsT.length; i++ ) {
+      bytes32 friend = friendsT[i];
+      for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
+        setTimestamps(fId, friend, j);
+        timestampsT.push(timestampT);
+      }
+    }
     return timestampsT;
   }
 
-
+  /*
   mapping ( bytes32 => mapping (bytes32 => int )) currencyToIdToAmount;
   bytes32[] cdCurrencies;
   int[] amountsCD;
