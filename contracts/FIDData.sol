@@ -104,27 +104,30 @@ contract FIDData {
   function pushFriendId(bytes32 myId, bytes32 friendId) public isParent {
     friendIdList[myId].push(friendId);
   }
-
-  function fSetInitialized() public isParent {
-
+  function setFriendIdByIndex(bytes32 myId, uint idx, bytes32 newFriendId) public isParent{
+    friendIdList[myId][idx] = newFriendId;
   }
-  function fSetf1Id() public isParent {
 
+  function fSetInitialized(bytes32 p1, bytes32 p2, bool initialized) public isParent {
+    friendships[p1][p2].initialized = initialized;
   }
-  function fSetf2Id() public isParent {
-
+  function fSetf1Id(bytes32 p1, bytes32 p2, bytes32 id) public isParent {
+    friendships[p1][p2].f1Id = id;
   }
-  function fSetIsPending() public isParent {
-
+  function fSetf2Id(bytes32 p1, bytes32 p2, bytes32 id) public isParent {
+    friendships[p1][p2].f2Id = id;
   }
-  function fSetIsMutual() public isParent {
-
+  function fSetIsPending(bytes32 p1, bytes32 p2, bool isPending) public isParent {
+    friendships[p1][p2].isPending = isPending;
   }
-  function fSetf1Confirmed() public isParent {
-
+  function fSetIsMutual(bytes32 p1, bytes32 p2, bool isMutual) public isParent {
+    friendships[p1][p2].isMutual = isMutual;
   }
-  function fSetf2Confirmed() public isParent {
-
+  function fSetf1Confirmed(bytes32 p1, bytes32 p2, bool f1Confirmed) public isParent {
+    friendships[p1][p2].f1Confirmed = f1Confirmed;
+  }
+  function fSetf2Confirmed(bytes32 p1, bytes32 p2, bool f2Confirmed) public isParent {
+    friendships[p1][p2].f2Confirmed = f2Confirmed;
   }
 
   /* Debt helpers */
