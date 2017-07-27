@@ -2,10 +2,10 @@ pragma solidity ^0.4.11;
 
 import "./AbstractFoundation.sol";
 
-contract Friendships {
+contract Friend {
   AbstractFoundation af;
 
-  struct Friendship {
+  struct Friend {
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
@@ -18,7 +18,7 @@ contract Friendships {
   mapping ( bytes32 => bytes32[] ) friendIdList;
   mapping ( bytes32 => mapping ( bytes32 => Friendship )) friendships;
 
-  function Friendships(address foundationContract) {
+  function Friend(address dataContract, address foundationContract) {
     af  = AbstractFoundation(foundationContract);
   }
 
