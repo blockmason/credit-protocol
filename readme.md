@@ -2,4 +2,9 @@
 
 Ethereum Smart Contracts for the Friend In Debt dApp that faciliates debt tracking between friends.
 
-All Rights Reserved
+## Contract Addresses
+### FIDData
+
+
+### Friend
+***

@@ -61,13 +61,13 @@ contract FIDData {
   function setFriendContract(address _friendContract) public isAdmin {
     friendContract = _friendContract;
   }
-  function getDebtContract() constant returns (address debtContract) {
+  function getDebtContract() constant returns (address) {
     return debtContract;
   }
-  function getFriendContract() constant returns (address friendContract) {
+  function getFriendContract() constant returns (address) {
     return friendContract;
   }
-  function getAdmins() constant returns (address admin, address admin2) {
+  function getAdmins() constant returns (address, address) {
     return (admin, admin2);
   }
 
@@ -133,7 +133,7 @@ contract FIDData {
   /* Debt helpers */
   bytes32 f;
   bytes32 s;
-  function debtIndices(bytes32 p1, bytes32 p2) constant returns (bytes32 first, bytes32 second) {
+  function debtIndices(bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
     if ( debts[p1][p2].length > 0 )
       return (p1, p2);
     else
@@ -141,7 +141,7 @@ contract FIDData {
   }
 
   /* Debt Getters   */
-  function numDebts(bytes32 p1, bytes32 p2) constant returns (uint numDebts) {
+  function numDebts(bytes32 p1, bytes32 p2) constant returns (uint) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s].length;
   }
@@ -152,47 +152,47 @@ contract FIDData {
     return nextDebtId;
   }
 
-  function dId(bytes32 p1, bytes32 p2, uint idx) constant returns (uint id) {
+  function dId(bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].id;
   }
-  function dTimestamp (bytes32 p1, bytes32 p2, uint idx) constant returns (uint timestamp) {
+  function dTimestamp (bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].timestamp;
   }
-  function dAmount(bytes32 p1, bytes32 p2, uint idx) constant returns (int amount) {
+  function dAmount(bytes32 p1, bytes32 p2, uint idx) constant returns (int) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].amount;
   }
-  function dCurrencyCode(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32 currencyCode) {
+  function dCurrencyCode(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].currencyCode;
   }
-  function dDebtorId(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32 debtorId) {
+  function dDebtorId(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].debtorId;
   }
-  function dCreditorId(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32 creditorId) {
+  function dCreditorId(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].creditorId;
   }
-  function dIsPending(bytes32 p1, bytes32 p2, uint idx) constant returns (bool isPending) {
+  function dIsPending(bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].isPending;
   }
-  function dIsRejected(bytes32 p1, bytes32 p2, uint idx) constant returns (bool isRejected) {
+  function dIsRejected(bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].isRejected;
   }
-  function dDebtorConfirmed (bytes32 p1, bytes32 p2, uint idx) constant returns (bool debtorConfirmed) {
+  function dDebtorConfirmed (bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].debtorConfirmed;
   }
-  function dCreditorConfirmed (bytes32 p1, bytes32 p2, uint idx) constant returns (bool creditorConfirmed) {
+  function dCreditorConfirmed (bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].creditorConfirmed;
   }
-  function dDesc(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32 desc) {
+  function dDesc(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s][idx].desc;
   }
