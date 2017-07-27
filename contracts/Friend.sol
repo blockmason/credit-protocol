@@ -57,9 +57,10 @@ contract Friend {
         ||
         ( af.idEq(afd.ff2Id(myId, friendId), friendId) && afd.ff2Confirmed(myId, friendId))) {
       afd.fSetIsMutual(myId, friendId, true);
-      afd.fSetIsPending(myId, friendId, true);
+      afd.fSetIsPending(myId, friendId, false);
+
       afd.fSetIsMutual(friendId, myId, true);
-      afd.fSetIsPending(friendId, myId, true);
+      afd.fSetIsPending(friendId, myId, false);
       return;
     }
     //if friend hasn't confirmed, make this pending
@@ -68,26 +69,27 @@ contract Friend {
       afd.fSetIsPending(friendId, myId, true);
     }
   }
-    /*
+
   function deleteFriend(bytes32 myId, bytes32 friendId) isIdOwner(msg.sender, myId) {
-    friendships[myId][friendId].initialized = false;
-    friendships[friendId][myId].initialized = false;
+    afd.fSetInitialized(myId, friendId, false);
+    afd.fSetInitialized(friendId, myId, false);
 
-    friendships[myId][friendId].isMutual = false;
-    friendships[friendId][myId].isMutual = false;
+    afd.fSetIsMutual(myId, friendId, false);
+    afd.fSetIsMutual(friendId, myId, false);
 
-    friendships[myId][friendId].isPending = false;
-    friendships[friendId][myId].isPending = false;
+    afd.fSetIsPending(myId, friendId, false);
+    afd.fSetIsPending(friendId, myId, false);
   }
 
   function numFriends(bytes32 _foundationId) constant returns (uint) {
-    return friendIdList[_foundationId].length;
+    return afd.numFriends(_foundationId);
   }
 
   function friendIdByIndex(bytes32 _foundationId, uint index) returns (bytes32) {
-    return friendIdList[_foundationId][index];
+    return afd.friendIdByIndex(_foundationId, index);
   }
 
+  /*
   bytes32[] cFriends; //"local" variable for fn
   function confirmedFriends(bytes32 _foundationId) constant returns (bytes32[]) {
     cFriends.length = 0;
