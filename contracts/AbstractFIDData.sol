@@ -56,7 +56,7 @@ contract AbstractFIDData {
   function dDesc(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32 desc);
 
   /* Debt Setters   */
-  function dSetCurrencyCode(bytes32 currencyCode);
+  function dSetCurrencyCode(bytes32 currencyCode, bool val);
   function dSetNextDebtId(uint newId);
   function pushBlankDebt(bytes32 p1, bytes32 p2);
   function dSetId(bytes32 p1, bytes32 p2, uint idx, uint id);

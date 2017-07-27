@@ -198,8 +198,8 @@ contract FIDData {
   }
 
   /* Debt Setters   */
-  function dSetCurrencyCode(bytes32 currencyCode) public isParent {
-    currencyCodes[currencyCode] = true;
+  function dSetCurrencyCode(bytes32 currencyCode, bool val) public isParent {
+    currencyCodes[currencyCode] = val;
   }
   function dSetNextDebtId(uint newId) public isParent {
     nextDebtId = newId;

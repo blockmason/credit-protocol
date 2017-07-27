@@ -1,6 +1,28 @@
 {
-  "contract_name": "AbstractFoundation",
+  "contract_name": "AbstractFriend",
   "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_foundationId",
+          "type": "bytes32"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "friendIdByIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
     {
       "constant": true,
       "inputs": [
@@ -9,11 +31,11 @@
           "type": "bytes32"
         },
         {
-          "name": "id2",
+          "name": "_id2",
           "type": "bytes32"
         }
       ],
-      "name": "idEq",
+      "name": "areFriends",
       "outputs": [
         {
           "name": "",
@@ -27,37 +49,15 @@
       "constant": true,
       "inputs": [
         {
-          "name": "_caller",
-          "type": "address"
-        },
-        {
-          "name": "_name",
+          "name": "_foundationId",
           "type": "bytes32"
         }
       ],
-      "name": "isUnified",
+      "name": "numFriends",
       "outputs": [
         {
           "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_caller",
-          "type": "address"
-        }
-      ],
-      "name": "resolveToName",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32"
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -67,5 +67,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1501169722984
+  "updated_at": 1501169722983
 }

@@ -1,5 +1,6 @@
 pragma solidity ^0.4.11;
-/*
+
+import "./AbstractFIDData.sol";
 import "./AbstractFoundation.sol";
 import "./AbstractFriend.sol";
 
@@ -22,22 +23,12 @@ contract Debt {
   }
 
   modifier currencyValid(bytes32 _currencyCode) {
-    if ( ! currencyCodes[_currencyCode] ) revert();
+    if ( ! afd.currencyValid(_currencyCode) ) revert();
     _;
   }
 
   modifier areFriends(bytes32 _id1, bytes32 _id2) {
     if ( ! afs.areFriends(_id1, _id2) ) revert();
-    _;
-  }
-
-  modifier debtIndices(bytes32 p1, bytes32 p2) {
-    first = p1;
-    second = p2;
-    if ( debts[p1][p2].length == 0 ) {
-      first = p2;
-      second = p1;
-    }
     _;
   }
 
@@ -50,10 +41,11 @@ contract Debt {
   }
 
   function initCurrencyCodes() private {
-    currencyCodes[bytes32("USD")] = true;
-    currencyCodes[bytes32("EUR")] = true;
+    afd.dSetCurrencyCode(bytes32("USD"), true);
+    afd.dSetCurrencyCode(bytes32("EUR"), true);
   }
 
+  /*
   function addCurrencyCode(bytes32 _currencyCode) isAdmin(msg.sender) {
     currencyCodes[_currencyCode] = true;
   }
@@ -232,8 +224,8 @@ contract Debt {
     debts[first][second][index] = d;
   }
 
-  /***********  Helpers  ************/
-/*
+
+
   function getMyFoundationId() constant returns (bytes32 foundationId) {
     return af.resolveToName(msg.sender);
   }
@@ -268,5 +260,6 @@ contract Debt {
     }
     return (i, false);
   }
-}
+
 */
+}
