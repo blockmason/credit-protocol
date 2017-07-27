@@ -45,64 +45,89 @@ contract Debt {
     afd.dSetCurrencyCode(bytes32("EUR"), true);
   }
 
-  /*
+
   function addCurrencyCode(bytes32 _currencyCode) isAdmin(msg.sender) {
-    currencyCodes[_currencyCode] = true;
+    afd.dSetCurrencyCode(_currencyCode, true);
   }
 
   function isActiveCurrency(bytes32 _currencyCode) constant returns (bool) {
-    return currencyCodes[_currencyCode];
+    return afd.currencyValid(_currencyCode);
   }
 
-  uint[] pDebts; //"local"
-  bytes32[] friends;
-  bytes32[] idsNeededToConfirmD;
-  bytes32[] currencyD;
-  int[] amountsD;
-  bytes32[] descsD;
-  bytes32[] debtorsD;
-  bytes32[] creditorsD;
-  function pendingDebts(bytes32 _foundationId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
-    friends.length = 0;
-    for ( uint m=0; m < afs.numFriends(_foundationId); m++ ) {
-      bytes32 tmp = afs.friendIdByIndex(_foundationId, m);
-      friends.push(tmp);
-    }
-    pDebts.length = 0;
-    idsNeededToConfirmD.length = 0;
-    currencyD.length = 0;
-    amountsD.length = 0;
-    descsD.length = 0;
-    debtorsD.length = 0;
-    creditorsD.length = 0;
+  //T is for Temp
+  uint debtIdT;
+  bytes32 currencyT;
+  int amountT;
+  bytes32 descT;
+  bytes32 debtorT;
+  bytes32 creditorT;
+  uint timestampT;
 
-    for ( uint i=0; i < friends.length; i++) {
-      if ( debts[friends[i]][_foundationId].length > 0 ) {
-        first  = friends[i];
-        second = _foundationId;
-      }
-      else {
-        first = _foundationId;
-        second = friends[i];
-      }
-      for ( uint j=0; j < debts[first][second].length; j++ ) {
-        Debt memory d = debts[first][second][j];
-        if ( d.isPending ) {
-          pDebts.push(d.id);
-          currencyD.push(d.currencyCode);
-          amountsD.push(d.amount);
-          descsD.push(d.desc);
-          debtorsD.push(d.debtorId);
-          creditorsD.push(d.creditorId);
-          if ( d.debtorConfirmed )
-            idsNeededToConfirmD.push(d.creditorId);
-          else
-            idsNeededToConfirmD.push(d.debtorId);
-        }
+  bytes32[] friendsT;
+  uint[] debtIdsT;
+  bytes32[] confirmersT;
+  bytes32[] currenciesT;
+  int[] amountsT;
+  bytes32[] descsT;
+  bytes32[] debtorsT;
+  bytes32[] creditorsT;
+  uint[] timestampsT;
+
+  function setDebtVars(bytes32 p1, bytes32 p2, uint index) private {
+    debtIdT = afd.dId(p1, p2, index);
+    currencyT = afd.dCurrencyCode(p1, p2, index);
+    amountT= afd.dAmount(p1, p2, index);
+    descT = afd.dDesc(p1, p2, index);
+    debtorT = afd.dDebtorId(p1, p2, index);
+    creditorT = afd.dCreditorId(p1, p2, index);
+    timestampT = afd.dTimestamp(p1, p2, index);
+  }
+  function setTimestamps(bytes32 p1, bytes32 p2, uint index) private {
+    timestampT = afd.dTimestamp(p1, p2, index);
+  }
+
+  function pendingDebts(bytes32 fId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+    friendsT.length = 0;
+    for ( uint m=0; m < afs.numFriends(fId); m++ ) {
+      bytes32 tmp = afs.friendIdByIndex(fId, m);
+      friendsT.push(tmp);
+    }
+
+    debtIdsT.length = 0;
+    confirmersT.length = 0;
+    currenciesT.length = 0;
+    amountsT.length = 0;
+    descsT.length = 0;
+    debtorsT.length = 0;
+    creditorsT.length = 0;
+
+    for ( uint i=0; i < friendsT.length; i++ ) {
+      bytes32 friend = friendsT[i];
+      for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
+        setDebtVars(fId, friend, j);
+
+        debtIdsT.push(debtIdT);
+        currenciesT.push(currencyT);
+        amountsT.push(amountT);
+        descsT.push(descT);
+        debtorsT.push(debtorT);
+        creditorsT.push(creditorT);
+
+        if ( afd.dDebtorConfirmed(fId, friend, j))
+          confirmersT.push(creditorT);
+        else
+          confirmersT.push(debtorT);
       }
     }
-    return (pDebts, idsNeededToConfirmD, currencyD, amountsD, descsD, debtorsD, creditorsD);
+    return (debtIdsT, confirmersT, currenciesT, amountsT, descsT, debtorsT, creditorsT);
   }
+
+  /*
+  function pendingDebtTimestamps(bytes32 fId) constant returns (uint[] timestamps) {
+    timestampsT.length = 0;
+    return timestampsT;
+  }
+
 
   mapping ( bytes32 => mapping (bytes32 => int )) currencyToIdToAmount;
   bytes32[] cdCurrencies;
