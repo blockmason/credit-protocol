@@ -171,6 +171,12 @@ contract FIDData {
   }
 
   /* Debt Setters   */
+  function dSetCurrencyCode(bytes32 currencyCode) public isParent {
+    currencyCodes[currencyCode] = true;
+  }
+  function dSetNextDebtId(uint newId) public isParent {
+    nextDebtId = newId;
+  }
   function newBlankDebt(bytes32 p1, bytes32 p2) public isParent {
     (f, s) = debtIndices(p1, p2);
     debts[f][s].push(blankDebt);
@@ -178,36 +184,47 @@ contract FIDData {
 
   function dSetId(bytes32 p1, bytes32 p2, uint idx, uint id) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].id = id;
   }
   function dSetTimestamp(bytes32 p1, bytes32 p2, uint idx, uint timestamp) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].timestamp = timestamp;
   }
   function dSetAmount(bytes32 p1, bytes32 p2, uint idx, int amount) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].amount = amount;
   }
   function dSetCurrencyCode(bytes32 p1, bytes32 p2, uint idx, bytes32 currencyCode) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].currencyCode = currencyCode;
   }
   function dSetDebtorId(bytes32 p1, bytes32 p2, uint idx, bytes32 debtorId) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].debtorId = debtorId;
   }
   function dSetCreditorId(bytes32 p1, bytes32 p2, uint idx, bytes32 creditorId) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].creditorId = creditorId;
   }
   function dSetIsPending(bytes32 p1, bytes32 p2, uint idx, bool isPending) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].isPending = isPending;
   }
   function dSetIsRejected(bytes32 p1, bytes32 p2, uint idx, bool isRejected) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].isRejected = isRejected;
   }
   function dSetDebtorConfirmed(bytes32 p1, bytes32 p2, uint idx, bool debtorConfirmed) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].debtorConfirmed = debtorConfirmed;
   }
   function dSetCreditorConfirmed(bytes32 p1, bytes32 p2, uint idx, bool creditorConfirmed) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].creditorConfirmed = creditorConfirmed;
   }
   function dSetDesc(bytes32 p1, bytes32 p2, uint idx, bytes32 desc) public isParent {
     (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].desc = desc;
   }
 
 }
