@@ -101,7 +101,31 @@ contract FIDData {
   }
 
   /* Friend Setters */
+  function pushFriendId(bytes32 myId, bytes32 friendId) public isParent {
+    friendIdList[myId].push(friendId);
+  }
 
+  function fSetInitialized() public isParent {
+
+  }
+  function fSetf1Id() public isParent {
+
+  }
+  function fSetf2Id() public isParent {
+
+  }
+  function fSetIsPending() public isParent {
+
+  }
+  function fSetIsMutual() public isParent {
+
+  }
+  function fSetf1Confirmed() public isParent {
+
+  }
+  function fSetf2Confirmed() public isParent {
+
+  }
 
   /* Debt helpers */
   bytes32 f;
