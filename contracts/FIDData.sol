@@ -204,7 +204,7 @@ contract FIDData {
   function dSetNextDebtId(uint newId) public isParent {
     nextDebtId = newId;
   }
-  function newBlankDebt(bytes32 p1, bytes32 p2) public isParent {
+  function pushBlankDebt(bytes32 p1, bytes32 p2) public isParent {
     (f, s) = debtIndices(p1, p2);
     debts[f][s].push(blankDebt);
   }
