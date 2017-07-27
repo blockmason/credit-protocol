@@ -1,24 +1,11 @@
 pragma solidity ^0.4.11;
 
-/*
 import "./AbstractFoundation.sol";
+import "./AbstractFIDData.sol";
 
 contract Friend {
   AbstractFIDData afd;
   AbstractFoundation af;
-
-  struct Friend {
-    bool initialized;
-    bytes32 f1Id;
-    bytes32 f2Id;
-    bool isPending;
-    bool isMutual;
-    bool f1Confirmed;
-    bool f2Confirmed;
-  }
-
-  mapping ( bytes32 => bytes32[] ) friendIdList;
-  mapping ( bytes32 => mapping ( bytes32 => Friendship )) friendships;
 
   function Friend(address dataContract, address foundationContract) {
     afd = AbstractFIDData(dataContract);
@@ -31,51 +18,57 @@ contract Friend {
   }
 
   function areFriends(bytes32 _id1, bytes32 _id2) constant returns (bool) {
-    return friendships[_id1][_id2].isMutual;
+    return afd.fIsMutual(_id1, _id2);
   }
 
   function addFriend(bytes32 myId, bytes32 friendId) isIdOwner(msg.sender, myId) {
-    Friendship memory fs = friendships[myId][friendId];
     //if not initialized, create the Friendship
-    if ( !fs.initialized ) {
-      fs.initialized = true;
-      fs.f1Id = myId;
-      fs.f2Id = friendId;
-      fs.isPending = true;
-      fs.f1Confirmed = true;
+    if ( !afd.fInitialized(myId, friendId) ) {
+      afd.fSetInitialized(myId, friendId, true);
+      afd.fSetf1Id(myId, friendId, myId);
+      afd.fSetf2Id(myId, friendId, friendId);
+      afd.fSetIsPending(myId, friendId, true);
+      afd.fSetf1Confirmed(myId, friendId, true);
 
-      friendIdList[myId].push(friendId);
-      friendIdList[friendId].push(myId);
+      afd.fSetInitialized(friendId, myId, true);
+      afd.fSetf1Id(friendId, myId, myId);
+      afd.fSetf2Id(friendId, myId, friendId);
+      afd.fSetIsPending(friendId, myId, true);
+      afd.fSetf1Confirmed(friendId, myId, true);
 
-      friendships[myId][friendId] = fs;
-      friendships[friendId][myId] = fs;
+      afd.pushFriendId(myId, friendId);
+      afd.pushFriendId(friendId, myId);
       return;
     }
-    if ( fs.isMutual ) return;
+    if ( afd.fIsMutual(myId, friendId) ) return;
 
-    if ( af.idEq(fs.f1Id, myId) ) fs.f1Confirmed = true;
-    if ( af.idEq(fs.f2Id, myId) ) fs.f2Confirmed = true;
+    if ( af.idEq(afd.ff1Id(myId, friendId), myId) ) {
+      afd.fSetf1Confirmed(myId, friendId, true);
+      afd.fSetf1Confirmed(friendId, myId, true);
+    }
+    if ( af.idEq(afd.ff2Id(myId, friendId), myId) ) {
+      afd.fSetf2Confirmed(myId, friendId, true);
+      afd.fSetf2Confirmed(friendId, myId, true);
+    }
 
     //if friend has confirmed already, friendship is mutual
-    if ( ( af.idEq(fs.f1Id, friendId) && fs.f1Confirmed)
-         ||
-         ( af.idEq(fs.f2Id, friendId) && fs.f2Confirmed) ) {
-      fs.isMutual = true;
-      fs.isPending = false;
-
-      friendships[myId][friendId] = fs;
-      friendships[friendId][myId] = fs;
+    if (
+        ( af.idEq(afd.ff1Id(myId, friendId), friendId) && afd.ff1Confirmed(myId, friendId))
+        ||
+        ( af.idEq(afd.ff2Id(myId, friendId), friendId) && afd.ff2Confirmed(myId, friendId))) {
+      afd.fSetIsMutual(myId, friendId, true);
+      afd.fSetIsPending(myId, friendId, true);
+      afd.fSetIsMutual(friendId, myId, true);
+      afd.fSetIsPending(friendId, myId, true);
       return;
     }
     //if friend hasn't confirmed, make this pending
     else {
-      fs.isPending = true;
-
-      friendships[myId][friendId] = fs;
-      friendships[friendId][myId] = fs;
+      afd.fSetIsPending(myId, friendId, true);
+      afd.fSetIsPending(friendId, myId, true);
     }
   }
-
+    /*
   function deleteFriend(bytes32 myId, bytes32 friendId) isIdOwner(msg.sender, myId) {
     friendships[myId][friendId].initialized = false;
     friendships[friendId][myId].initialized = false;
@@ -123,5 +116,7 @@ contract Friend {
     }
     return (pFriends, idsNeededToConfirmF);
   }
+
+    */
+
 }
-*/
