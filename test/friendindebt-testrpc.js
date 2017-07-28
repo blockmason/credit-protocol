@@ -1,12 +1,17 @@
-var FriendInDebt = artifacts.require("./FriendInDebt.sol");
-var Friendships  = artifacts.require("./Friendships.sol");
+var FIDData = artifacts.require("./FIDData.sol");
+var Debt = artifacts.require("./Debt.sol");
+var Friend = artifacts.require("./Friend.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
-var foundation = "0x78a109cdcc01b4f9c6c6579a752d882043823fda";
-var adminId = "timg";
+var foundation = "0xad974f9245fac5a1029190c2875a401042ff6bcf";
+var adminId = "timgalebach";
 var user2 = "timg";
 var user3 = "jaredb";
-var currency = "USDcents";
+var currency = "USD";
+var fiddata;
+var d;
+var f;
+
 
 contract('FriendInDebt', function(accounts) {
     var account1 = accounts[0];
@@ -14,60 +19,59 @@ contract('FriendInDebt', function(accounts) {
     var account3 = accounts[2];
 
     var friends;
-    it("add a friend, have pending, confirm friend, no more pending", function() {
-        var fid;
-        var fs;
-        return Friendships.new(foundation).then(function(instance) {
-            fs = instance;
-            return FriendInDebt.new(adminId, foundation, fs.contract.address);
-        }).then(function(instance) {
-            fid = instance;
-            return fid.addCurrencyCode(currency, {from: account2});
-        }).then(function(v) {
-            return fs.addFriend(user2, user3, {from: account2});
-        }).then(function(v) {
-            return fs.pendingFriends(user3);
+    it("add a friend, have pending, confirm friend, no more pending", async function() {
+        fiddata = await FIDData.new(account2, {from: account1});
+        f = await Friend.new(fiddata.address, foundation, {from: account1});
+        return Debt.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+            d = debtInstance;
+            return fiddata.setFriendContract(f.address, {from: account1});
+        }).then(function(tx) {
+            return fiddata.setDebtContract(d.address, {from: account1});
+        }).then(function(tx) {
+            return d.addCurrencyCode(currency, {from: account1});
+        }).then(function(tx) {
+            return f.addFriend(user2, user3, {from: account2});
+        }).then(function(tx) {
+            return f.pendingFriends(user3);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user2, "user2 not in the pending list");
             assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
-            return fs.pendingFriends(user2);
+            return f.pendingFriends(user2);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user3, "user3 not in the pending list");
             assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
-            return fs.confirmedFriends(user2);
+            return f.confirmedFriends(user2);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "should not have confirmed friends");
-            return fs.confirmedFriends(user3);
+            return f.confirmedFriends(user3);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "should not have confirmed friends");
-            return fs.addFriend(user3, user2, {from: account3});
+            return f.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
-            return fs.pendingFriends(user2);
+            return f.pendingFriends(user2);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "user2 should not have pending friends");
-            return fs.pendingFriends(user3);
+            return f.pendingFriends(user3);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "user3 should not have pending friends");
-            return fs.confirmedFriends(user3);
+            return f.confirmedFriends(user3);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user2, "user3 should have confirmed friends");
-            return fs.confirmedFriends(user2);
+            return f.confirmedFriends(user2);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user3, "user2 should have confirmed friends");
         });
     });
 
-    it("create debt; check,confirm it; create debt; check,reject it", function() {
-        var fid;
-        var fs;
+    it("create debt; check,confirm it; create debt; check,reject it", async function() {
         var amt1 = 2000;
         var amt2 = 3000;
         var amt3 = 8000;
@@ -76,24 +80,28 @@ contract('FriendInDebt', function(accounts) {
         var desc3 = "hookers and blow";
 
         var debts;
-        return Friendships.new(foundation).then(function(instance) {
-            fs = instance;
-            return FriendInDebt.new(adminId, foundation, fs.contract.address);
-        }).then(function(instance) {
-            fid = instance;
-            return fid.addCurrencyCode(currency, {from: account2});
+
+        fiddata = await FIDData.new(account2, {from: account1});
+        f = await Friend.new(fiddata.address, foundation, {from: account1});
+        return Debt.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+            d = debtInstance;
+            return fiddata.setFriendContract(f.address, {from: account1});
+        }).then(function(tx) {
+            return fiddata.setDebtContract(d.address, {from: account1});
+        }).then(function(tx) {
+            return d.addCurrencyCode(currency, {from: account1});
         }).then(function(v) {
-            return fs.addFriend(user2, user3, {from: account2});
+            return f.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
-            return fs.addFriend(user3, user2, {from: account3});
+            return f.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
-            return fid.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
+            return d.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
         }).then(function(v) {
-            return fid.newDebt(user3, user2, currency, amt2, desc2, {from: account2});
+            return d.newDebt(user3, user2, currency, amt2, desc2, {from: account2});
         }).then(function(v) {
-            return fid.newDebt(user3, user2, currency, amt3, desc3, {from: account3});
+            return d.newDebt(user3, user2, currency, amt3, desc3, {from: account3});
         }).then(function(v) {
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
             assert.equal(debts[0].id, 0, "1st pending id not 0");
@@ -103,42 +111,42 @@ contract('FriendInDebt', function(accounts) {
             assert.equal(debts[0].debtor, user2, "1st debt debtor should be user2");
             assert.equal(debts[1].creditor, user2, "2nd debt creditor should be user2");
             assert.equal(debts[1].debtor, user3, "2nd debt debtor should be user3");
-            return fid.confirmDebt(user3, user2, debts[0].id, {from: account3});
+            return d.confirmDebt(user3, user2, debts[0].id, {from: account3});
         }).then(function(v) {
-            return fid.pendingDebts(user3, user2);
+            return d.pendingDebts(user3, user2);
         }).then(function(v) {
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
-            assert.equal(debts.length, 2, "Should have two pending debts left");
-            return fid.rejectDebt(user3, user2, debts[0].id, {from: account3}); //reject it
+            assert.equal(debts.length, 2, "Should have 2 pending debts left");
+            return d.rejectDebt(user3, user2, debts[0].id, {from: account3}); //reject
         }).then(function(v) {
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
             assert.equal(debts.length, 1, "user2 should have 1 pending debt");
-            return fid.confirmedDebts(user2, user3);
+            return d.confirmedDebts(user2, user3);
         }).then(function(v) {
             debts = confirmedDebts2Js(v.valueOf());
             assert.equal(debts.length, 1, "user2 should have 1 confirmed debt");
             assert.equal(debts[0].amount, amt1, "amount should be " + amt1);
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
-            return fid.confirmDebt(user2, user3, debts[0].id, {from: account2});
+            return d.confirmDebt(user2, user3, debts[0].id, {from: account2});
         }).then(function(v) {
-            return fid.confirmedDebtBalances(user2);
+            return d.confirmedDebtBalances(user2);
         }).then(function(v) {
             debts = debtBalances2Js(v.valueOf());
             assert.equal(debts[0].amount, -6000, "user2 should be owed 6000 from user3");
-            return fid.confirmedDebtBalances(user3);
+            return d.confirmedDebtBalances(user3);
         }).then(function(v) {
             debts = debtBalances2Js(v.valueOf());
             assert.equal(debts[0].amount, 6000, "user3 should owe 6000 to user2");
-            console.log(debtBalances2Js(v.valueOf()));
         });
     });
 });
+
 
 var confirmedFriends2Js = function(friends) {
     var friendList = [];
@@ -186,7 +194,8 @@ var confirmedDebts2Js = function(debts) {
                      amount: debts[1][i].toNumber(),
                      desc: b2s(debts[2][i]),
                      debtor: b2s(debts[3][i]),
-                     creditor: b2s(debts[4][i])  };
+                     creditor: b2s(debts[4][i]),
+                     timestamp: debts[5][i].toNumber() };
         debtList.push(debt);
     }
     return debtList;
@@ -197,7 +206,9 @@ var debtBalances2Js = function(debts) {
     for ( var i=0; i < debts[0].length; i++ ) {
         var debt = { currency: b2s(debts[0][i]),
                      amount: debts[1][i].toNumber(),
-                     counterParty: b2s(debts[2][i]) };
+                     counterParty: b2s(debts[2][i]),
+                     totalDebts: debts[3][i].toNumber(),
+                     mostRecent: debts[4][i].toNumber() };
         balanceList.push(debt);
     }
     return balanceList;
@@ -212,4 +223,5 @@ var b2s = function(bytes) {
         s += char;
     }
     return s;
+
 };

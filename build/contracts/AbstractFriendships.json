@@ -1,0 +1,71 @@
+{
+  "contract_name": "AbstractFriendships",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_foundationId",
+          "type": "bytes32"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "friendIdByIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_id1",
+          "type": "bytes32"
+        },
+        {
+          "name": "_id2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "areFriends",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_foundationId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "numFriends",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1501168104888
+}

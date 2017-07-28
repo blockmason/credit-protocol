@@ -1,9 +1,39 @@
-var FriendInDebt = artifacts.require("./FriendInDebt.sol");
-var Friendships  = artifacts.require("./Friendships.sol");
+var FIDData = artifacts.require("./FIDData.sol");
+var Debt = artifacts.require("./Debt.sol");
+var Friend  = artifacts.require("./Friend.sol");
+var testFoundationContract = "0xad974f9245fac5a1029190c2875a401042ff6bcf";
+var ropstenFoundationContract = "";
 
-module.exports = function(deployer) {
-    deployer.deploy(Friendships, "0x38d9c595d3da9d5023ed01a29f19789bf02187ef");
-//    deployer.deploy(FriendInDebt, "0x0", "0x0");
-//  deployer.link(ConvertLib, MetaCoin);
-//  deployer.deploy(MetaCoin);
+var instance;
+
+module.exports = function(deployer, network, accounts) {
+    if ( network == "testrpc" ) {
+        var admin = "timgalebach";
+        var user2 = "timg"; //also admin2
+        var user3 = "jaredb";
+        var account2 = accounts[1];
+        var account3 = accounts[2];
+
+        deployer.deploy(FIDData, account2, {from: accounts[0]}).then(function() {
+            return deployer.deploy(Friend, FIDData.address, testFoundationContract, {from: accounts[0]});
+        }).then(function() {
+            return deployer.deploy(Debt, admin, FIDData.address, Friend.address, testFoundationContract, {from: accounts[0]});
+        });
+        deployer.then(function() {
+            return FIDData.deployed();
+        }).then(function(fdata) {
+            instance = fdata;
+            return instance.setFriendContract(Friend.address, {from: accounts[0]});
+        }).then(function(tx) {
+            return instance.setDebtContract(Debt.address, {from: accounts[0]});
+        }).then(function(tx) {
+            return Friend.deployed();
+        }).then(function(f) {
+            instance = f;
+            return instance.addFriend(user2, user3, {from: account2});
+        }).then(function(tx) {
+            return instance.addFriend(user3, user2, {from: account3});
+        });
+    }
+
 };
