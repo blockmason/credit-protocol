@@ -27,68 +27,51 @@ contract('FriendInDebt', function(accounts) {
             return fiddata.setFriendContract(f.address, {from: accounts[0]});
         }).then(function(tx) {
             return fiddata.setDebtContract(d.address, {from: accounts[0]});
-        });
-
-        //        return Debt.new(fiddata.address
-        /*
-
-            return fiddata.setFriendContract(fdata.address {from: account1});
         }).then(function(tx) {
-            return fiddata.getFriendContract();
-        }).then(function(v) {
-            console.log(v.valueOf());
-        });
-*/
-    });
-        /*
-        return Friendships.new(foundation).then(function(instance) {
-            fs = instance;
-            return FriendInDebt.new(adminId, foundation, fs.contract.address);
-        }).then(function(instance) {
-            fid = instance;
-            return fid.addCurrencyCode(currency, {from: account2});
-        }).then(function(v) {
-            return fs.addFriend(user2, user3, {from: account2});
-        }).then(function(v) {
-            return fs.pendingFriends(user3);
+            return d.addCurrencyCode(currency, {from: account1});
+        }).then(function(tx) {
+            return f.addFriend(user2, user3, {from: account2});
+        }).then(function(tx) {
+            return f.pendingFriends(user3);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user2, "user2 not in the pending list");
             assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
-            return fs.pendingFriends(user2);
+            return f.pendingFriends(user2);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user3, "user3 not in the pending list");
             assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
-            return fs.confirmedFriends(user2);
+            return f.confirmedFriends(user2);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "should not have confirmed friends");
-            return fs.confirmedFriends(user3);
+            return f.confirmedFriends(user3);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "should not have confirmed friends");
-            return fs.addFriend(user3, user2, {from: account3});
+            return f.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
-            return fs.pendingFriends(user2);
+            return f.pendingFriends(user2);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "user2 should not have pending friends");
-            return fs.pendingFriends(user3);
+            return f.pendingFriends(user3);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "user3 should not have pending friends");
-            return fs.confirmedFriends(user3);
+            return f.confirmedFriends(user3);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user2, "user3 should have confirmed friends");
-            return fs.confirmedFriends(user2);
+            return f.confirmedFriends(user2);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user3, "user2 should have confirmed friends");
         });
-*/
-/*
+    });
+
+    /*
     it("create debt; check,confirm it; create debt; check,reject it", function() {
         var fid;
         var fs;
@@ -162,9 +145,7 @@ contract('FriendInDebt', function(accounts) {
             console.log(debtBalances2Js(v.valueOf()));
         });
     });
-
-*/
-
+        */
 });
 
 
