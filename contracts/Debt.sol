@@ -32,19 +32,12 @@ contract Debt {
     _;
   }
 
-  function FriendInDebt(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
+  function Debt(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
     afd = AbstractFIDData(dataContract);
     afs = AbstractFriend(friendContract);
     af  = AbstractFoundation(foundationContract);
     adminFoundationId = _adminId;
-    initCurrencyCodes();
   }
-
-  function initCurrencyCodes() private {
-    afd.dSetCurrencyCode(bytes32("USD"), true);
-    afd.dSetCurrencyCode(bytes32("EUR"), true);
-  }
-
 
   function addCurrencyCode(bytes32 _currencyCode) isAdmin(msg.sender) {
     afd.dSetCurrencyCode(_currencyCode, true);

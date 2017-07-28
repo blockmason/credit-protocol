@@ -1,9 +1,9 @@
-var FriendInDebt = artifacts.require("./FriendInDebt.sol");
-var Friendships  = artifacts.require("./Friendships.sol");
+var Debt = artifacts.require("./Debt.sol");
+var Friend = artifacts.require("./Friend.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
-var foundation = "0x78a109cdcc01b4f9c6c6579a752d882043823fda";
-var adminId = "timg";
+var foundation = "0x1c860055766844320466e66b41891e4814b7c089";
+var adminId = "timgalebach";
 var user2 = "timg";
 var user3 = "jaredb";
 var currency = "USD";
@@ -138,7 +138,9 @@ contract('FriendInDebt', function(accounts) {
             console.log(debtBalances2Js(v.valueOf()));
         });
     });
+
 });
+
 
 var confirmedFriends2Js = function(friends) {
     var friendList = [];
@@ -212,4 +214,5 @@ var b2s = function(bytes) {
         s += char;
     }
     return s;
+
 };
