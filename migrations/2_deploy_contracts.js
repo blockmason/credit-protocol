@@ -13,6 +13,7 @@ var fnGasLimit = 1000000; //1.0M
 var instance;
 var admin = "timgalebach";
 var metamaskAddr = "0x406Dd5315e6B63d6F1bAd0C4ab9Cd8EBA6Bb1bD2";
+var currency = "USD";
 
 module.exports = function(deployer, network, accounts) {
     if ( network == "testrpc" ) {
@@ -50,6 +51,12 @@ module.exports = function(deployer, network, accounts) {
         var fnData = {from: accounts[0],
                       gas: fnGasLimit,
                       gasPrice: fiveGwei};
+        /*
+        Debt.at("0xdc7a8b966fdcb9f73c1cf39d8327c32b34420271").then(function(d) {
+            d.addCurrencyCode(currency, fnData);
+        });
+*/
+
 
         deployer.deploy(FIDData, metamaskAddr, contractData).then(function() {
             return deployer.deploy(Friend, FIDData.address, ropstenFoundationContract, contractData);
