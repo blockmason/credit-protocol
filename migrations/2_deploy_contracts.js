@@ -25,6 +25,7 @@ module.exports = function(deployer, network, accounts) {
             return instance.setFriendContract(Friend.address, {from: accounts[0]});
         }).then(function(tx) {
             return instance.setDebtContract(Debt.address, {from: accounts[0]});
+        }).then(function(tx) {
             return Friend.deployed();
         }).then(function(f) {
             instance = f;

@@ -21,7 +21,7 @@ contract Friend {
     return afd.fIsMutual(_id1, _id2);
   }
 
-  function addFriend(bytes32 myId, bytes32 friendId) isIdOwner(msg.sender, myId) {
+  function addFriend(bytes32 myId, bytes32 friendId) public isIdOwner(msg.sender, myId) {
     //if not initialized, create the Friendship
     if ( !afd.fInitialized(myId, friendId) ) {
       afd.fSetInitialized(myId, friendId, true);
@@ -70,7 +70,7 @@ contract Friend {
     }
   }
 
-  function deleteFriend(bytes32 myId, bytes32 friendId) isIdOwner(msg.sender, myId) {
+  function deleteFriend(bytes32 myId, bytes32 friendId) public isIdOwner(msg.sender, myId) {
     afd.fSetInitialized(myId, friendId, false);
     afd.fSetInitialized(friendId, myId, false);
 
