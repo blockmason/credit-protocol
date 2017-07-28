@@ -93,20 +93,6 @@ contract Debt {
     timestampT = afd.dTimestamp(p1, p2, index);
   }
 
-  function setNewDebt(uint _debtId, uint _timestamp, int _amount, bytes32 _currencyCode, bytes32 _debtorId, bytes32 _creditorId, bool _isPending, bool _isRejected, bool _debtorConfirmed, bool _creditorConfirmed, bytes32 _desc) {
-    debtIdT = _debtId;
-    timestampT = _timestamp;
-    amountT = _amount;
-    currencyT = _currencyCode;
-    debtorT = _debtorId;
-    creditorT = _creditorId;
-    isPendingT = _isPending;
-    isRejectedT = _isRejected;
-    debtorConfirmedT = _debtorConfirmed;
-    creditorConfirmedT = _creditorConfirmed;
-    descT = _desc;
-  }
-
   function setFriendsT(bytes32 fId) private {
     friendsT.length = 0;
     for ( uint m=0; m < afs.numFriends(fId); m++ ) {
@@ -229,38 +215,33 @@ contract Debt {
   }
 
 
-  function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 _desc) currencyValid(currencyCode) areFriends(debtorId, creditorId) {
+  function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) currencyValid(currencyCode) areFriends(debtorId, creditorId) {
     if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
       revert();
 
     if ( amount == 0 ) return;
 
     bytes32 confirmerName = af.resolveToName(msg.sender);
-
     uint debtId = afd.getNextDebtId();
-    uint nextDebtId = debtId + 1;
-    /*
-    Debt memory d;
-    d.id = debtId;
-    d.timestamp = now;
-    d.currencyCode = currencyCode;
-    d.isPending = true;
-    d.desc = _desc;
-    d.amount = amount;
-    d.debtorId = debtorId;
-    d.creditorId = creditorId;
+
+    afd.pushBlankDebt(debtorId, creditorId);
+    uint idx = afd.numDebts(debtorId, creditorId) - 1;
+
+    afd.dSetId(debtorId, creditorId, idx, debtId);
+    afd.dSetTimestamp(debtorId, creditorId, idx, now);
+    afd.dSetAmount(debtorId, creditorId, idx, amount);
+    afd.dSetCurrencyCode(debtorId, creditorId, idx, currencyCode);
+    afd.dSetDebtorId(debtorId, creditorId, idx, debtorId);
+    afd.dSetCreditorId(debtorId, creditorId, idx, creditorId);
+    afd.dSetIsPending(debtorId, creditorId, idx, true);
+    afd.dSetDesc(debtorId, creditorId, idx, desc);
 
     if ( af.idEq(confirmerName, debtorId) )
-      d.debtorConfirmed = true;
+      afd.dSetDebtorConfirmed(debtorId, creditorId, idx, true);
     else
-      d.creditorConfirmed = true;
+      afd.dSetCreditorConfirmed(debtorId, creditorId, idx, true);
 
-    //if first debt array for me isn't initialized, use second
-    if ( debts[debtorId][creditorId].length == 0 )
-      debts[creditorId][debtorId].push(d);
-    else
-      debts[debtorId][creditorId].push(d);
-    */
+    afd.dSetNextDebtId(debtId + 1);
   }
 
   /*
