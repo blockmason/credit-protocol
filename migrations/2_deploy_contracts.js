@@ -1,7 +1,7 @@
 var FIDData = artifacts.require("./FIDData.sol");
 var Debt = artifacts.require("./Debt.sol");
 var Friend  = artifacts.require("./Friend.sol");
-var testFoundationContract = "0x1c860055766844320466e66b41891e4814b7c089";
+var testFoundationContract = "0xad974f9245fac5a1029190c2875a401042ff6bcf";
 var ropstenFoundationContract = "";
 
 var instance;

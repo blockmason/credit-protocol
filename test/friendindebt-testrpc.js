@@ -3,7 +3,7 @@ var Debt = artifacts.require("./Debt.sol");
 var Friend = artifacts.require("./Friend.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
-var foundation = "0x1c860055766844320466e66b41891e4814b7c089";
+var foundation = "0xad974f9245fac5a1029190c2875a401042ff6bcf";
 var adminId = "timgalebach";
 var user2 = "timg";
 var user3 = "jaredb";
@@ -143,7 +143,6 @@ contract('FriendInDebt', function(accounts) {
         }).then(function(v) {
             debts = debtBalances2Js(v.valueOf());
             assert.equal(debts[0].amount, 6000, "user3 should owe 6000 to user2");
-            console.log(debtBalances2Js(v.valueOf()));
         });
     });
 });
@@ -196,7 +195,7 @@ var confirmedDebts2Js = function(debts) {
                      desc: b2s(debts[2][i]),
                      debtor: b2s(debts[3][i]),
                      creditor: b2s(debts[4][i]),
-                     timestamp: debts[5][i] };
+                     timestamp: debts[5][i].toNumber() };
         debtList.push(debt);
     }
     return debtList;
