@@ -110,17 +110,19 @@ contract Debt {
       for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
         setDebtVars(fId, friend, j);
 
-        debtIdsT.push(debtIdT);
-        currenciesT.push(currencyT);
-        amountsT.push(amountT);
-        descsT.push(descT);
-        debtorsT.push(debtorT);
-        creditorsT.push(creditorT);
+        if ( isPendingT ) {
+          debtIdsT.push(debtIdT);
+          currenciesT.push(currencyT);
+          amountsT.push(amountT);
+          descsT.push(descT);
+          debtorsT.push(debtorT);
+          creditorsT.push(creditorT);
 
-        if ( afd.dDebtorConfirmed(fId, friend, j))
-          confirmersT.push(creditorT);
-        else
-          confirmersT.push(debtorT);
+          if ( afd.dDebtorConfirmed(fId, friend, j))
+            confirmersT.push(creditorT);
+          else
+            confirmersT.push(debtorT);
+        }
       }
     }
     return (debtIdsT, confirmersT, currenciesT, amountsT, descsT, debtorsT, creditorsT);

@@ -24,9 +24,9 @@ contract('FriendInDebt', function(accounts) {
         f = await Friend.new(fiddata.address, foundation, {from: account1});
         return Debt.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
             d = debtInstance;
-            return fiddata.setFriendContract(f.address, {from: accounts[0]});
+            return fiddata.setFriendContract(f.address, {from: account1});
         }).then(function(tx) {
-            return fiddata.setDebtContract(d.address, {from: accounts[0]});
+            return fiddata.setDebtContract(d.address, {from: account1});
         }).then(function(tx) {
             return d.addCurrencyCode(currency, {from: account1});
         }).then(function(tx) {
@@ -71,10 +71,7 @@ contract('FriendInDebt', function(accounts) {
         });
     });
 
-    /*
-    it("create debt; check,confirm it; create debt; check,reject it", function() {
-        var fid;
-        var fs;
+    it("create debt; check,confirm it; create debt; check,reject it", async function() {
         var amt1 = 2000;
         var amt2 = 3000;
         var amt3 = 8000;
@@ -83,24 +80,28 @@ contract('FriendInDebt', function(accounts) {
         var desc3 = "hookers and blow";
 
         var debts;
-        return Friendships.new(foundation).then(function(instance) {
-            fs = instance;
-            return FriendInDebt.new(adminId, foundation, fs.contract.address);
-        }).then(function(instance) {
-            fid = instance;
-            return fid.addCurrencyCode(currency, {from: account2});
+
+        fiddata = await FIDData.new(account2, {from: account1});
+        f = await Friend.new(fiddata.address, foundation, {from: account1});
+        return Debt.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+            d = debtInstance;
+            return fiddata.setFriendContract(f.address, {from: account1});
+        }).then(function(tx) {
+            return fiddata.setDebtContract(d.address, {from: account1});
+        }).then(function(tx) {
+            return d.addCurrencyCode(currency, {from: account1});
         }).then(function(v) {
-            return fs.addFriend(user2, user3, {from: account2});
+            return f.addFriend(user2, user3, {from: account2});
         }).then(function(v) {
-            return fs.addFriend(user3, user2, {from: account3});
+            return f.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
-            return fid.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
+            return d.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
         }).then(function(v) {
-            return fid.newDebt(user3, user2, currency, amt2, desc2, {from: account2});
+            return d.newDebt(user3, user2, currency, amt2, desc2, {from: account2});
         }).then(function(v) {
-            return fid.newDebt(user3, user2, currency, amt3, desc3, {from: account3});
+            return d.newDebt(user3, user2, currency, amt3, desc3, {from: account3});
         }).then(function(v) {
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
             assert.equal(debts[0].id, 0, "1st pending id not 0");
@@ -110,42 +111,41 @@ contract('FriendInDebt', function(accounts) {
             assert.equal(debts[0].debtor, user2, "1st debt debtor should be user2");
             assert.equal(debts[1].creditor, user2, "2nd debt creditor should be user2");
             assert.equal(debts[1].debtor, user3, "2nd debt debtor should be user3");
-            return fid.confirmDebt(user3, user2, debts[0].id, {from: account3});
+            return d.confirmDebt(user3, user2, debts[0].id, {from: account3});
         }).then(function(v) {
-            return fid.pendingDebts(user3, user2);
+            return d.pendingDebts(user3, user2);
         }).then(function(v) {
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
-            assert.equal(debts.length, 2, "Should have two pending debts left");
-            return fid.rejectDebt(user3, user2, debts[0].id, {from: account3}); //reject it
+            assert.equal(debts.length, 2, "Should have 2 pending debts left");
+            return d.rejectDebt(user3, user2, debts[0].id, {from: account3}); //reject
         }).then(function(v) {
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
             assert.equal(debts.length, 1, "user2 should have 1 pending debt");
-            return fid.confirmedDebts(user2, user3);
+            return d.confirmedDebts(user2, user3);
         }).then(function(v) {
             debts = confirmedDebts2Js(v.valueOf());
             assert.equal(debts.length, 1, "user2 should have 1 confirmed debt");
             assert.equal(debts[0].amount, amt1, "amount should be " + amt1);
-            return fid.pendingDebts(user2, user3);
+            return d.pendingDebts(user2, user3);
         }).then(function(v) {
             debts = pendingDebts2Js(v.valueOf());
-            return fid.confirmDebt(user2, user3, debts[0].id, {from: account2});
+            return d.confirmDebt(user2, user3, debts[0].id, {from: account2});
         }).then(function(v) {
-            return fid.confirmedDebtBalances(user2);
+            return d.confirmedDebtBalances(user2);
         }).then(function(v) {
             debts = debtBalances2Js(v.valueOf());
             assert.equal(debts[0].amount, -6000, "user2 should be owed 6000 from user3");
-            return fid.confirmedDebtBalances(user3);
+            return d.confirmedDebtBalances(user3);
         }).then(function(v) {
             debts = debtBalances2Js(v.valueOf());
             assert.equal(debts[0].amount, 6000, "user3 should owe 6000 to user2");
             console.log(debtBalances2Js(v.valueOf()));
         });
     });
-        */
 });
 
 
