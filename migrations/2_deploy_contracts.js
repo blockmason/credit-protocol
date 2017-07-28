@@ -57,7 +57,6 @@ module.exports = function(deployer, network, accounts) {
         });
 */
 
-
         deployer.deploy(FIDData, metamaskAddr, contractData).then(function() {
             return deployer.deploy(Friend, FIDData.address, ropstenFoundationContract, contractData);
         }).then(function() {
