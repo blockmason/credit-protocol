@@ -244,21 +244,23 @@ contract Debt {
     afd.dSetNextDebtId(debtId + 1);
   }
 
-  /*
-  function confirmDebt(bytes32 myId, bytes32 friendId, uint debtId) debtIndices(myId, friendId) isIdOwner(msg.sender, myId) {
+  function confirmDebt(bytes32 myId, bytes32 friendId, uint debtId) isIdOwner(msg.sender, myId) {
     uint index;
     bool success;
     (index, success) = findPendingDebt(myId, friendId, debtId);
     if ( ! success ) return;
-    Debt memory d = debts[first][second][index];
-    if ( af.idEq(myId, d.debtorId) && !d.debtorConfirmed && d.creditorConfirmed )
-      d.debtorConfirmed = true;
-    if ( af.idEq(myId, d.creditorId) && !d.creditorConfirmed && d.debtorConfirmed )
-      d.creditorConfirmed = true;
-    d.isPending = false;
-    debts[first][second][index] = d;
+
+    if ( af.idEq(myId, afd.dDebtorId(myId, friendId, index)) && !afd.dDebtorConfirmed(myId, friendId, index) && afd.dCreditorConfirmed(myId, friendId, index) ) {
+      afd.dSetDebtorConfirmed(myId, friendId, index, true);
+      afd.dSetIsPending(myId, friendId, index, false);
+    }
+    if ( af.idEq(myId, afd.dCreditorId(myId, friendId, index)) && !afd.dCreditorConfirmed(myId, friendId, index) && afd.dDebtorConfirmed(myId, friendId, index) ) {
+      afd.dSetCreditorConfirmed(myId, friendId, index, true);
+      afd.dSetIsPending(myId, friendId, index, false);
+    }
   }
 
+  /*
   function rejectDebt(bytes32 myId, bytes32 friendId, uint debtId) debtIndices(myId, friendId) isIdOwner(msg.sender, myId) {
     uint index;
     bool success;
@@ -272,28 +274,6 @@ contract Debt {
     debts[first][second][index] = d;
   }
 
-
-  function getMyFoundationId() constant returns (bytes32 foundationId) {
-    return af.resolveToName(msg.sender);
-  }
-
-  //returns false for success if debt not found
-  //only returns pending, non-rejected debts
-  function findPendingDebt(bytes32 p1, bytes32 p2, uint debtId) debtIndices(p1, p2) private constant returns (uint index, bool success) {
-    bytes32 f = p1;
-    bytes32 s = p2;
-    if ( debts[f][s].length == 0 ) {
-      f = p2;
-      s = p1;
-    }
-    for(uint i=0; i<debts[f][s].length; i++) {
-      if( debts[f][s][i].id == debtId && debts[f][s][i].isPending
-          && ! debts[f][s][i].isRejected )
-        return (i, true);
-    }
-    return (i, false);
-  }
-
 */
   /*  helpers  */
   function isMember(bytes32 s, bytes32[] l) constant returns(bool) {
@@ -301,6 +281,21 @@ contract Debt {
       if ( af.idEq(l[i], s)) return true;
     }
     return false;
+  }
+
+    //returns false for success if debt not found
+  //only returns pending, non-rejected debts
+  function findPendingDebt(bytes32 p1, bytes32 p2, uint debtId) private constant returns (uint index, bool success) {
+    for(uint i=0; i < afd.numDebts(p1, p2); i++) {
+      if( afd.dId(p1, p2, i) == debtId && afd.dIsPending(p1, p2, i)
+          && ! afd.dIsRejected(p1, p2, i) )
+        return (i, true);
+    }
+    return (i, false);
+  }
+
+  function getMyFoundationId() constant returns (bytes32 foundationId) {
+    return af.resolveToName(msg.sender);
   }
 
 }
