@@ -6,7 +6,7 @@ var foundation = "0x78a109cdcc01b4f9c6c6579a752d882043823fda";
 var adminId = "timg";
 var user2 = "timg";
 var user3 = "jaredb";
-var currency = "USDcents";
+var currency = "USD";
 
 contract('FriendInDebt', function(accounts) {
     var account1 = accounts[0];

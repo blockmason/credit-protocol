@@ -64,6 +64,8 @@ contract Debt {
   uint timestampT;
   bool isPendingT;
   bool isRejectedT;
+  bool debtorConfirmedT;
+  bool creditorConfirmedT;
 
   bytes32[] friendsT;
   uint[] debtIdsT;
@@ -79,7 +81,7 @@ contract Debt {
   function setDebtVars(bytes32 p1, bytes32 p2, uint index) private {
     debtIdT = afd.dId(p1, p2, index);
     currencyT = afd.dCurrencyCode(p1, p2, index);
-    amountT= afd.dAmount(p1, p2, index);
+    amountT = afd.dAmount(p1, p2, index);
     descT = afd.dDesc(p1, p2, index);
     debtorT = afd.dDebtorId(p1, p2, index);
     creditorT = afd.dCreditorId(p1, p2, index);
@@ -89,6 +91,20 @@ contract Debt {
   }
   function setTimestamps(bytes32 p1, bytes32 p2, uint index) private {
     timestampT = afd.dTimestamp(p1, p2, index);
+  }
+
+  function setNewDebt(uint _debtId, uint _timestamp, int _amount, bytes32 _currencyCode, bytes32 _debtorId, bytes32 _creditorId, bool _isPending, bool _isRejected, bool _debtorConfirmed, bool _creditorConfirmed, bytes32 _desc) {
+    debtIdT = _debtId;
+    timestampT = _timestamp;
+    amountT = _amount;
+    currencyT = _currencyCode;
+    debtorT = _debtorId;
+    creditorT = _creditorId;
+    isPendingT = _isPending;
+    isRejectedT = _isRejected;
+    debtorConfirmedT = _debtorConfirmed;
+    creditorConfirmedT = _creditorConfirmed;
+    descT = _desc;
   }
 
   function setFriendsT(bytes32 fId) private {
@@ -188,26 +204,30 @@ contract Debt {
 
     return (currenciesT, amountsT, creditorsT, totalDebtsT, timestampsT);
   }
-  /*
 
-  function confirmedDebts(bytes32 p1, bytes32 p2) debtIndices(p1, p2) constant returns (bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
-    currencyD.length = 0;
-    amountsD.length = 0;
-    descsD.length = 0;
-    debtorsD.length = 0;
-    creditorsD.length = 0;
-    for ( uint i=0; i < debts[first][second].length; i++ ) {
-      Debt memory d = debts[first][second][i];
-      if ( ! d.isPending && ! d.isRejected ) {
-        currencyD.push(d.currencyCode);
-        amountsD.push(d.amount);
-        descsD.push(d.desc);
-        debtorsD.push(d.debtorId);
-        creditorsD.push(d.creditorId);
+  function confirmedDebts(bytes32 p1, bytes32 p2) constant returns (bytes32[] currency2, int[] amounts2, bytes32[] descs2, bytes32[] debtors2, bytes32[] creditors2, uint[] timestamps2) {
+    currenciesT.length = 0;
+    amountsT.length = 0;
+    descsT.length = 0;
+    debtorsT.length = 0;
+    creditorsT.length = 0;
+    timestampsT.length = 0;
+
+    for ( uint i=0; i < afd.numDebts(p1, p2); i++ ) {
+      setDebtVars(p1, p2, i);
+
+      if ( !isPendingT && !isRejectedT ) {
+        currenciesT.push(currencyT);
+        amountsT.push(amountT);
+        descsT.push(descT);
+        debtorsT.push(debtorT);
+        creditorsT.push(creditorT);
+        timestampsT.push(timestampT);
       }
     }
-    return (currencyD, amountsD, descsD, debtorsD, creditorsD);
+    return (currenciesT, amountsT, descsT, debtorsT, creditorsT, timestampsT);
   }
+
 
   function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 _desc) currencyValid(currencyCode) areFriends(debtorId, creditorId) {
     if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
@@ -217,8 +237,9 @@ contract Debt {
 
     bytes32 confirmerName = af.resolveToName(msg.sender);
 
-    uint debtId = nextDebtId;
-    nextDebtId++;
+    uint debtId = afd.getNextDebtId();
+    uint nextDebtId = debtId + 1;
+    /*
     Debt memory d;
     d.id = debtId;
     d.timestamp = now;
@@ -239,8 +260,10 @@ contract Debt {
       debts[creditorId][debtorId].push(d);
     else
       debts[debtorId][creditorId].push(d);
+    */
   }
 
+  /*
   function confirmDebt(bytes32 myId, bytes32 friendId, uint debtId) debtIndices(myId, friendId) isIdOwner(msg.sender, myId) {
     uint index;
     bool success;
@@ -269,23 +292,8 @@ contract Debt {
   }
 
 
-
   function getMyFoundationId() constant returns (bytes32 foundationId) {
     return af.resolveToName(msg.sender);
-  }
-
-  function idMember(bytes32 s, bytes32[] l) constant returns(bool) {
-    for ( uint i=0; i<l.length; i++ ) {
-      if ( af.idEq(l[i], s)) return true;
-    }
-    return false;
-  }
-
-  function currencyMember(bytes32 s, bytes32[] l) constant returns(bool) {
-    for ( uint i=0; i<l.length; i++ ) {
-      if ( af.idEq(l[i], s)) return true;
-    }
-    return false;
   }
 
   //returns false for success if debt not found
