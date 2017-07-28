@@ -1,3 +1,4 @@
+var FIDData = artifacts.require("./FIDData.sol");
 var Debt = artifacts.require("./Debt.sol");
 var Friend = artifacts.require("./Friend.sol");
 
@@ -7,6 +8,10 @@ var adminId = "timgalebach";
 var user2 = "timg";
 var user3 = "jaredb";
 var currency = "USD";
+var fiddata;
+var d;
+var f;
+
 
 contract('FriendInDebt', function(accounts) {
     var account1 = accounts[0];
@@ -14,9 +19,28 @@ contract('FriendInDebt', function(accounts) {
     var account3 = accounts[2];
 
     var friends;
-    it("add a friend, have pending, confirm friend, no more pending", function() {
-        var fid;
-        var fs;
+    it("add a friend, have pending, confirm friend, no more pending", async function() {
+        fiddata = await FIDData.new(account2, {from: account1});
+        f = await Friend.new(fiddata.address, foundation, {from: account1});
+        return Debt.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+            d = debtInstance;
+            return fiddata.setFriendContract(f.address, {from: accounts[0]});
+        }).then(function(tx) {
+            return fiddata.setDebtContract(d.address, {from: accounts[0]});
+        });
+
+        //        return Debt.new(fiddata.address
+        /*
+
+            return fiddata.setFriendContract(fdata.address {from: account1});
+        }).then(function(tx) {
+            return fiddata.getFriendContract();
+        }).then(function(v) {
+            console.log(v.valueOf());
+        });
+*/
+    });
+        /*
         return Friendships.new(foundation).then(function(instance) {
             fs = instance;
             return FriendInDebt.new(adminId, foundation, fs.contract.address);
@@ -63,8 +87,8 @@ contract('FriendInDebt', function(accounts) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user3, "user2 should have confirmed friends");
         });
-    });
-
+*/
+/*
     it("create debt; check,confirm it; create debt; check,reject it", function() {
         var fid;
         var fs;
@@ -138,6 +162,8 @@ contract('FriendInDebt', function(accounts) {
             console.log(debtBalances2Js(v.valueOf()));
         });
     });
+
+*/
 
 });
 

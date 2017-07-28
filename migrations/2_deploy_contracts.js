@@ -1,7 +1,8 @@
 var FIDData = artifacts.require("./FIDData.sol");
 var Debt = artifacts.require("./Debt.sol");
 var Friend  = artifacts.require("./Friend.sol");
-var foundationContract = "0x1c860055766844320466e66b41891e4814b7c089";
+var testFoundationContract = "0x1c860055766844320466e66b41891e4814b7c089";
+var ropstenFoundationContract = "";
 
 var instance;
 
@@ -14,9 +15,9 @@ module.exports = function(deployer, network, accounts) {
         var account3 = accounts[2];
 
         deployer.deploy(FIDData, account2, {from: accounts[0]}).then(function() {
-            return deployer.deploy(Friend, FIDData.address, foundationContract, {from: accounts[0]});
+            return deployer.deploy(Friend, FIDData.address, testFoundationContract, {from: accounts[0]});
         }).then(function() {
-            return deployer.deploy(Debt, admin, FIDData.address, Friend.address, foundationContract, {from: accounts[0]});
+            return deployer.deploy(Debt, admin, FIDData.address, Friend.address, testFoundationContract, {from: accounts[0]});
         });
         deployer.then(function() {
             return FIDData.deployed();
