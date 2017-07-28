@@ -260,21 +260,19 @@ contract Debt {
     }
   }
 
-  /*
-  function rejectDebt(bytes32 myId, bytes32 friendId, uint debtId) debtIndices(myId, friendId) isIdOwner(msg.sender, myId) {
+
+  function rejectDebt(bytes32 myId, bytes32 friendId, uint debtId) isIdOwner(msg.sender, myId) {
     uint index;
     bool success;
     (index, success) = findPendingDebt(myId, friendId, debtId);
     if ( ! success ) return;
-    Debt memory d = debts[first][second][index];
-    d.isPending = false;
-    d.isRejected = true;
-    d.debtorConfirmed = false;
-    d.creditorConfirmed = false;
-    debts[first][second][index] = d;
+
+    afd.dSetIsPending(myId, friendId, index, false);
+    afd.dSetIsRejected(myId, friendId, index, true);
+    afd.dSetDebtorConfirmed(myId, friendId, index, false);
+    afd.dSetCreditorConfirmed(myId, friendId, index, false);
   }
 
-*/
   /*  helpers  */
   function isMember(bytes32 s, bytes32[] l) constant returns(bool) {
     for ( uint i=0; i < l.length; i++ ) {
