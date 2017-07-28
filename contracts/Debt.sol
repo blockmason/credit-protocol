@@ -83,6 +83,7 @@ contract Debt {
     isRejectedT = afd.dIsRejected(p1, p2, index);
   }
   function setTimestamps(bytes32 p1, bytes32 p2, uint index) private {
+    isPendingT = afd.dIsPending(p1, p2, index);
     timestampT = afd.dTimestamp(p1, p2, index);
   }
 
@@ -135,7 +136,10 @@ contract Debt {
       bytes32 friend = friendsT[i];
       for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
         setTimestamps(fId, friend, j);
-        timestampsT.push(timestampT);
+
+        if ( isPendingT) {
+          timestampsT.push(timestampT);
+        }
       }
     }
     return timestampsT;
