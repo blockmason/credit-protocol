@@ -39,7 +39,7 @@ contract Debt {
     adminFoundationId = _adminId;
   }
 
-  function addCurrencyCode(bytes32 _currencyCode) isAdmin(msg.sender) {
+  function addCurrencyCode(bytes32 _currencyCode) public isAdmin(msg.sender) {
     afd.dSetCurrencyCode(_currencyCode, true);
   }
 

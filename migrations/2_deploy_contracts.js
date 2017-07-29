@@ -2,7 +2,7 @@ var FIDData = artifacts.require("./FIDData.sol");
 var Debt = artifacts.require("./Debt.sol");
 var Friend  = artifacts.require("./Friend.sol");
 var testFoundationContract = "0xad974f9245fac5a1029190c2875a401042ff6bcf";
-var ropstenFoundationContract = "0x334c1e331ffca04b1aa902347994ddcb42e84858";
+var ropstenFoundationContract = "0x3d38a834d911157cc1f1306273a9d790aa2b2c51";
 
 var oneGwei = 1000000000; //9 zeros
 var fiveGwei = 5000000000; //9 zeros
@@ -69,10 +69,10 @@ module.exports = function(deployer, network, accounts) {
             return instance.setFriendContract(Friend.address, fnData);
         }).then(function(tx) {
             return instance.setDebtContract(Debt.address, fnData);
+        }).then(function(d) {
             return Debt.deployed();
         }).then(function(d) {
             instance = d;
-        }).then(function(tx) {
             return instance.addCurrencyCode(currency, fnData);
         });
     }

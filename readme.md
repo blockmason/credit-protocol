@@ -4,10 +4,10 @@ Ethereum Smart Contracts for the Friend In Debt dApp that faciliates debt tracki
 
 ## Contract Addresses
 ### FIDData
-* 0xd6f8f71c1b1727b38cc4200c3835564b8e6bfff5
+* 0xf176a2aa90a43fb8ae014db0a8b54275a42ff811
 
 ### Friend
-* 0x2b2b8d79cd3c2b87473d0afd0ea44a98c7f12da2
+* 0x885aacb73642d69ce36ca30fcf0a617c7caa8a3d
 
 ### Debt 
-* 0xdc7a8b966fdcb9f73c1cf39d8327c32b34420271
+* 0xc2156178f10bd992f2d2354502525e80b0be1423
