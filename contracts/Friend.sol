@@ -22,6 +22,8 @@ contract Friend {
   }
 
   function addFriend(bytes32 myId, bytes32 friendId) public isIdOwner(msg.sender, myId) {
+    if ( af.idEq(myId, friendId) ) revert(); //can't add yourself
+
     //if not initialized, create the Friendship
     if ( !afd.fInitialized(myId, friendId) ) {
       afd.fSetInitialized(myId, friendId, true);

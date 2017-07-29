@@ -51,11 +51,6 @@ module.exports = function(deployer, network, accounts) {
         var fnData = {from: accounts[0],
                       gas: fnGasLimit,
                       gasPrice: fiveGwei};
-        /*
-        Debt.at("0xdc7a8b966fdcb9f73c1cf39d8327c32b34420271").then(function(d) {
-            d.addCurrencyCode(currency, fnData);
-        });
-*/
 
         deployer.deploy(FIDData, metamaskAddr, contractData).then(function() {
             return deployer.deploy(Friend, FIDData.address, ropstenFoundationContract, contractData);
@@ -77,4 +72,39 @@ module.exports = function(deployer, network, accounts) {
         });
     }
 
+    if ( network == "ropstenNoData" ) {
+        var contractData =  {from: accounts[0],
+                             gas: contractGasLimit,
+                             gasPrice: fiveGwei};
+        var fnData = {from: accounts[0],
+                      gas: fnGasLimit,
+                      gasPrice: fiveGwei};
+
+        var fdataContract = "0xc7debb9925d3e29f221c914a59961e728f6bd95a";
+
+        deployer.deploy(Friend, fdataContract, ropstenFoundationContract, contractData).then(function() {
+            return deployer.deploy(Debt, admin, fdataContract, Friend.address, ropstenFoundationContract, contractData);
+        });
+        deployer.then(function() {
+            return FIDData.at(fdataContract);
+        }).then(function(fdata) {
+            instance = fdata;
+            return instance.setFriendContract(Friend.address, fnData);
+        }).then(function(tx) {
+            return instance.setDebtContract(Debt.address, fnData);
+        }).then(function(d) {
+            return Debt.deployed();
+        }).then(function(d) {
+            instance = d;
+//            return instance.addCurrencyCode(currency, fnData);
+        });
+    }
+
+
 };
+
+        /*
+        Debt.at("0xdc7a8b966fdcb9f73c1cf39d8327c32b34420271").then(function(d) {
+            d.addCurrencyCode(currency, fnData);
+        });
+*/
