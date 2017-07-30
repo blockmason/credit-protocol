@@ -96,7 +96,7 @@ module.exports = function(deployer, network, accounts) {
             return Debt.deployed();
         }).then(function(d) {
             instance = d;
-//            return instance.addCurrencyCode(currency, fnData);
+            return instance.addCurrencyCode(currency, fnData);
         });
     }
 
