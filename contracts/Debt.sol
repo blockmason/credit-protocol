@@ -218,9 +218,8 @@ contract Debt {
     if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
       revert();
 
-    if ( amount <= 0 ) revert();
-
     if ( amount == 0 ) return;
+    if ( amount < 0 ) revert();
 
     bytes32 confirmerName = af.resolveToName(msg.sender);
     uint debtId = afd.getNextDebtId();
