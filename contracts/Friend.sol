@@ -17,6 +17,24 @@ contract Friend {
     _;
   }
 
+  mapping ( bytes32 => int ) balByCurrency;
+  bytes32[] currencies;
+  modifier allBalancesZero(bytes32 p1, bytes32 p2) {
+    currencies.length = 0;
+    for ( uint i = 0; i < afd.numDebts(p1, p2); i++ ) {
+      bytes32 c = afd.dCurrencyCode(p1, p2, i);
+      if ( ! isMember(c, currencies) ) {
+        balByCurrency[c] = 0;
+        currencies.push(c);
+      }
+      balByCurrency[c] += afd.dAmount(p1, p2, i);
+    }
+    //throw error if all balances aren't 0
+    for ( uint j=0; j < currencies.length; j++ )
+      if ( balByCurrency[currencies[j]] != 0 ) revert();
+    _;
+  }
+
   function areFriends(bytes32 _id1, bytes32 _id2) constant returns (bool) {
     return afd.fIsMutual(_id1, _id2);
   }
@@ -72,7 +90,10 @@ contract Friend {
     }
   }
 
-  function deleteFriend(bytes32 myId, bytes32 friendId) public isIdOwner(msg.sender, myId) {
+  /*
+     if these friends have ANY non-zero balance, throws an error
+   */
+  function deleteFriend(bytes32 myId, bytes32 friendId) public allBalancesZero(myId, friendId) isIdOwner(msg.sender, myId) {
     afd.fSetInitialized(myId, friendId, false);
     afd.fSetInitialized(friendId, myId, false);
 
@@ -119,6 +140,14 @@ contract Friend {
       }
     }
     return (ids1, ids2);
+  }
+
+  /*  helpers  */
+  function isMember(bytes32 s, bytes32[] l) constant returns(bool) {
+    for ( uint i=0; i < l.length; i++ ) {
+      if ( af.idEq(l[i], s)) return true;
+    }
+    return false;
   }
 
 }

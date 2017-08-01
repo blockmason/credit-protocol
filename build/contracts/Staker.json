@@ -1,0 +1,8 @@
+{
+  "contract_name": "Staker",
+  "abi": [],
+  "unlinked_binary": "0x60606040523415600b57fe5b5b60338060196000396000f30060606040525bfe00a165627a7a7230582011ff26929520830bfc489d834a0a03b02a8eb97c95f2dad34c76b454629a63220029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1501601251861
+}

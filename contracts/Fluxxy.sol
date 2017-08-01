@@ -5,7 +5,7 @@ pragma solidity ^0.4.11;
 
  */
 
-contractFluxxy {
+contract Fluxxy {
   /*
     mirrors the FIDData functions (getters and setters)
     but also receives a token parameter
