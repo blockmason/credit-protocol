@@ -184,7 +184,7 @@ contract Debt {
         }
       }
       for ( uint k=0; k < cdCurrencies.length; k++ ) {
-        if ( currencyToIdToAmount[cdCurrencies[k]][friend] > 0 ) {
+        if ( currencyToIdToAmount[cdCurrencies[k]][friend] != 0 ) {
           currenciesT.push(cdCurrencies[k]);
           amountsT.push(currencyToIdToAmount[cdCurrencies[k]][friend]);
           creditorsT.push(friend);
