@@ -147,7 +147,8 @@ contract Debt {
 
 
   mapping ( bytes32 => mapping (bytes32 => int )) currencyToIdToAmount;
-  mapping ( bytes32 => bool ) friendHasBalance;
+  mapping ( bytes32 => mapping (bytes32 => uint )) currencyToIdToNumDebts;
+  mapping ( bytes32 => mapping (bytes32 => uint )) currencyToIdToMostRecent;
   bytes32[] cdCurrencies;
   //returns positive for debt owed, negative for owed from other party
   function confirmedDebtBalances(bytes32 fId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds, uint[] totalDebts, uint[] mostRecent) {
@@ -160,36 +161,36 @@ contract Debt {
     totalDebtsT.length = 0;
 
     for ( uint i=0; i < friendsT.length; i++ ) {
-      uint nDebts = 0;
-      uint mostRecentTime = 0;
       bytes32 friend = friendsT[i];
-      friendHasBalance[friend] = false;
       cdCurrencies.length = 0;
       for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
         setDebtVars(fId, friend, j);
 
-        nDebts++;
-        if ( timestampT > mostRecentTime ) mostRecentTime = timestampT;
-
+        //run this logic if the debt is neither Pending nor Rejected
         if ( !isPendingT && !isRejectedT ) {
-          if ( amountT > 0 )
-            friendHasBalance[friend] = true;
-          if ( ! isMember(currencyT, cdCurrencies ))
+          if ( ! isMember(currencyT, cdCurrencies )) {
+            currencyToIdToAmount[currencyT][friend] = 0;
+            currencyToIdToNumDebts[currencyT][friend] = 0;
+            currencyToIdToMostRecent[currencyT][friend] = 0;
             cdCurrencies.push(currencyT);
+          }
+          currencyToIdToNumDebts[currencyT][friend] += 1;
+          if ( timestampT > currencyToIdToMostRecent[currencyT][friend] )
+            currencyToIdToMostRecent[currencyT][friend] = timestampT;
           if ( af.idEq(debtorT, fId) )
             currencyToIdToAmount[currencyT][friend] += amountT;
           else
             currencyToIdToAmount[currencyT][friend] -= amountT;
         }
       }
-      if ( friendHasBalance[friend] ) {
-        for ( uint k=0; k < cdCurrencies.length; k++ ) {
+      for ( uint k=0; k < cdCurrencies.length; k++ ) {
+        if ( currencyToIdToAmount[cdCurrencies[k]][friend] > 0 ) {
           currenciesT.push(cdCurrencies[k]);
           amountsT.push(currencyToIdToAmount[cdCurrencies[k]][friend]);
           creditorsT.push(friend);
+          totalDebtsT.push(currencyToIdToNumDebts[currencyT][friend]);
+          timestampsT.push(currencyToIdToMostRecent[currencyT][friend]);
         }
-        totalDebtsT.push(nDebts);
-        timestampsT.push(mostRecentTime);
       }
     }
 

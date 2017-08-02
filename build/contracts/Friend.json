@@ -179,8 +179,8 @@
     "3": {
       "links": {},
       "events": {},
-      "updated_at": 1501654532223,
-      "address": "0x5bbdc7f318ca7ea4b6a964663f9d313ee2781333"
+      "updated_at": 1501666626689,
+      "address": "0xb5c7b80c1b2c050a5a95b85926051f84b4158538"
     },
     "1501210434557": {
       "events": {},
@@ -196,5 +196,5 @@
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1501654532223
+  "updated_at": 1501666626689
 }
