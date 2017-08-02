@@ -147,6 +147,7 @@ contract Debt {
 
 
   mapping ( bytes32 => mapping (bytes32 => int )) currencyToIdToAmount;
+  mapping ( bytes32 => bool ) friendHasBalance;
   bytes32[] cdCurrencies;
   //returns positive for debt owed, negative for owed from other party
   function confirmedDebtBalances(bytes32 fId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds, uint[] totalDebts, uint[] mostRecent) {
@@ -162,6 +163,7 @@ contract Debt {
       uint nDebts = 0;
       uint mostRecentTime = 0;
       bytes32 friend = friendsT[i];
+      friendHasBalance[friend] = false;
       cdCurrencies.length = 0;
       for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
         setDebtVars(fId, friend, j);
@@ -170,6 +172,8 @@ contract Debt {
         if ( timestampT > mostRecentTime ) mostRecentTime = timestampT;
 
         if ( !isPendingT && !isRejectedT ) {
+          if ( amountT > 0 )
+            friendHasBalance[friend] = true;
           if ( ! isMember(currencyT, cdCurrencies ))
             cdCurrencies.push(currencyT);
           if ( af.idEq(debtorT, fId) )
@@ -178,13 +182,15 @@ contract Debt {
             currencyToIdToAmount[currencyT][friend] -= amountT;
         }
       }
-      for ( uint k=0; k < cdCurrencies.length; k++ ) {
-        currenciesT.push(cdCurrencies[k]);
-        amountsT.push(currencyToIdToAmount[cdCurrencies[k]][friend]);
-        creditorsT.push(friend);
+      if ( friendHasBalance[friend] ) {
+        for ( uint k=0; k < cdCurrencies.length; k++ ) {
+          currenciesT.push(cdCurrencies[k]);
+          amountsT.push(currencyToIdToAmount[cdCurrencies[k]][friend]);
+          creditorsT.push(friend);
+        }
+        totalDebtsT.push(nDebts);
+        timestampsT.push(mostRecentTime);
       }
-      totalDebtsT.push(nDebts);
-      timestampsT.push(mostRecentTime);
     }
 
     return (currenciesT, amountsT, creditorsT, totalDebtsT, timestampsT);
