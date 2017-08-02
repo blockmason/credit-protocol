@@ -7,7 +7,7 @@ Ethereum Smart Contracts for the Friend In Debt dApp that faciliates debt tracki
 * 0xc7debb9925d3e29f221c914a59961e728f6bd95a
 
 ### Friend
-* 0xd2dacfe6b1e8d81b131a967a516849601d74d8d7
+* 0x5bbdc7f318ca7ea4b6a964663f9d313ee2781333
 
 ### Debt 
-* 0xc6fbbfbeca728324ddfa7fc61f18937b3e75693c
+* 0x85ff87ec8edea6268106ab967a0b9931296bbb11
