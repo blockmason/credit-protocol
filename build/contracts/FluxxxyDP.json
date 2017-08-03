@@ -306,10 +306,10 @@
     "1501759161404": {
       "links": {},
       "events": {},
-      "updated_at": 1501760691514,
-      "address": "0x58efb802b756f790e065e6704da153e711cb03b8"
+      "updated_at": 1501760826082,
+      "address": "0x0a242cb0e5289638e29ac6a12163b391527e0564"
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1501760691514
+  "updated_at": 1501760826082
 }

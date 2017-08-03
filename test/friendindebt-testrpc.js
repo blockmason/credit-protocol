@@ -1,5 +1,5 @@
 var DPData = artifacts.require("./DPData.sol");
-var FluxxxyDP = artifacts.require("./FluxxyDp.sol");
+var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
 var Friend = artifacts.require("./Friend.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
@@ -26,7 +26,7 @@ contract('FriendInDebt', function(accounts) {
             d = debtInstance;
             return fiddata.setFriendContract(f.address, {from: account1});
         }).then(function(tx) {
-            return fiddata.setDebtContract(d.address, {from: account1});
+            return fiddata.setFluxContract(d.address, {from: account1});
         }).then(function(tx) {
             return d.addCurrencyCode(currency, {from: account1});
         }).then(function(tx) {
@@ -87,7 +87,7 @@ contract('FriendInDebt', function(accounts) {
             d = debtInstance;
             return fiddata.setFriendContract(f.address, {from: account1});
         }).then(function(tx) {
-            return fiddata.setDebtContract(d.address, {from: account1});
+            return fiddata.setFluxContract(d.address, {from: account1});
         }).then(function(tx) {
             return d.addCurrencyCode(currency, {from: account1});
         }).then(function(v) {
