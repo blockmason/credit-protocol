@@ -1,7 +1,7 @@
 var DPData = artifacts.require("./DPData.sol");
 var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
 var Friend  = artifacts.require("./Friend.sol");
-var testFoundationContract = "0xad974f9245fac5a1029190c2875a401042ff6bcf";
+var testFoundationContract = " 0x73c59eabf89ef216185f814558fc9972e4364cab";
 var ropstenFoundationContract = "0x3d38a834d911157cc1f1306273a9d790aa2b2c51";
 
 var oneGwei = 1000000000; //9 zeros
@@ -27,10 +27,11 @@ module.exports = function(deployer, network, accounts) {
         }).then(function() {
             return deployer.deploy(FluxxxyDP, admin, DPData.address, Friend.address, testFoundationContract, {from: accounts[0]});
         });
+
         deployer.then(function() {
             return DPData.deployed();
-        }).then(function(fdata) {
-            instance = fdata;
+        }).then(function(dpdata) {
+            instance = dpdata;
             return instance.setFriendContract(Friend.address, {from: accounts[0]});
         }).then(function(tx) {
             return instance.setFluxContract(FluxxxyDP.address, {from: accounts[0]});

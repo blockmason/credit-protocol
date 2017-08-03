@@ -51,7 +51,7 @@ contract DPData {
   }
 
   /* main functions */
-  function DBData(address _admin2) {
+  function DPData(address _admin2) {
     admin = msg.sender;
     admin2 = _admin2;
   }
