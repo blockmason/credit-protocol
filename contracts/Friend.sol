@@ -1,14 +1,14 @@
 pragma solidity ^0.4.11;
 
 import "./AbstractFoundation.sol";
-import "./AbstractFIDData.sol";
+import "./AbstractDPData.sol";
 
 contract Friend {
-  AbstractFIDData afd;
+  AbstractDPData afd;
   AbstractFoundation af;
 
   function Friend(address dataContract, address foundationContract) {
-    afd = AbstractFIDData(dataContract);
+    afd = AbstractDPData(dataContract);
     af  = AbstractFoundation(foundationContract);
   }
 

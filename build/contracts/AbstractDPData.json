@@ -1,0 +1,1208 @@
+{
+  "contract_name": "AbstractDPData",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newId",
+          "type": "uint256"
+        }
+      ],
+      "name": "dSetNextDebtId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "dSetTimestamp",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_admin2",
+          "type": "address"
+        }
+      ],
+      "name": "DPData",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fSetf1Id",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "fId",
+          "type": "bytes32"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "friendIdByIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dIsPending",
+      "outputs": [
+        {
+          "name": "isPending",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "currencyCode",
+          "type": "bytes32"
+        }
+      ],
+      "name": "dSetCurrencyCode",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fSetf2Id",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "numDebts",
+      "outputs": [
+        {
+          "name": "numDebts",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff2Id",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "debtIndices",
+      "outputs": [
+        {
+          "name": "first",
+          "type": "bytes32"
+        },
+        {
+          "name": "second",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getAdmins",
+      "outputs": [
+        {
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "name": "admin2",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dId",
+      "outputs": [
+        {
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getFluxContract",
+      "outputs": [
+        {
+          "name": "debtContract",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "isRejected",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetIsRejected",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getFriendContract",
+      "outputs": [
+        {
+          "name": "friendContract",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNextDebtId",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff2Confirmed",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fIsPending",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "currencyCode",
+          "type": "bytes32"
+        },
+        {
+          "name": "val",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetCurrencyCode",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "currencyCode",
+          "type": "bytes32"
+        }
+      ],
+      "name": "currencyValid",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dDebtorConfirmed",
+      "outputs": [
+        {
+          "name": "debtorConfirmed",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff1Confirmed",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "f2Confirmed",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetf2Confirmed",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dUcac",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dAmount",
+      "outputs": [
+        {
+          "name": "amount",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dDebtorId",
+      "outputs": [
+        {
+          "name": "debtorId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "creditorConfirmed",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetCreditorConfirmed",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "dSetId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_debtContract",
+          "type": "address"
+        }
+      ],
+      "name": "setFluxContract",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dCurrencyCode",
+      "outputs": [
+        {
+          "name": "currencyCode",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "debtorConfirmed",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetDebtorConfirmed",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_friendContract",
+          "type": "address"
+        }
+      ],
+      "name": "setFriendContract",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "newFriendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setFriendIdByIndex",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fInitialized",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "pushBlankDebt",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "f1Confirmed",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetf1Confirmed",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "amount",
+          "type": "int256"
+        }
+      ],
+      "name": "dSetAmount",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff1Id",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dIsRejected",
+      "outputs": [
+        {
+          "name": "isRejected",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "isMutual",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetIsMutual",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dCreditorConfirmed",
+      "outputs": [
+        {
+          "name": "creditorConfirmed",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "debtorId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "dSetDebtorId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dDesc",
+      "outputs": [
+        {
+          "name": "desc",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dTimestamp",
+      "outputs": [
+        {
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "ucac",
+          "type": "address"
+        }
+      ],
+      "name": "dSetUcac",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "desc",
+          "type": "bytes32"
+        }
+      ],
+      "name": "dSetDesc",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "initialized",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetInitialized",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "creditorId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "dSetCreditorId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "isPending",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetIsPending",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "pushFriendId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dCreditorId",
+      "outputs": [
+        {
+          "name": "creditorId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fIsMutual",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "isPending",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetIsPending",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "fId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "numFriends",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1501759640182
+}

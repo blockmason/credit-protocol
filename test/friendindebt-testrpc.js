@@ -1,5 +1,5 @@
-var FIDData = artifacts.require("./FIDData.sol");
-var Debt = artifacts.require("./Debt.sol");
+var DPData = artifacts.require("./DPData.sol");
+var FluxxxyDP = artifacts.require("./FluxxyDp.sol");
 var Friend = artifacts.require("./Friend.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
@@ -20,9 +20,9 @@ contract('FriendInDebt', function(accounts) {
 
     var friends;
     it("add a friend, have pending, confirm friend, no more pending", async function() {
-        fiddata = await FIDData.new(account2, {from: account1});
+        fiddata = await DPData.new(account2, {from: account1});
         f = await Friend.new(fiddata.address, foundation, {from: account1});
-        return Debt.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+        return FluxxxyDP.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
             d = debtInstance;
             return fiddata.setFriendContract(f.address, {from: account1});
         }).then(function(tx) {
@@ -81,9 +81,9 @@ contract('FriendInDebt', function(accounts) {
 
         var debts;
 
-        fiddata = await FIDData.new(account2, {from: account1});
+        fiddata = await DPData.new(account2, {from: account1});
         f = await Friend.new(fiddata.address, foundation, {from: account1});
-        return Debt.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+        return FluxxxyDP.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
             d = debtInstance;
             return fiddata.setFriendContract(f.address, {from: account1});
         }).then(function(tx) {

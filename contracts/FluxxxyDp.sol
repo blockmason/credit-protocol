@@ -1,14 +1,18 @@
 pragma solidity ^0.4.11;
 
-import "./AbstractFIDData.sol";
+/*  FluxxxyDP
+    The Flux Capacitor for Debt Protocol
+*/
+
+import "./AbstractDPData.sol";
 import "./AbstractFoundation.sol";
 import "./AbstractFriend.sol";
 
-contract Debt {
+contract FluxxxyDP {
 
   AbstractFoundation af;
   AbstractFriend afs;
-  AbstractFIDData afd;
+  AbstractDPData afd;
 
   bytes32 adminFoundationId;
 
@@ -32,8 +36,8 @@ contract Debt {
     _;
   }
 
-  function Debt(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
-    afd = AbstractFIDData(dataContract);
+  function FluxxxyDP(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
+    afd = AbstractDPData(dataContract);
     afs = AbstractFriend(friendContract);
     af  = AbstractFoundation(foundationContract);
     adminFoundationId = _adminId;
@@ -221,7 +225,7 @@ contract Debt {
   }
 
 
-  function newDebt(bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) currencyValid(currencyCode) areFriends(debtorId, creditorId) {
+  function newDebt(address ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) currencyValid(currencyCode) areFriends(debtorId, creditorId) {
     if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
       revert();
 
@@ -229,12 +233,12 @@ contract Debt {
     if ( amount < 0 ) revert();
 
     bytes32 confirmerName = af.resolveToName(msg.sender);
-    uint debtId = afd.getNextDebtId();
 
     afd.pushBlankDebt(debtorId, creditorId);
     uint idx = afd.numDebts(debtorId, creditorId) - 1;
 
-    afd.dSetId(debtorId, creditorId, idx, debtId);
+    afd.dSetUcac(debtorId, creditorId, idx, ucac);
+    afd.dSetId(debtorId, creditorId, idx, afd.getNextDebtId());
     afd.dSetTimestamp(debtorId, creditorId, idx, now);
     afd.dSetAmount(debtorId, creditorId, idx, amount);
     afd.dSetCurrencyCode(debtorId, creditorId, idx, currencyCode);
@@ -248,7 +252,7 @@ contract Debt {
     else
       afd.dSetCreditorConfirmed(debtorId, creditorId, idx, true);
 
-    afd.dSetNextDebtId(debtId + 1);
+    afd.dSetNextDebtId(afd.getNextDebtId() + 1);
   }
 
   function confirmDebt(bytes32 myId, bytes32 friendId, uint debtId) isIdOwner(msg.sender, myId) {
@@ -302,5 +306,4 @@ contract Debt {
   function getMyFoundationId() constant returns (bytes32 foundationId) {
     return af.resolveToName(msg.sender);
   }
-
 }
