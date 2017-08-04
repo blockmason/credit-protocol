@@ -1,7 +1,9 @@
+var testFoundationContract = "0x73a79e86cb10ba4495c42ccbd1de4d0c69008da4";
+
 var DPData = artifacts.require("./DPData.sol");
 var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
 var Friend  = artifacts.require("./Friend.sol");
-var testFoundationContract = " 0x73c59eabf89ef216185f814558fc9972e4364cab";
+
 var ropstenFoundationContract = "0x3d38a834d911157cc1f1306273a9d790aa2b2c51";
 
 var oneGwei = 1000000000; //9 zeros

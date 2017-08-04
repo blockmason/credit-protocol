@@ -3,15 +3,14 @@ var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
 var Friend = artifacts.require("./Friend.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
-var foundation = "0xad974f9245fac5a1029190c2875a401042ff6bcf";
+var foundation = "0x73a79e86cb10ba4495c42ccbd1de4d0c69008da4";
 var adminId = "timgalebach";
 var user2 = "timg";
 var user3 = "jaredb";
 var currency = "USD";
-var fiddata;
+var dpdata;
 var d;
 var f;
-
 
 contract('FriendInDebt', function(accounts) {
     var account1 = accounts[0];
@@ -20,13 +19,13 @@ contract('FriendInDebt', function(accounts) {
 
     var friends;
     it("add a friend, have pending, confirm friend, no more pending", async function() {
-        fiddata = await DPData.new(account2, {from: account1});
-        f = await Friend.new(fiddata.address, foundation, {from: account1});
-        return FluxxxyDP.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+        dpdata = await DPData.new(account2, {from: account1});
+        f = await Friend.new(dpdata.address, foundation, {from: account1});
+        return FluxxxyDP.new(adminId, dpdata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
             d = debtInstance;
-            return fiddata.setFriendContract(f.address, {from: account1});
+            return dpdata.setFriendContract(f.address, {from: account1});
         }).then(function(tx) {
-            return fiddata.setFluxContract(d.address, {from: account1});
+            return dpdata.setFluxContract(d.address, {from: account1});
         }).then(function(tx) {
             return d.addCurrencyCode(currency, {from: account1});
         }).then(function(tx) {
@@ -81,13 +80,13 @@ contract('FriendInDebt', function(accounts) {
 
         var debts;
 
-        fiddata = await DPData.new(account2, {from: account1});
-        f = await Friend.new(fiddata.address, foundation, {from: account1});
-        return FluxxxyDP.new(adminId, fiddata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+        dbdata = await DPData.new(account2, {from: account1});
+        f = await Friend.new(dpdata.address, foundation, {from: account1});
+        return FluxxxyDP.new(adminId, dpdata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
             d = debtInstance;
-            return fiddata.setFriendContract(f.address, {from: account1});
+            return dpdata.setFriendContract(f.address, {from: account1});
         }).then(function(tx) {
-            return fiddata.setFluxContract(d.address, {from: account1});
+            return dpdata.setFluxContract(d.address, {from: account1});
         }).then(function(tx) {
             return d.addCurrencyCode(currency, {from: account1});
         }).then(function(v) {
