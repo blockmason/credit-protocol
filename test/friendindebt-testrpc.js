@@ -94,11 +94,11 @@ contract('FriendInDebt', function(accounts) {
         }).then(function(v) {
             return f.addFriend(user3, user2, {from: account3});
         }).then(function(v) {
-            return d.newDebt(user2, user3, currency, amt1, desc1, {from: account2});
+            return d.newDebt(d.address, user2, user3, currency, amt1, desc1, {from: account2});
         }).then(function(v) {
-            return d.newDebt(user3, user2, currency, amt2, desc2, {from: account2});
+            return d.newDebt(d.address, user3, user2, currency, amt2, desc2, {from: account2});
         }).then(function(v) {
-            return d.newDebt(user3, user2, currency, amt3, desc3, {from: account3});
+            return d.newDebt(d.address, user3, user2, currency, amt3, desc3, {from: account3});
         }).then(function(v) {
             return d.pendingDebts(user2, user3);
         }).then(function(v) {
