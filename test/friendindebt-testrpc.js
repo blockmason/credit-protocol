@@ -3,10 +3,11 @@ var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
 var Friend = artifacts.require("./Friend.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
-var foundation = "0x73a79e86cb10ba4495c42ccbd1de4d0c69008da4";
+var foundation = "0xa61941c3526cb3e6425d8fb59eb86359b016190c";
 var adminId = "timgalebach";
 var user2 = "timg";
 var user3 = "jaredb";
+var user4 = "lukez";
 var currency = "USD";
 var dpdata;
 var d;
@@ -16,6 +17,7 @@ contract('FriendInDebt', function(accounts) {
     var account1 = accounts[0];
     var account2 = accounts[1];
     var account3 = accounts[2];
+    var account4 = accounts[3];
 
     var friends;
     it("add a friend, have pending, confirm friend, no more pending", async function() {
@@ -70,6 +72,67 @@ contract('FriendInDebt', function(accounts) {
         });
     });
 
+    it("correct number of confirmed debt balances", async function() {
+        var amt1 = 2000;
+        var amt2 = 3000;
+        var amt3 = 8000;
+        var desc1 = "stuff you bought";
+        var desc2 = "bad things I owe for";
+        var desc3 = "hookers and blow";
+        var debts;
+
+        dbdata = await DPData.new(account2, {from: account1});
+        f = await Friend.new(dpdata.address, foundation, {from: account1});
+        return FluxxxyDP.new(adminId, dpdata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+            d = debtInstance;
+            return dpdata.setFriendContract(f.address, {from: account1});
+        }).then(function(tx) {
+            return dpdata.setFluxContract(d.address, {from: account1});
+        }).then(function(tx) {
+            return d.addCurrencyCode(currency, {from: account1});
+        }).then(function(v) {
+            return f.addFriend(user2, user3, {from: account2});
+        }).then(function(v) {
+            return f.addFriend(user3, user2, {from: account3});
+        }).then(function(v) {
+            return f.addFriend(user2, user4, {from: account2});
+        }).then(function(v) {
+            return f.addFriend(user4, user2, {from: account4});
+        }).then(function(v) {
+            return d.newDebt(d.address, user2, user3, currency, amt1, desc1, {from: account2});
+        }).then(function(v) {
+            return d.newDebt(d.address, user3, user2, currency, amt2, desc2, {from: account2});
+        }).then(function(v) {
+            return d.newDebt(d.address, user3, user2, currency, amt3, desc3, {from: account3});
+        }).then(function(v) {
+            return d.newDebt(d.address, user2, user4, currency, amt1, desc3, {from: account2});
+        }).then(function(v) {
+            return d.newDebt(d.address, user2, user4, currency, amt2, desc3, {from: account2});
+        }).then(function(v) {
+            return d.newDebt(d.address, user2, user4, currency, amt3, desc3, {from: account2});
+        }).then(function(v) {
+            return d.rejectDebt(user3, user2, 1, {from: account3});
+        }).then(function(v) {
+            return d.confirmDebt(user3, user2, 0, {from: account3});
+        }).then(function(v) {
+            return d.confirmDebt(user2, user3, 2, {from: account2});
+        }).then(function(v) {
+            return d.confirmDebt(user4, user2, 3, {from: account4});
+        }).then(function(v) {
+            return d.confirmDebt(user4, user2, 4, {from: account4});
+        }).then(function(v) {
+            return d.confirmDebt(user4, user2, 5, {from: account4});
+        }).then(function(v) {
+            return d.confirmedDebtBalances.call(user2);
+        }).then(function(v) {
+            debts = debtBalances2Js(v.valueOf());
+            assert.equal(debts.length, 2, "should have 2 confirmed debt balances");
+            assert.equal(debts[0].totalDebts, 2, "should have 2 confirmed debts with user3");
+            assert.equal(debts[1].totalDebts, 3, "should have 3 confirmed debts with user4");
+        });
+    });
+
+    /*
     it("create debt; check,confirm it; create debt; check,reject it", async function() {
         var amt1 = 2000;
         var amt2 = 3000;
@@ -144,6 +207,8 @@ contract('FriendInDebt', function(accounts) {
             assert.equal(debts[0].amount, 6000, "user3 should owe 6000 to user2");
         });
     });
+*/
+
 });
 
 
