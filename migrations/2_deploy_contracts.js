@@ -4,7 +4,7 @@ var DPData = artifacts.require("./DPData.sol");
 var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
 var Friend  = artifacts.require("./Friend.sol");
 
-var ropstenFoundationContract = "0x3d38a834d911157cc1f1306273a9d790aa2b2c51";
+var ropstenFoundationContract = "0x406b716b01ab7c0acc75ceb9fadcc48ce39f5550";
 
 var oneGwei = 1000000000; //9 zeros
 var fiveGwei = 5000000000; //9 zeros
@@ -83,7 +83,7 @@ module.exports = function(deployer, network, accounts) {
                       gas: fnGasLimit,
                       gasPrice: fiveGwei};
 
-        var fdataContract = "0xc7debb9925d3e29f221c914a59961e728f6bd95a";
+        var fdataContract = "";
 
         deployer.deploy(Friend, fdataContract, ropstenFoundationContract, contractData).then(function() {
             return deployer.deploy(FluxxxyDP, admin, fdataContract, Friend.address, ropstenFoundationContract, contractData);
