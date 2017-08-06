@@ -1,6 +1,6 @@
-# Friend In Debt Smart Contracts
+# Debt Protocol Smart Contracts
 
-Ethereum Smart Contracts for the Friend In Debt dApp that faciliates debt tracking between friends.
+Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt tracking between any two parties.
 
 ## Contract Addresses
 ### DPData
