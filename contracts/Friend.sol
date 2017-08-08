@@ -94,8 +94,11 @@ contract Friend {
      if these friends have ANY non-zero balance, throws an error
    */
   function deleteFriend(bytes32 myId, bytes32 friendId) public allBalancesZero(myId, friendId) isIdOwner(msg.sender, myId) {
-    add.fSetInitialized(myId, friendId, false);
-    add.fSetInitialized(friendId, myId, false);
+    //we keep initialized set to true so that the friendship doesn't get recreated
+    add.fSetf1Confirmed(myId, friendId, false);
+    add.fSetf1Confirmed(friendId, myId, false);
+    add.fSetf2Confirmed(myId, friendId, false);
+    add.fSetf2Confirmed(friendId, myId, false);
 
     add.fSetIsMutual(myId, friendId, false);
     add.fSetIsMutual(friendId, myId, false);
