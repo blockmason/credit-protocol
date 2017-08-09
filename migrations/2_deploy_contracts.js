@@ -83,7 +83,7 @@ module.exports = function(deployer, network, accounts) {
                       gas: fnGasLimit,
                       gasPrice: fiveGwei};
 
-        var fdataContract = "";
+        var fdataContract = "0x2f6c7dd0966f8aa217425201de970049192bfc7b";
 
         deployer.deploy(Friend, fdataContract, ropstenFoundationContract, contractData).then(function() {
             return deployer.deploy(FluxxxyDP, admin, fdataContract, Friend.address, ropstenFoundationContract, contractData);
