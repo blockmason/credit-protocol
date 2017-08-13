@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-contract DPData {
+contract CPData {
   address admin;
   address admin2;
   address fluxContract;
@@ -8,6 +8,7 @@ contract DPData {
 
   /*  Friend  */
   struct Friend {
+    address ucac;
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
@@ -51,7 +52,7 @@ contract DPData {
   }
 
   /* main functions */
-  function DPData(address _admin2) {
+  function CPData(address _admin2) {
     admin = msg.sender;
     admin2 = _admin2;
   }
