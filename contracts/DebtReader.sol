@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 import "./AbstractCPData.sol";
 
-contract DataReader {
+contract DebtReader {
 
   AbstractCPData acp;
 
