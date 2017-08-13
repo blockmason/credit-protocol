@@ -4,15 +4,19 @@ pragma solidity ^0.4.11;
     The Flux Capacitor for Debt Protocol
 */
 
+//TODO: all write calls should call out to the staker to see if the token/address they get back from the UCAC is cool
+
+import "./AbstractUcac.sol";
 import "./AbstractCPData.sol";
 import "./AbstractFriendReader.sol";
 import "./AbstractFoundation.sol";
 
 contract Flux {
 
-  AbstractFoundation af;
-  AbstractFriendReader afr;
+  AbstractUcac au;
   AbstractCPData acp;
+  AbstractFriendReader afr;
+  AbstractFoundation af;
 
   bytes32 adminFoundationId;
 
@@ -24,12 +28,13 @@ contract Flux {
   }
 
   /* Debt recording functions */
-  function newDebt(address ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) areFriends(debtorId, creditorId) {
+  function newDebt(address ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) public {
     if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
       revert();
-
     if ( amount == 0 ) return;
     if ( amount < 0 )  revert();
+
+    au = AbstractUcac(ucac);
 
     acp.pushBlankDebt(debtorId, creditorId);
     uint idx = acp.numDebts(debtorId, creditorId) - 1;
@@ -52,11 +57,12 @@ contract Flux {
     acp.dSetNextDebtId(acp.getNextDebtId() + 1);
   }
 
-  function confirmDebt(bytes32 myId, bytes32 friendId, uint debtId) isIdOwner(msg.sender, myId) {
+  function confirmDebt(address ucac, bytes32 myId, bytes32 friendId, uint debtId) {
     uint index;
     bool success;
     (index, success) = findPendingDebt(myId, friendId, debtId);
     if ( ! success ) return;
+    au = AbstractUcac(ucac);
 
     if ( af.idEq(myId, acp.dDebtorId(myId, friendId, index)) && !acp.dDebtorConfirmed(myId, friendId, index) && acp.dCreditorConfirmed(myId, friendId, index) ) {
       acp.dSetDebtorConfirmed(myId, friendId, index, true);
@@ -68,12 +74,12 @@ contract Flux {
     }
   }
 
-
-  function rejectDebt(bytes32 myId, bytes32 friendId, uint debtId) isIdOwner(msg.sender, myId) {
+  function rejectDebt(address ucac, bytes32 myId, bytes32 friendId, uint debtId) public {
     uint index;
     bool success;
     (index, success) = findPendingDebt(myId, friendId, debtId);
     if ( ! success ) return;
+    au = AbstractUcac(ucac);
 
     acp.dSetIsPending(myId, friendId, index, false);
     acp.dSetIsRejected(myId, friendId, index, true);
@@ -82,8 +88,9 @@ contract Flux {
   }
 
   /* Friend functions */
-  function addFriend(bytes32 myId, bytes32 friendId) public isIdOwner(msg.sender, myId) {
+  function addFriend(address ucac, bytes32 myId, bytes32 friendId) public {
     if ( af.idEq(myId, friendId) ) revert(); //can't add yourself
+    au = AbstractUcac(ucac);
 
     //if not initialized, create the Friendship
     if ( !acp.fInitialized(myId, friendId) ) {
@@ -136,7 +143,9 @@ contract Flux {
 
   //   if these friends have ANY non-zero balance, throws an error
 
-  function deleteFriend(bytes32 myId, bytes32 friendId) public allBalancesZero(myId, friendId) isIdOwner(msg.sender, myId) {
+  function deleteFriend(address ucac, bytes32 myId, bytes32 friendId) public allBalancesZero(myId, friendId) isIdOwner(msg.sender, myId) {
+    au = AbstractUcac(ucac);
+
     //we keep initialized set to true so that the friendship doesn't get recreated
     acp.fSetf1Confirmed(myId, friendId, false);
     acp.fSetf1Confirmed(friendId, myId, false);
@@ -156,11 +165,6 @@ contract Flux {
       if ( af.idEq(l[i], s)) return true;
     }
     return false;
-  }
-
-  modifier isIdOwner(address _caller, bytes32 _name) {
-    if ( ! af.isUnified(_caller, _name) ) revert();
-    _;
   }
 
   modifier isAdmin(address _caller) {

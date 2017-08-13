@@ -8,6 +8,7 @@ contract CPData {
 
   /*  Friend  */
   struct Friend {
+    address ucac;
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
@@ -51,7 +52,7 @@ contract CPData {
   }
 
   /* main functions */
-  function DPData(address _admin2) {
+  function CPData(address _admin2) {
     admin = msg.sender;
     admin2 = _admin2;
   }
@@ -59,9 +60,7 @@ contract CPData {
   function setFluxContract(address _fluxContract) public isAdmin {
     fluxContract = _fluxContract;
   }
-  function setFriendContract(address _friendContract) public isAdmin {
-    friendContract = _friendContract;
-  }
+
   function getFluxContract() constant returns (address) {
     return fluxContract;
   }
@@ -78,6 +77,10 @@ contract CPData {
   }
   function friendIdByIndex(bytes32 fId, uint index) constant returns (bytes32) {
     return friendIdList[fId][index];
+  }
+
+  function fUcac(bytes32 p1, bytes32 p2) constant returns (address) {
+    return friendships[p1][p2].ucac;
   }
   function fInitialized(bytes32 p1, bytes32 p2) constant returns (bool) {
     return friendships[p1][p2].initialized;
@@ -109,6 +112,9 @@ contract CPData {
     friendIdList[myId][idx] = newFriendId;
   }
 
+  function fSetUcac(bytes32 p1, bytes32 p2, address ucac) public isParent {
+    friendships[p1][p2].ucac = ucac;
+  }
   function fSetInitialized(bytes32 p1, bytes32 p2, bool initialized) public isParent {
     friendships[p1][p2].initialized = initialized;
   }
