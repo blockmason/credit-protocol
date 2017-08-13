@@ -1,13 +1,14 @@
 pragma solidity ^0.4.11;
 
-contract FIDData {
+contract CPData {
   address admin;
   address admin2;
-  address debtContract;
+  address fluxContract;
   address friendContract;
 
   /*  Friend  */
   struct Friend {
+    address ucac;
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
@@ -23,6 +24,7 @@ contract FIDData {
   mapping ( bytes32 => bool ) currencyCodes;
   uint nextDebtId;
   struct Debt {
+    address ucac;  //the ucac that authorized creation of this debt
     uint id;
     uint timestamp;
     int amount;
@@ -45,24 +47,22 @@ contract FIDData {
   }
 
   modifier isParent() {
-    if ( (msg.sender != debtContract) && (msg.sender != friendContract)) revert();
+    if ( (msg.sender != fluxContract) && (msg.sender != friendContract)) revert();
     _;
   }
 
   /* main functions */
-  function FIDData(address _admin2) {
+  function CPData(address _admin2) {
     admin = msg.sender;
     admin2 = _admin2;
   }
 
-  function setDebtContract(address _debtContract) public isAdmin {
-    debtContract = _debtContract;
+  function setFluxContract(address _fluxContract) public isAdmin {
+    fluxContract = _fluxContract;
   }
-  function setFriendContract(address _friendContract) public isAdmin {
-    friendContract = _friendContract;
-  }
-  function getDebtContract() constant returns (address) {
-    return debtContract;
+
+  function getFluxContract() constant returns (address) {
+    return fluxContract;
   }
   function getFriendContract() constant returns (address) {
     return friendContract;
@@ -77,6 +77,10 @@ contract FIDData {
   }
   function friendIdByIndex(bytes32 fId, uint index) constant returns (bytes32) {
     return friendIdList[fId][index];
+  }
+
+  function fUcac(bytes32 p1, bytes32 p2) constant returns (address) {
+    return friendships[p1][p2].ucac;
   }
   function fInitialized(bytes32 p1, bytes32 p2) constant returns (bool) {
     return friendships[p1][p2].initialized;
@@ -108,6 +112,9 @@ contract FIDData {
     friendIdList[myId][idx] = newFriendId;
   }
 
+  function fSetUcac(bytes32 p1, bytes32 p2, address ucac) public isParent {
+    friendships[p1][p2].ucac = ucac;
+  }
   function fSetInitialized(bytes32 p1, bytes32 p2, bool initialized) public isParent {
     friendships[p1][p2].initialized = initialized;
   }
@@ -130,7 +137,7 @@ contract FIDData {
     friendships[p1][p2].f2Confirmed = f2Confirmed;
   }
 
-  /* Debt helpers */
+  /* Flux helpers */
   bytes32 f;
   bytes32 s;
   function debtIndices(bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
@@ -140,7 +147,7 @@ contract FIDData {
       return (p2, p1);
   }
 
-  /* Debt Getters   */
+  /* Flux Getters   */
   function numDebts(bytes32 p1, bytes32 p2) constant returns (uint) {
     (f, s) = debtIndices(p1, p2);
     return debts[f][s].length;
@@ -150,6 +157,11 @@ contract FIDData {
   }
   function getNextDebtId() constant returns (uint) {
     return nextDebtId;
+  }
+
+  function dUcac(bytes32 p1, bytes32 p2, uint idx) constant returns (address) {
+    (f, s) = debtIndices(p1, p2);
+    return debts[f][s][idx].ucac;
   }
 
   function dId(bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
@@ -197,7 +209,7 @@ contract FIDData {
     return debts[f][s][idx].desc;
   }
 
-  /* Debt Setters   */
+  /* Flux Setters   */
   function dSetCurrencyCode(bytes32 currencyCode, bool val) public isParent {
     currencyCodes[currencyCode] = val;
   }
@@ -207,6 +219,11 @@ contract FIDData {
   function pushBlankDebt(bytes32 p1, bytes32 p2) public isParent {
     (f, s) = debtIndices(p1, p2);
     debts[f][s].push(blankDebt);
+  }
+
+  function dSetUcac(bytes32 p1, bytes32 p2, uint idx, address ucac) public isParent {
+    (f, s) = debtIndices(p1, p2);
+    debts[f][s][idx].ucac = ucac;
   }
 
   function dSetId(bytes32 p1, bytes32 p2, uint idx, uint id) public isParent {

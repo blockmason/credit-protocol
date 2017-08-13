@@ -4,7 +4,7 @@ pragma solidity ^0.4.11;
     The Flux Capacitor for Debt Protocol
 */
 
-import "./AbstractDPData.sol";
+import "./AbstractCPData.sol";
 import "./AbstractFoundation.sol";
 import "./AbstractFriend.sol";
 
@@ -12,7 +12,7 @@ contract FluxxxyDP {
 
   AbstractFoundation af;
   AbstractFriend afs;
-  AbstractDPData afd;
+  AbstractCPData afd;
 
   bytes32 adminFoundationId;
 
@@ -37,7 +37,7 @@ contract FluxxxyDP {
   }
 
   function FluxxxyDP(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
-    afd = AbstractDPData(dataContract);
+    afd = AbstractCPData(dataContract);
     afs = AbstractFriend(friendContract);
     af  = AbstractFoundation(foundationContract);
     adminFoundationId = _adminId;
