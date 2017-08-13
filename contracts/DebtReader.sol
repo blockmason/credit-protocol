@@ -1,10 +1,14 @@
 pragma solidity ^0.4.11;
 
 import "./AbstractCPData.sol";
+import "./AbstractFriendReader.sol";
+import "./AbstractFoundation.sol";
 
 contract DebtReader {
 
   AbstractCPData acp;
+  AbstractFriendReader afr;
+  AbstractFoundation af;
 
   //T is for Temp
   uint debtIdT;
@@ -30,32 +34,34 @@ contract DebtReader {
   uint[] timestampsT;
   uint[] totalDebtsT;
 
+  function DebtReader(address dataContract, address friendReaderContract, address foundationContract) {
+    acp = AbstractCPData(dataContract);
+    afr = AbstractFriendReader(friendReaderContract);
+    af  = AbstractFoundation(foundationContract);
+  }
+
   function setDebtVars(bytes32 p1, bytes32 p2, uint index) private {
-    debtIdT = afd.dId(p1, p2, index);
-    currencyT = afd.dCurrencyCode(p1, p2, index);
-    amountT = afd.dAmount(p1, p2, index);
-    descT = afd.dDesc(p1, p2, index);
-    debtorT = afd.dDebtorId(p1, p2, index);
-    creditorT = afd.dCreditorId(p1, p2, index);
-    timestampT = afd.dTimestamp(p1, p2, index);
-    isPendingT = afd.dIsPending(p1, p2, index);
-    isRejectedT = afd.dIsRejected(p1, p2, index);
+    debtIdT = acp.dId(p1, p2, index);
+    currencyT = acp.dCurrencyCode(p1, p2, index);
+    amountT = acp.dAmount(p1, p2, index);
+    descT = acp.dDesc(p1, p2, index);
+    debtorT = acp.dDebtorId(p1, p2, index);
+    creditorT = acp.dCreditorId(p1, p2, index);
+    timestampT = acp.dTimestamp(p1, p2, index);
+    isPendingT = acp.dIsPending(p1, p2, index);
+    isRejectedT = acp.dIsRejected(p1, p2, index);
   }
   function setTimestamps(bytes32 p1, bytes32 p2, uint index) private {
-    isPendingT = afd.dIsPending(p1, p2, index);
-    timestampT = afd.dTimestamp(p1, p2, index);
+    isPendingT = acp.dIsPending(p1, p2, index);
+    timestampT = acp.dTimestamp(p1, p2, index);
   }
 
   function setFriendsT(bytes32 fId) private {
     friendsT.length = 0;
-    for ( uint m=0; m < afs.numFriends(fId); m++ ) {
-      bytes32 tmp = afs.friendIdByIndex(fId, m);
+    for ( uint m=0; m < afr.numFriends(fId); m++ ) {
+      bytes32 tmp = afr.friendIdByIndex(fId, m);
       friendsT.push(tmp);
     }
-  }
-
-  function DataReader(address dataContract) {
-    acp = AbstractCPData(dataContract);
   }
 
   function pendingDebts(bytes32 fId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
@@ -71,7 +77,7 @@ contract DebtReader {
 
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
-      for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
+      for ( uint j=0; j < acp.numDebts(fId, friend); j++ ) {
         setDebtVars(fId, friend, j);
 
         if ( isPendingT ) {
@@ -82,7 +88,7 @@ contract DebtReader {
           debtorsT.push(debtorT);
           creditorsT.push(creditorT);
 
-          if ( afd.dDebtorConfirmed(fId, friend, j))
+          if ( acp.dDebtorConfirmed(fId, friend, j))
             confirmersT.push(creditorT);
           else
             confirmersT.push(debtorT);
@@ -97,7 +103,7 @@ contract DebtReader {
     timestampsT.length = 0;
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
-      for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
+      for ( uint j=0; j < acp.numDebts(fId, friend); j++ ) {
         setTimestamps(fId, friend, j);
 
         if ( isPendingT) {
@@ -125,7 +131,7 @@ contract DebtReader {
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
       cdCurrencies.length = 0;
-      for ( uint j=0; j < afd.numDebts(fId, friend); j++ ) {
+      for ( uint j=0; j < acp.numDebts(fId, friend); j++ ) {
         setDebtVars(fId, friend, j);
 
         //run this logic if the debt is neither Pending nor Rejected
@@ -167,7 +173,7 @@ contract DebtReader {
     creditorsT.length = 0;
     timestampsT.length = 0;
 
-    for ( uint i=0; i < afd.numDebts(p1, p2); i++ ) {
+    for ( uint i=0; i < acp.numDebts(p1, p2); i++ ) {
       setDebtVars(p1, p2, i);
 
       if ( !isPendingT && !isRejectedT ) {

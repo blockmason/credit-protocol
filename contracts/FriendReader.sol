@@ -10,7 +10,7 @@ contract FriendReader {
   }
 
   function areFriends(bytes32 _id1, bytes32 _id2) constant returns (bool) {
-    return add.fIsMutual(_id1, _id2);
+    return acp.fIsMutual(_id1, _id2);
   }
 
   function numFriends(bytes32 fId) constant returns (uint) {
@@ -26,9 +26,9 @@ contract FriendReader {
   bytes32[] ids2;
   function confirmedFriends(bytes32 fId) constant returns (bytes32[] confirmedFriends) {
     ids1.length = 0;
-    for ( uint i=0; i < add.numFriends(fId); i++ ) {
+    for ( uint i=0; i < acp.numFriends(fId); i++ ) {
       bytes32 currFriendId = friendIdByIndex(fId, i);
-      if ( add.fIsMutual(fId, currFriendId) )
+      if ( acp.fIsMutual(fId, currFriendId) )
         ids1.push(currFriendId);
     }
     return ids1;
@@ -37,15 +37,15 @@ contract FriendReader {
   function pendingFriends(bytes32 fId) constant returns (bytes32[] friendIds, bytes32[] confirmerIds) {
     ids1.length = 0;
     ids2.length = 0;
-    for ( uint i=0; i < add.numFriends(fId); i++ ) {
+    for ( uint i=0; i < acp.numFriends(fId); i++ ) {
       bytes32 friendId = friendIdByIndex(fId, i);
       //      Friendship memory fs = friendships[fId][currFriendId];
-      if ( add.fIsPending(fId, friendId) ) {
+      if ( acp.fIsPending(fId, friendId) ) {
         ids1.push(friendId);
-        if ( add.ff1Confirmed(fId, friendId) )
-          ids2.push(add.ff2Id(fId, friendId));
+        if ( acp.ff1Confirmed(fId, friendId) )
+          ids2.push(acp.ff2Id(fId, friendId));
         else
-          ids2.push(add.ff1Id(fId, friendId));
+          ids2.push(acp.ff1Id(fId, friendId));
       }
     }
     return (ids1, ids2);
