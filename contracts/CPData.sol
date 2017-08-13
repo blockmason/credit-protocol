@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-contract DPData {
+contract CPData {
   address admin;
   address admin2;
   address fluxContract;

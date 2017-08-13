@@ -1,18 +1,18 @@
 pragma solidity ^0.4.11;
 
-/*  FluxxxyDP
+/*  Flux
     The Flux Capacitor for Debt Protocol
 */
 
-import "./AbstractDPData.sol";
+import "./AbstractCPData.sol";
 import "./AbstractFoundation.sol";
 import "./AbstractFriend.sol";
 
-contract FluxxxyDP {
+contract Flux {
 
   AbstractFoundation af;
   AbstractFriend afs;
-  AbstractDPData afd;
+  AbstractCPData acp;
 
   bytes32 adminFoundationId;
 
@@ -26,29 +26,22 @@ contract FluxxxyDP {
     _;
   }
 
-  modifier currencyValid(bytes32 _currencyCode) {
-    if ( ! afd.currencyValid(_currencyCode) ) revert();
-    _;
-  }
-
   modifier areFriends(bytes32 _id1, bytes32 _id2) {
     if ( ! afs.areFriends(_id1, _id2) ) revert();
     _;
   }
 
-  function FluxxxyDP(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
+  modifier oneIsSender(address _sender, bytes32 _id1, bytes32 _id2) {
+    bytes32 _name = af.resolveToName(_sender);
+    if ( !af.idEq(_name, _id1) && !af.idEq(_name, _id2) ) revert();
+    _;
+  }
+
+  function Flux(bytes32 _adminId, address dataContract, address friendContract, address foundationContract) {
     afd = AbstractDPData(dataContract);
     afs = AbstractFriend(friendContract);
     af  = AbstractFoundation(foundationContract);
     adminFoundationId = _adminId;
-  }
-
-  function addCurrencyCode(bytes32 _currencyCode) public isAdmin(msg.sender) {
-    afd.dSetCurrencyCode(_currencyCode, true);
-  }
-
-  function isActiveCurrency(bytes32 _currencyCode) constant returns (bool) {
-    return afd.currencyValid(_currencyCode);
   }
 
   //T is for Temp
@@ -225,12 +218,13 @@ contract FluxxxyDP {
   }
 
 
-  function newDebt(address ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) currencyValid(currencyCode) areFriends(debtorId, creditorId) {
+  //check for whether one of the ids is the sender
+  function newDebt(address ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) oneIsSender(msg.sender, debtorId, creditorId) areFriends(debtorId, creditorId) {
     if ( !af.isUnified(msg.sender, debtorId) && !af.isUnified(msg.sender, creditorId))
       revert();
 
     if ( amount == 0 ) return;
-    if ( amount < 0 ) revert();
+    if ( amount < 0 )  revert();
 
     bytes32 confirmerName = af.resolveToName(msg.sender);
 

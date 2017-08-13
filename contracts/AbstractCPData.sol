@@ -1,14 +1,13 @@
 pragma solidity ^0.4.11;
 
-contract AbstractFIDData {
+contract AbstractCPData {
 
   /* main functions */
-  function FIDData(address _admin2);
+  function CPData(address _admin2);
 
-
-  function setDebtContract(address _debtContract);
+  function setFluxContract(address _debtContract);
   function setFriendContract(address _friendContract);
-  function getDebtContract() constant returns (address debtContract);
+  function getFluxContract() constant returns (address debtContract);
   function getFriendContract() constant returns (address friendContract);
   function getAdmins() constant returns (address admin, address admin2);
 
@@ -34,15 +33,16 @@ contract AbstractFIDData {
   function fSetf1Confirmed(bytes32 p1, bytes32 p2, bool f1Confirmed);
   function fSetf2Confirmed(bytes32 p1, bytes32 p2, bool f2Confirmed);
 
-  /* Debt helpers */
+  /* Flux helpers */
   bytes32 f;
   bytes32 s;
   function debtIndices(bytes32 p1, bytes32 p2) constant returns (bytes32 first, bytes32 second);
 
-  /* Debt Getters   */
+  /* Flux Getters   */
   function numDebts(bytes32 p1, bytes32 p2) constant returns (uint numDebts);
   function currencyValid(bytes32 currencyCode) constant returns (bool);
   function getNextDebtId() constant returns (uint);
+  function dUcac(bytes32 p1, bytes32 p2, uint idx) constant returns (address);
   function dId(bytes32 p1, bytes32 p2, uint idx) constant returns (uint id);
   function dTimestamp (bytes32 p1, bytes32 p2, uint idx) constant returns (uint timestamp);
   function dAmount(bytes32 p1, bytes32 p2, uint idx) constant returns (int amount);
@@ -55,10 +55,11 @@ contract AbstractFIDData {
   function dCreditorConfirmed (bytes32 p1, bytes32 p2, uint idx) constant returns (bool creditorConfirmed);
   function dDesc(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32 desc);
 
-  /* Debt Setters   */
+  /* Flux Setters   */
   function dSetCurrencyCode(bytes32 currencyCode, bool val);
   function dSetNextDebtId(uint newId);
   function pushBlankDebt(bytes32 p1, bytes32 p2);
+  function dSetUcac(bytes32 p1, bytes32 p2, uint idx, address ucac);
   function dSetId(bytes32 p1, bytes32 p2, uint idx, uint id);
   function dSetTimestamp(bytes32 p1, bytes32 p2, uint idx, uint timestamp);
   function dSetAmount(bytes32 p1, bytes32 p2, uint idx, int amount);
