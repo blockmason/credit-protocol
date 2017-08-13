@@ -332,6 +332,27 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "ucac",
+          "type": "address"
+        }
+      ],
+      "name": "fSetUcac",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [
         {
@@ -1119,6 +1140,28 @@
         {
           "name": "p2",
           "type": "bytes32"
+        }
+      ],
+      "name": "fUcac",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
         },
         {
           "name": "idx",
@@ -1204,5 +1247,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1502625500152
+  "updated_at": 1502630578141
 }

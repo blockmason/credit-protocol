@@ -140,10 +140,7 @@ contract Flux {
     }
   }
 
-
-  //   if these friends have ANY non-zero balance, throws an error
-
-  function deleteFriend(address ucac, bytes32 myId, bytes32 friendId) public allBalancesZero(myId, friendId) isIdOwner(msg.sender, myId) {
+  function deleteFriend(address ucac, bytes32 myId, bytes32 friendId) public allBalancesZero(myId, friendId) {
     au = AbstractUcac(ucac);
 
     //we keep initialized set to true so that the friendship doesn't get recreated
