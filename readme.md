@@ -11,3 +11,7 @@ Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt trackin
 
 ### Flux Capacitor
 * 0xe43950c736a5b5ed6a72513d0a349e86cc3ffdb8
+
+
+### security considerations for UCACs
+* UCACs must verify whether they want a user to add debts between ANY two parties, or only debts they are personally involved in
