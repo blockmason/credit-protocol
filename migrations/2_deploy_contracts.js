@@ -1,8 +1,11 @@
 var testFoundationContract = "0x73a79e86cb10ba4495c42ccbd1de4d0c69008da4";
 
-var DPData = artifacts.require("./DPData.sol");
-var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
-var Friend  = artifacts.require("./Friend.sol");
+var DebtData = artifacts.require("./.sol");
+var FriendData = artifacts.require("./.sol");
+var DebtReader = artifacts.require("./.sol");
+var FriendReader = artifacts.require("./.sol");
+var Flux = artifacts.require("./.sol");
+var Fid = artifacts.require("./.sol");
 
 var ropstenFoundationContract = "0x406b716b01ab7c0acc75ceb9fadcc48ce39f5550";
 
