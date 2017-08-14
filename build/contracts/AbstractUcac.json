@@ -81,6 +81,70 @@
       "constant": true,
       "inputs": [
         {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "deleteFriend",
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": "bool"
+        },
+        {
+          "name": "capacityProvider",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addFriend",
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": "bool"
+        },
+        {
+          "name": "capacityProvider",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
           "name": "myId",
           "type": "bytes32"
         },
@@ -111,5 +175,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1502685757478
+  "updated_at": 1502690401692
 }

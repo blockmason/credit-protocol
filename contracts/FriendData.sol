@@ -7,7 +7,6 @@ contract FriendData {
 
   /*  Friend  */
   struct Friend {
-    address ucac;
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
@@ -66,10 +65,6 @@ contract FriendData {
     return friendIdList[ucac][fId][index];
   }
 
-  function fUcac(address ucac, bytes32 p1, bytes32 p2) constant returns (address) {
-    (f, s) = friendIndices(ucac, p1, p2);
-    return friendships[ucac][f][s].ucac;
-  }
   function fInitialized(address ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].initialized;
@@ -107,10 +102,6 @@ contract FriendData {
     friendIdList[ucac][myId][idx] = newFriendId;
   }
 
-  function fSetUcac(address ucac, bytes32 p1, bytes32 p2, address ucac) public isParent {
-    (f, s) = friendIndices(ucac, p1, p2);
-    friendships[ucac][f][s].ucac = ucac;
-  }
   function fSetInitialized(address ucac, bytes32 p1, bytes32 p2, bool initialized) public isParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].initialized = initialized;

@@ -15,7 +15,6 @@ contract AbstractDebtData {
   /* Debt Getters   */
   function numDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (uint numDebts);
   function getNextDebtId() constant returns (uint);
-  function dUcac(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (address);
   function dId(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (uint id);
   function dTimestamp (address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (uint timestamp);
   function dAmount(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (int amount);
@@ -31,7 +30,6 @@ contract AbstractDebtData {
   /* Debt Setters   */
   function dSetNextDebtId(uint newId);
   function pushBlankDebt(address ucac, bytes32 p1, bytes32 p2);
-  function dSetUcac(address ucac, bytes32 p1, bytes32 p2, uint idx, address ucac);
   function dSetId(address ucac, bytes32 p1, bytes32 p2, uint idx, uint id);
   function dSetTimestamp(address ucac, bytes32 p1, bytes32 p2, uint idx, uint timestamp);
   function dSetAmount(address ucac, bytes32 p1, bytes32 p2, uint idx, int amount);

@@ -6,7 +6,7 @@ import "./AbstractFriendReader.sol";
 
 //check conditions on all these
 contract Fid {
-
+  /*
   bytes32 admin;
 
   AbstractFoundation af;
@@ -63,7 +63,7 @@ contract Fid {
     return (true, 0);
   }
 
-  /* modifiers */
+  //modifiers
   modifier isAdmin(address _caller) {
     require(af.idEq(admin, af.resolveToName(_caller)));
     _;
@@ -102,5 +102,5 @@ contract Fid {
       if ( balByCurrency[currenciesTemp[j]] != 0 ) revert();
     _;
   }
-
+*/
 }

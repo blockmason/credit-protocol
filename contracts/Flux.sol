@@ -43,12 +43,11 @@ contract Flux {
     add.pushBlankDebt(ucac, debtorId, creditorId);
     uint idx = add.numDebts(ucac, debtorId, creditorId) - 1;
 
-    add.dSetUcac(ucac, debtorId, creditorId, idx, ucac);
     add.dSetId(ucac, debtorId, creditorId, idx, add.getNextDebtId());
     add.dSetTimestamp(ucac, debtorId, creditorId, idx, now);
     add.dSetAmount(ucac, debtorId, creditorId, idx, amount);
     add.dSetCurrencyCode(ucac, debtorId, creditorId, idx, currencyCode);
-      add.dSetDebtorId(ucac, debtorId, creditorId, idx, debtorId);
+    add.dSetDebtorId(ucac, debtorId, creditorId, idx, debtorId);
     add.dSetCreditorId(ucac, debtorId, creditorId, idx, creditorId);
     add.dSetIsPending(ucac, debtorId, creditorId, idx, true);
     add.dSetDesc(ucac, debtorId, creditorId, idx, desc);
@@ -98,7 +97,6 @@ contract Flux {
 
     //if not initialized, create the Friendship
     if ( !afd.fInitialized(ucac, myId, friendId) ) {
-      afd.fSetUcac(ucac, myId, friendId, ucac);
       afd.fSetInitialized(ucac, myId, friendId, true);
       afd.fSetf1Id(ucac, myId, friendId, myId);
       afd.fSetf2Id(ucac, myId, friendId, friendId);
@@ -106,7 +104,7 @@ contract Flux {
       afd.fSetf1Confirmed(ucac, myId, friendId, true);
 
       afd.pushFriendId(ucac, myId, friendId);
-      afd.pushFriendId(friendId, myId);
+      afd.pushFriendId(ucac, friendId, myId);
       return;
     }
     if ( afd.fIsMutual(ucac, myId, friendId) ) return;

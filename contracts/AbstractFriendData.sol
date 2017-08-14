@@ -14,7 +14,6 @@ contract AbstractFriendData {
   /* Friend Getters */
   function numFriends(address ucac, bytes32 fId) constant returns (uint);
   function friendIdByIndex(address ucac, bytes32 fId, uint index) constant returns (bytes32);
-  function fUcac(address ucac, bytes32 p1, bytes32 p2) constant returns (address);
   function fInitialized(address ucac, bytes32 p1, bytes32 p2) constant returns (bool);
   function ff1Id(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32);
   function ff2Id(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32);
@@ -26,7 +25,6 @@ contract AbstractFriendData {
   /* Friend Setters */
   function pushFriendId(address ucac, bytes32 myId, bytes32 friendId);
   function setFriendIdByIndex(address ucac, bytes32 myId, uint idx, bytes32 newFriendId);
-  function fSetUcac(address ucac, bytes32 p1, bytes32 p2, address ucac);
   function fSetInitialized(address ucac, bytes32 p1, bytes32 p2, bool initialized);
   function fSetf1Id(address ucac, bytes32 p1, bytes32 p2, bytes32 id);
   function fSetf2Id(address ucac, bytes32 p1, bytes32 p2, bytes32 id);

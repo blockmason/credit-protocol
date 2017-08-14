@@ -1,0 +1,187 @@
+{
+  "contract_name": "AbstractDebtReader",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "fId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "pendingDebtTimestamps",
+      "outputs": [
+        {
+          "name": "timestamps",
+          "type": "uint256[]"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "confirmedDebts",
+      "outputs": [
+        {
+          "name": "currency2",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "amounts2",
+          "type": "int256[]"
+        },
+        {
+          "name": "descs2",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "debtors2",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "creditors2",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "timestamps2",
+          "type": "uint256[]"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "fId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "pendingDebts",
+      "outputs": [
+        {
+          "name": "debtIds",
+          "type": "uint256[]"
+        },
+        {
+          "name": "confirmerIds",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "currency",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "amounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "descs",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "debtors",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "creditors",
+          "type": "bytes32[]"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "numDebts",
+      "outputs": [
+        {
+          "name": "numDebts",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "fId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "confirmedDebtBalances",
+      "outputs": [
+        {
+          "name": "currency",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "amounts",
+          "type": "int256[]"
+        },
+        {
+          "name": "counterpartyIds",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "totalDebts",
+          "type": "uint256[]"
+        },
+        {
+          "name": "mostRecent",
+          "type": "uint256[]"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1502690401684
+}

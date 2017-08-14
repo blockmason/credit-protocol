@@ -40,6 +40,10 @@ contract DebtReader {
     af  = AbstractFoundation(foundationContract);
   }
 
+  function numDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (uint numDebts) {
+    return add.numDebts(ucac, p1, p2);
+  }
+
   function setDebtVars(address ucac, bytes32 p1, bytes32 p2, uint index) private {
     debtIdT = add.dId(ucac, p1, p2, index);
     currencyT = add.dCurrencyCode(ucac, p1, p2, index);
@@ -77,8 +81,8 @@ contract DebtReader {
 
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
-      for ( uint j=0; j < add.numDebts(fId, friend); j++ ) {
-        setDebtVars(fId, friend, j);
+      for ( uint j=0; j < add.numDebts(ucac, fId, friend); j++ ) {
+        setDebtVars(ucac, fId, friend, j);
 
         if ( isPendingT ) {
           debtIdsT.push(debtIdT);
@@ -88,7 +92,7 @@ contract DebtReader {
           debtorsT.push(debtorT);
           creditorsT.push(creditorT);
 
-          if ( add.dDebtorConfirmed(fId, friend, j))
+          if ( add.dDebtorConfirmed(ucac, fId, friend, j))
             confirmersT.push(creditorT);
           else
             confirmersT.push(debtorT);
@@ -131,7 +135,7 @@ contract DebtReader {
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
       cdCurrencies.length = 0;
-      for ( uint j=0; j < add.numDebts(fId, friend); j++ ) {
+      for ( uint j=0; j < add.numDebts(ucac, fId, friend); j++ ) {
         setDebtVars(ucac, fId, friend, j);
 
         //run this logic if the debt is neither Pending nor Rejected

@@ -8,7 +8,6 @@ contract DebtData {
   /*  Debt  */
   uint nextDebtId;
   struct Debt {
-    address ucac;  //the ucac that authorized creation of this debt
     uint id;
     uint timestamp;
     int amount;
@@ -72,11 +71,6 @@ contract DebtData {
     return nextDebtId;
   }
 
-  function dUcac(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (address) {
-    (f, s) = debtIndices(ucac, p1, p2);
-    return debts[ucac][f][s][idx].ucac;
-  }
-
   function dId(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
     (f, s) = debtIndices(ucac, p1, p2);
     return debts[ucac][f][s][idx].id;
@@ -129,11 +123,6 @@ contract DebtData {
   function pushBlankDebt(address ucac, bytes32 p1, bytes32 p2) public isParent {
     (f, s) = debtIndices(ucac, p1, p2);
     debts[ucac][f][s].push(blankDebt);
-  }
-
-  function dSetUcac(address ucac, bytes32 p1, bytes32 p2, uint idx, address ucac) public isParent {
-    (f, s) = debtIndices(ucac, p1, p2);
-    debts[ucac][f][s][idx].ucac = ucac;
   }
 
   function dSetId(address ucac, bytes32 p1, bytes32 p2, uint idx, uint id) public isParent {
