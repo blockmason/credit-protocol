@@ -171,9 +171,9 @@ contract Flux {
   //returns false for success if debt not found
   //only returns pending, non-rejected debts
   function findPendingDebt(bytes32 p1, bytes32 p2, uint debtId) private constant returns (uint index, bool success) {
-    for(uint i=0; i < afd.numDebts(p1, p2); i++) {
-      if( afd.dId(p1, p2, i) == debtId && afd.dIsPending(p1, p2, i)
-          && ! afd.dIsRejected(p1, p2, i) )
+    for(uint i=0; i < add.numDebts(p1, p2); i++) {
+      if( add.dId(p1, p2, i) == debtId && add.dIsPending(p1, p2, i)
+          && ! add.dIsRejected(p1, p2, i) )
         return (i, true);
     }
     return (i, false);

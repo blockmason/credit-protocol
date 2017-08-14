@@ -1,12 +1,12 @@
 pragma solidity ^0.4.11;
 
-import "./AbstractCPData.sol";
+import "./AbstractDebtData.sol";
 import "./AbstractFriendReader.sol";
 import "./AbstractFoundation.sol";
 
 contract DebtReader {
 
-  AbstractCPData acp;
+  AbstractDebtData add;
   AbstractFriendReader afr;
   AbstractFoundation af;
 
@@ -34,26 +34,26 @@ contract DebtReader {
   uint[] timestampsT;
   uint[] totalDebtsT;
 
-  function DebtReader(address dataContract, address friendReaderContract, address foundationContract) {
-    acp = AbstractCPData(dataContract);
+  function DebtReader(address debtContract, address friendReaderContract, address foundationContract) {
+    add = AbstractDebtData(debtContract);
     afr = AbstractFriendReader(friendReaderContract);
     af  = AbstractFoundation(foundationContract);
   }
 
   function setDebtVars(bytes32 p1, bytes32 p2, uint index) private {
-    debtIdT = acp.dId(p1, p2, index);
-    currencyT = acp.dCurrencyCode(p1, p2, index);
-    amountT = acp.dAmount(p1, p2, index);
-    descT = acp.dDesc(p1, p2, index);
-    debtorT = acp.dDebtorId(p1, p2, index);
-    creditorT = acp.dCreditorId(p1, p2, index);
-    timestampT = acp.dTimestamp(p1, p2, index);
-    isPendingT = acp.dIsPending(p1, p2, index);
-    isRejectedT = acp.dIsRejected(p1, p2, index);
+    debtIdT = add.dId(p1, p2, index);
+    currencyT = add.dCurrencyCode(p1, p2, index);
+    amountT = add.dAmount(p1, p2, index);
+    descT = add.dDesc(p1, p2, index);
+    debtorT = add.dDebtorId(p1, p2, index);
+    creditorT = add.dCreditorId(p1, p2, index);
+    timestampT = add.dTimestamp(p1, p2, index);
+    isPendingT = add.dIsPending(p1, p2, index);
+    isRejectedT = add.dIsRejected(p1, p2, index);
   }
   function setTimestamps(bytes32 p1, bytes32 p2, uint index) private {
-    isPendingT = acp.dIsPending(p1, p2, index);
-    timestampT = acp.dTimestamp(p1, p2, index);
+    isPendingT = add.dIsPending(p1, p2, index);
+    timestampT = add.dTimestamp(p1, p2, index);
   }
 
   function setFriendsT(bytes32 fId) private {
@@ -77,7 +77,7 @@ contract DebtReader {
 
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
-      for ( uint j=0; j < acp.numDebts(fId, friend); j++ ) {
+      for ( uint j=0; j < add.numDebts(fId, friend); j++ ) {
         setDebtVars(fId, friend, j);
 
         if ( isPendingT ) {
@@ -88,7 +88,7 @@ contract DebtReader {
           debtorsT.push(debtorT);
           creditorsT.push(creditorT);
 
-          if ( acp.dDebtorConfirmed(fId, friend, j))
+          if ( add.dDebtorConfirmed(fId, friend, j))
             confirmersT.push(creditorT);
           else
             confirmersT.push(debtorT);
@@ -103,7 +103,7 @@ contract DebtReader {
     timestampsT.length = 0;
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
-      for ( uint j=0; j < acp.numDebts(fId, friend); j++ ) {
+      for ( uint j=0; j < add.numDebts(fId, friend); j++ ) {
         setTimestamps(fId, friend, j);
 
         if ( isPendingT) {
@@ -131,7 +131,7 @@ contract DebtReader {
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
       cdCurrencies.length = 0;
-      for ( uint j=0; j < acp.numDebts(fId, friend); j++ ) {
+      for ( uint j=0; j < add.numDebts(fId, friend); j++ ) {
         setDebtVars(fId, friend, j);
 
         //run this logic if the debt is neither Pending nor Rejected
@@ -173,7 +173,7 @@ contract DebtReader {
     creditorsT.length = 0;
     timestampsT.length = 0;
 
-    for ( uint i=0; i < acp.numDebts(p1, p2); i++ ) {
+    for ( uint i=0; i < add.numDebts(p1, p2); i++ ) {
       setDebtVars(p1, p2, i);
 
       if ( !isPendingT && !isRejectedT ) {
