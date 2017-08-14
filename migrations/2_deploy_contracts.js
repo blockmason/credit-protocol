@@ -27,6 +27,7 @@ module.exports = function(deployer, network, accounts) {
         var account1 = accounts[0];
         var account2 = accounts[1];
         var account3 = accounts[2];
+        var flux;
 
         deployer.deploy(DebtData, account2, {from: account1}).then(function() {
             return deployer.deploy(FriendData, account2, {from: account1});
@@ -51,6 +52,13 @@ module.exports = function(deployer, network, accounts) {
             return Fid.deployed();
         }).then(function(fid) {
             return fid.setMyAddress(Fid.address, {from: account1});
+        }).then(function(tx) {
+            return Flux.deployed();
+        }).then(function(f) {
+            flux = f;
+            return flux.addFriend(Fid.address, user2, user3, {from: account2});
+        }).then(function(tx) {
+            return flux.addFriend(Fid.address, user3, user2, {from: account3});
         });
     }
 
