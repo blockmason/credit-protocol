@@ -6,7 +6,6 @@ contract DebtData {
   address fluxContract;
 
   /*  Debt  */
-  mapping ( bytes32 => bool ) currencyCodes;
   uint nextDebtId;
   struct Debt {
     address ucac;  //the ucac that authorized creation of this debt
@@ -22,7 +21,7 @@ contract DebtData {
     bool creditorConfirmed;
     bytes32 desc;
   }
-  mapping ( bytes32 => mapping ( bytes32 => Debt[] )) debts;
+  mapping ( address => mapping ( bytes32 => mapping ( bytes32 => Debt[] ))) debts;
   Debt blankDebt; //Used to push onto debts
 
   /*  modifiers  */
@@ -57,134 +56,128 @@ contract DebtData {
   /* Flux helpers */
   bytes32 f;
   bytes32 s;
-  function debtIndices(bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
-    if ( debts[p1][p2].length > 0 )
+  function debtIndices(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
+    if ( debts[ucac][p1][p2].length > 0 )
       return (p1, p2);
     else
       return (p2, p1);
   }
 
   /* Flux Getters   */
-  function numDebts(bytes32 p1, bytes32 p2) constant returns (uint) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s].length;
-  }
-  function currencyValid(bytes32 currencyCode) constant returns (bool) {
-    return currencyCodes[currencyCode];
+  function numDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (uint) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s].length;
   }
   function getNextDebtId() constant returns (uint) {
     return nextDebtId;
   }
 
-  function dUcac(bytes32 p1, bytes32 p2, uint idx) constant returns (address) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].ucac;
+  function dUcac(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (address) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].ucac;
   }
 
-  function dId(bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].id;
+  function dId(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].id;
   }
-  function dTimestamp (bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].timestamp;
+  function dTimestamp (address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (uint) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].timestamp;
   }
-  function dAmount(bytes32 p1, bytes32 p2, uint idx) constant returns (int) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].amount;
+  function dAmount(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (int) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].amount;
   }
-  function dCurrencyCode(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].currencyCode;
+  function dCurrencyCode(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].currencyCode;
   }
-  function dDebtorId(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].debtorId;
+  function dDebtorId(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].debtorId;
   }
-  function dCreditorId(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].creditorId;
+  function dCreditorId(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].creditorId;
   }
-  function dIsPending(bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].isPending;
+  function dIsPending(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].isPending;
   }
-  function dIsRejected(bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].isRejected;
+  function dIsRejected(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].isRejected;
   }
-  function dDebtorConfirmed (bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].debtorConfirmed;
+  function dDebtorConfirmed (address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].debtorConfirmed;
   }
-  function dCreditorConfirmed (bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].creditorConfirmed;
+  function dCreditorConfirmed (address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bool) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].creditorConfirmed;
   }
-  function dDesc(bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
-    (f, s) = debtIndices(p1, p2);
-    return debts[f][s][idx].desc;
+  function dDesc(address ucac, bytes32 p1, bytes32 p2, uint idx) constant returns (bytes32) {
+    (f, s) = debtIndices(ucac, p1, p2);
+    return debts[ucac][f][s][idx].desc;
   }
 
   /* Flux Setters   */
-  function dSetCurrencyCode(bytes32 currencyCode, bool val) public isParent {
-    currencyCodes[currencyCode] = val;
-  }
   function dSetNextDebtId(uint newId) public isParent {
     nextDebtId = newId;
   }
-  function pushBlankDebt(bytes32 p1, bytes32 p2) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s].push(blankDebt);
+  function pushBlankDebt(address ucac, bytes32 p1, bytes32 p2) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s].push(blankDebt);
   }
 
-  function dSetUcac(bytes32 p1, bytes32 p2, uint idx, address ucac) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].ucac = ucac;
+  function dSetUcac(address ucac, bytes32 p1, bytes32 p2, uint idx, address ucac) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].ucac = ucac;
   }
 
-  function dSetId(bytes32 p1, bytes32 p2, uint idx, uint id) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].id = id;
+  function dSetId(address ucac, bytes32 p1, bytes32 p2, uint idx, uint id) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].id = id;
   }
-  function dSetTimestamp(bytes32 p1, bytes32 p2, uint idx, uint timestamp) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].timestamp = timestamp;
+  function dSetTimestamp(address ucac, bytes32 p1, bytes32 p2, uint idx, uint timestamp) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].timestamp = timestamp;
   }
-  function dSetAmount(bytes32 p1, bytes32 p2, uint idx, int amount) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].amount = amount;
+  function dSetAmount(address ucac, bytes32 p1, bytes32 p2, uint idx, int amount) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].amount = amount;
   }
-  function dSetCurrencyCode(bytes32 p1, bytes32 p2, uint idx, bytes32 currencyCode) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].currencyCode = currencyCode;
+  function dSetCurrencyCode(address ucac, bytes32 p1, bytes32 p2, uint idx, bytes32 currencyCode) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].currencyCode = currencyCode;
   }
-  function dSetDebtorId(bytes32 p1, bytes32 p2, uint idx, bytes32 debtorId) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].debtorId = debtorId;
+  function dSetDebtorId(address ucac, bytes32 p1, bytes32 p2, uint idx, bytes32 debtorId) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].debtorId = debtorId;
   }
-  function dSetCreditorId(bytes32 p1, bytes32 p2, uint idx, bytes32 creditorId) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].creditorId = creditorId;
+  function dSetCreditorId(address ucac, bytes32 p1, bytes32 p2, uint idx, bytes32 creditorId) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].creditorId = creditorId;
   }
-  function dSetIsPending(bytes32 p1, bytes32 p2, uint idx, bool isPending) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].isPending = isPending;
+  function dSetIsPending(address ucac, bytes32 p1, bytes32 p2, uint idx, bool isPending) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].isPending = isPending;
   }
-  function dSetIsRejected(bytes32 p1, bytes32 p2, uint idx, bool isRejected) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].isRejected = isRejected;
+  function dSetIsRejected(address ucac, bytes32 p1, bytes32 p2, uint idx, bool isRejected) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].isRejected = isRejected;
   }
-  function dSetDebtorConfirmed(bytes32 p1, bytes32 p2, uint idx, bool debtorConfirmed) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].debtorConfirmed = debtorConfirmed;
+  function dSetDebtorConfirmed(address ucac, bytes32 p1, bytes32 p2, uint idx, bool debtorConfirmed) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].debtorConfirmed = debtorConfirmed;
   }
-  function dSetCreditorConfirmed(bytes32 p1, bytes32 p2, uint idx, bool creditorConfirmed) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].creditorConfirmed = creditorConfirmed;
+  function dSetCreditorConfirmed(address ucac, bytes32 p1, bytes32 p2, uint idx, bool creditorConfirmed) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].creditorConfirmed = creditorConfirmed;
   }
-  function dSetDesc(bytes32 p1, bytes32 p2, uint idx, bytes32 desc) public isParent {
-    (f, s) = debtIndices(p1, p2);
-    debts[f][s][idx].desc = desc;
+  function dSetDesc(address ucac, bytes32 p1, bytes32 p2, uint idx, bytes32 desc) public isParent {
+    (f, s) = debtIndices(ucac, p1, p2);
+    debts[ucac][f][s][idx].desc = desc;
   }
 }

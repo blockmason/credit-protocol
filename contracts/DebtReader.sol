@@ -40,26 +40,26 @@ contract DebtReader {
     af  = AbstractFoundation(foundationContract);
   }
 
-  function setDebtVars(bytes32 p1, bytes32 p2, uint index) private {
-    debtIdT = add.dId(p1, p2, index);
-    currencyT = add.dCurrencyCode(p1, p2, index);
-    amountT = add.dAmount(p1, p2, index);
-    descT = add.dDesc(p1, p2, index);
-    debtorT = add.dDebtorId(p1, p2, index);
-    creditorT = add.dCreditorId(p1, p2, index);
-    timestampT = add.dTimestamp(p1, p2, index);
-    isPendingT = add.dIsPending(p1, p2, index);
-    isRejectedT = add.dIsRejected(p1, p2, index);
+  function setDebtVars(address ucac, bytes32 p1, bytes32 p2, uint index) private {
+    debtIdT = add.dId(ucac, p1, p2, index);
+    currencyT = add.dCurrencyCode(ucac, p1, p2, index);
+    amountT = add.dAmount(ucac, p1, p2, index);
+    descT = add.dDesc(ucac, p1, p2, index);
+    debtorT = add.dDebtorId(ucac, p1, p2, index);
+    creditorT = add.dCreditorId(ucac, p1, p2, index);
+    timestampT = add.dTimestamp(ucac, p1, p2, index);
+    isPendingT = add.dIsPending(ucac, p1, p2, index);
+    isRejectedT = add.dIsRejected(ucac, p1, p2, index);
   }
-  function setTimestamps(bytes32 p1, bytes32 p2, uint index) private {
-    isPendingT = add.dIsPending(p1, p2, index);
-    timestampT = add.dTimestamp(p1, p2, index);
+  function setTimestamps(address ucac, bytes32 p1, bytes32 p2, uint index) private {
+    isPendingT = add.dIsPending(ucac, p1, p2, index);
+    timestampT = add.dTimestamp(ucac, p1, p2, index);
   }
 
-  function setFriendsT(bytes32 fId) private {
+  function setFriendsT(address ucac, bytes32 fId) private {
     friendsT.length = 0;
-    for ( uint m=0; m < afr.numFriends(fId); m++ ) {
-      bytes32 tmp = afr.friendIdByIndex(fId, m);
+    for ( uint m=0; m < afr.numFriends(ucac, fId); m++ ) {
+      bytes32 tmp = afr.friendIdByIndex(ucac, fId, m);
       friendsT.push(tmp);
     }
   }
@@ -98,13 +98,13 @@ contract DebtReader {
     return (debtIdsT, confirmersT, currenciesT, amountsT, descsT, debtorsT, creditorsT);
   }
 
-  function pendingDebtTimestamps(bytes32 fId) constant returns (uint[] timestamps) {
-    setFriendsT(fId);
+  function pendingDebtTimestamps(address ucac, bytes32 fId) constant returns (uint[] timestamps) {
+    setFriendsT(ucac, fId);
     timestampsT.length = 0;
     for ( uint i=0; i < friendsT.length; i++ ) {
       bytes32 friend = friendsT[i];
-      for ( uint j=0; j < add.numDebts(fId, friend); j++ ) {
-        setTimestamps(fId, friend, j);
+      for ( uint j=0; j < add.numDebts(ucac, fId, friend); j++ ) {
+        setTimestamps(ucac, fId, friend, j);
 
         if ( isPendingT) {
           timestampsT.push(timestampT);
@@ -119,8 +119,8 @@ contract DebtReader {
   mapping ( bytes32 => mapping (bytes32 => uint )) currencyToIdToMostRecent;
   bytes32[] cdCurrencies;
   //returns positive for debt owed, negative for owed from other party
-  function confirmedDebtBalances(bytes32 fId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds, uint[] totalDebts, uint[] mostRecent) {
-    setFriendsT(fId);
+  function confirmedDebtBalances(address ucac, bytes32 fId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds, uint[] totalDebts, uint[] mostRecent) {
+    setFriendsT(ucac, fId);
 
     currenciesT.length = 0;
     amountsT.length = 0;
@@ -132,7 +132,7 @@ contract DebtReader {
       bytes32 friend = friendsT[i];
       cdCurrencies.length = 0;
       for ( uint j=0; j < add.numDebts(fId, friend); j++ ) {
-        setDebtVars(fId, friend, j);
+        setDebtVars(ucac, fId, friend, j);
 
         //run this logic if the debt is neither Pending nor Rejected
         if ( !isPendingT && !isRejectedT ) {
@@ -165,7 +165,7 @@ contract DebtReader {
     return (currenciesT, amountsT, creditorsT, totalDebtsT, timestampsT);
   }
 
-  function confirmedDebts(bytes32 p1, bytes32 p2) constant returns (bytes32[] currency2, int[] amounts2, bytes32[] descs2, bytes32[] debtors2, bytes32[] creditors2, uint[] timestamps2) {
+  function confirmedDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32[] currency2, int[] amounts2, bytes32[] descs2, bytes32[] debtors2, bytes32[] creditors2, uint[] timestamps2) {
     currenciesT.length = 0;
     amountsT.length = 0;
     descsT.length = 0;
@@ -173,8 +173,8 @@ contract DebtReader {
     creditorsT.length = 0;
     timestampsT.length = 0;
 
-    for ( uint i=0; i < add.numDebts(p1, p2); i++ ) {
-      setDebtVars(p1, p2, i);
+    for ( uint i=0; i < add.numDebts(ucac, p1, p2); i++ ) {
+      setDebtVars(ucac, p1, p2, i);
 
       if ( !isPendingT && !isRejectedT ) {
         currenciesT.push(currencyT);
