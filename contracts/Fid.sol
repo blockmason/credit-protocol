@@ -6,20 +6,24 @@ import "./AbstractFriendReader.sol";
 
 //check conditions on all these
 contract Fid {
-  /*
   bytes32 admin;
+  address me;
 
   AbstractFoundation af;
-  AbstractDebtReader adr;
+  AbstractDebtData add;
   AbstractFriendReader afr;
   mapping (bytes32 => bool) currencies;
 
-  function Fid(bytes32 _admin, address foundationContract, address debtContract, address friendContract) {
+  function Fid(bytes32 _admin, address foundationContract, address debtDataContract, address friendReaderContract) {
     af  = AbstractFoundation(foundationContract);
-    adr = AbstractDebtReader(debtContract);
-    afr = AbstractFriendReader(friendContract);
+    add = AbstractDebtData(debtDataContract);
+    afr = AbstractFriendReader(friendReaderContract);
     admin = _admin;
     currencies["USD"] = true;
+  }
+
+  function setMyAddress(address _me) public isAdmin {
+    me = _me;
   }
 
   function addCurrency(bytes32 _code) public isAdmin {
@@ -58,7 +62,7 @@ contract Fid {
   function deleteFriend(address _sender, bytes32 myId, bytes32 friendId) constant returns (bool allowed, address capacityProvider) {
     if ( !isIdOwner(_sender, myId) )
       return (false, 0);
-    if ( !allBalancesZero() )
+    if ( !allBalancesZero(myId, friendId) )
       return (false, 0);
     return (true, 0);
   }
@@ -72,8 +76,13 @@ contract Fid {
   }
 
   //modifiers
-  modifier isAdmin(address _caller) {
-    require(af.idEq(admin, af.resolveToName(_caller)));
+  modifier isAdmin() {
+    require(af.idEq(admin, af.resolveToName(msg.sender)));
+    _;
+  }
+
+  modifier isInitialized() {
+    require ( me != 0 );
     _;
   }
 
@@ -90,25 +99,26 @@ contract Fid {
   }
 
   function areFriends(bytes32 _id1, bytes32 _id2) constant returns (bool) {
-    return afr.areFriends(_id1, _id2);
+    return afr.areFriends(me, _id1, _id2);
   }
 
   mapping ( bytes32 => int ) balByCurrency;
   bytes32[] currenciesTemp;
-  function allBalancesZero(bytes32 p1, bytes32 p2) constant returns (bool) {
+  function allBalancesZero(bytes32 p1, bytes32 p2) constant isInitialized returns (bool) {
     currenciesTemp.length = 0;
-    for ( uint i = 0; i < add.numDebts(p1, p2); i++ ) {
-      bytes32 c = add.dCurrencyCode(p1, p2, i);
-      if ( ! isMember(c, currencies) ) {
+    for ( uint i = 0; i < add.numDebts(me, p1, p2); i++ ) {
+      bytes32 c = add.dCurrencyCode(me, p1, p2, i);
+      if ( ! isMember(c, currenciesTemp) ) {
         balByCurrency[c] = 0;
         currenciesTemp.push(c);
       }
-      balByCurrency[c] += add.dAmount(p1, p2, i);
+      balByCurrency[c] += add.dAmount(me, p1, p2, i);
     }
     //throw error if all balances aren't 0
     for ( uint j=0; j < currenciesTemp.length; j++ )
-      if ( balByCurrency[currenciesTemp[j]] != 0 ) revert();
-    _;
+      if ( balByCurrency[currenciesTemp[j]] != 0 )
+        return false;
+    return true;
   }
-*/
+
 }

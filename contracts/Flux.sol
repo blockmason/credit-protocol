@@ -22,6 +22,8 @@ contract Flux {
 
   bytes32 admin;
   bool mutex;
+  bool allowed;
+  address provider;
 
   function Flux(bytes32 _adminId, address debtContract, address friendContract, address friendReaderContract, address foundationContract) {
     add = AbstractDebtData(debtContract);
@@ -33,10 +35,11 @@ contract Flux {
 
   /* Debt recording functions */
   function newDebt(address ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) public isMutexed {
-    if ( amount == 0 ) return;
+    if ( amount == 0 ) revert();
     if ( amount < 0 )  revert();
-
     au = AbstractUcac(ucac);
+    (allowed, provider) = au.newDebt(msg.sender, debtorId, creditorId, currencyCode, amount, desc);
+    if ( !allowed ) revert();
 
     add.pushBlankDebt(ucac, debtorId, creditorId);
     uint idx = add.numDebts(ucac, debtorId, creditorId) - 1;
@@ -64,6 +67,8 @@ contract Flux {
     (index, success) = findPendingDebt(ucac, myId, friendId, debtId);
     if ( ! success ) return;
     au = AbstractUcac(ucac);
+    (allowed, provider) = au.confirmDebt(msg.sender, myId, friendId, debtId);
+    if ( !allowed ) revert();
 
     if ( af.idEq(myId, add.dDebtorId(ucac, myId, friendId, index)) && !add.dDebtorConfirmed(ucac, myId, friendId, index) && add.dCreditorConfirmed(ucac, myId, friendId, index) ) {
       add.dSetDebtorConfirmed(ucac, myId, friendId, index, true);
@@ -81,6 +86,8 @@ contract Flux {
     (index, success) = findPendingDebt(ucac, myId, friendId, debtId);
     if ( ! success ) return;
     au = AbstractUcac(ucac);
+    (allowed, provider) = au.rejectDebt(msg.sender, myId, friendId, debtId);
+    if ( !allowed ) revert();
 
     add.dSetIsPending(ucac, myId, friendId, index, false);
     add.dSetIsRejected(ucac, myId, friendId, index, true);
@@ -92,6 +99,8 @@ contract Flux {
   function addFriend(address ucac, bytes32 myId, bytes32 friendId) public isMutexed {
     if ( af.idEq(myId, friendId) ) revert(); //can't add yourself as a friend
     au = AbstractUcac(ucac);
+    (allowed, provider) = au.addFriend(msg.sender, myId, friendId);
+    if ( !allowed ) revert();
 
     //if not initialized, create the Friendship
     if ( !afd.fInitialized(ucac, myId, friendId) ) {
@@ -132,6 +141,9 @@ contract Flux {
 
   function deleteFriend(address ucac, bytes32 myId, bytes32 friendId) public isMutexed {
     au = AbstractUcac(ucac);
+    (allowed, provider) = au.deleteFriend(msg.sender, myId, friendId);
+    if ( !allowed ) revert();
+
     //we keep initialized set to true so that the friendship doesn't get recreated
     afd.fSetf1Confirmed(ucac, myId, friendId, false);
     afd.fSetf2Confirmed(ucac, myId, friendId, false);
