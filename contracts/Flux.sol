@@ -40,23 +40,23 @@ contract Flux {
 
     au = AbstractUcac(ucac);
 
-    add.pushBlankDebt(debtorId, creditorId);
-    uint idx = add.numDebts(debtorId, creditorId) - 1;
+    add.pushBlankDebt(ucac, debtorId, creditorId);
+    uint idx = add.numDebts(ucac, debtorId, creditorId) - 1;
 
-    add.dSetUcac(debtorId, creditorId, idx, ucac);
-    add.dSetId(debtorId, creditorId, idx, add.getNextDebtId());
-    add.dSetTimestamp(debtorId, creditorId, idx, now);
-    add.dSetAmount(debtorId, creditorId, idx, amount);
-    add.dSetCurrencyCode(debtorId, creditorId, idx, currencyCode);
-    add.dSetDebtorId(debtorId, creditorId, idx, debtorId);
-    add.dSetCreditorId(debtorId, creditorId, idx, creditorId);
-    add.dSetIsPending(debtorId, creditorId, idx, true);
-    add.dSetDesc(debtorId, creditorId, idx, desc);
+    add.dSetUcac(ucac, debtorId, creditorId, idx, ucac);
+    add.dSetId(ucac, debtorId, creditorId, idx, add.getNextDebtId());
+    add.dSetTimestamp(ucac, debtorId, creditorId, idx, now);
+    add.dSetAmount(ucac, debtorId, creditorId, idx, amount);
+    add.dSetCurrencyCode(ucac, debtorId, creditorId, idx, currencyCode);
+      add.dSetDebtorId(ucac, debtorId, creditorId, idx, debtorId);
+    add.dSetCreditorId(ucac, debtorId, creditorId, idx, creditorId);
+    add.dSetIsPending(ucac, debtorId, creditorId, idx, true);
+    add.dSetDesc(ucac, debtorId, creditorId, idx, desc);
 
     if ( af.idEq(af.resolveToName(msg.sender), debtorId) )
-      add.dSetDebtorConfirmed(debtorId, creditorId, idx, true);
+      add.dSetDebtorConfirmed(ucac, debtorId, creditorId, idx, true);
     else
-      add.dSetCreditorConfirmed(debtorId, creditorId, idx, true);
+      add.dSetCreditorConfirmed(ucac, debtorId, creditorId, idx, true);
 
     add.dSetNextDebtId(add.getNextDebtId() + 1);
   }
@@ -64,84 +64,84 @@ contract Flux {
   function confirmDebt(address ucac, bytes32 myId, bytes32 friendId, uint debtId) {
     uint index;
     bool success;
-    (index, success) = findPendingDebt(myId, friendId, debtId);
+    (index, success) = findPendingDebt(ucac, myId, friendId, debtId);
     if ( ! success ) return;
     au = AbstractUcac(ucac);
 
-    if ( af.idEq(myId, add.dDebtorId(myId, friendId, index)) && !add.dDebtorConfirmed(myId, friendId, index) && add.dCreditorConfirmed(myId, friendId, index) ) {
-      add.dSetDebtorConfirmed(myId, friendId, index, true);
-      add.dSetIsPending(myId, friendId, index, false);
+    if ( af.idEq(myId, add.dDebtorId(ucac, myId, friendId, index)) && !add.dDebtorConfirmed(ucac, myId, friendId, index) && add.dCreditorConfirmed(ucac, myId, friendId, index) ) {
+      add.dSetDebtorConfirmed(ucac, myId, friendId, index, true);
+      add.dSetIsPending(ucac, myId, friendId, index, false);
     }
-    if ( af.idEq(myId, add.dCreditorId(myId, friendId, index)) && !add.dCreditorConfirmed(myId, friendId, index) && add.dDebtorConfirmed(myId, friendId, index) ) {
-      add.dSetCreditorConfirmed(myId, friendId, index, true);
-      add.dSetIsPending(myId, friendId, index, false);
+    if ( af.idEq(myId, add.dCreditorId(ucac, myId, friendId, index)) && !add.dCreditorConfirmed(ucac, myId, friendId, index) && add.dDebtorConfirmed(ucac, myId, friendId, index) ) {
+      add.dSetCreditorConfirmed(ucac, myId, friendId, index, true);
+      add.dSetIsPending(ucac, myId, friendId, index, false);
     }
   }
 
   function rejectDebt(address ucac, bytes32 myId, bytes32 friendId, uint debtId) public {
     uint index;
     bool success;
-    (index, success) = findPendingDebt(myId, friendId, debtId);
+    (index, success) = findPendingDebt(ucac, myId, friendId, debtId);
     if ( ! success ) return;
     au = AbstractUcac(ucac);
 
-    add.dSetIsPending(myId, friendId, index, false);
-    add.dSetIsRejected(myId, friendId, index, true);
-    add.dSetDebtorConfirmed(myId, friendId, index, false);
-    add.dSetCreditorConfirmed(myId, friendId, index, false);
+    add.dSetIsPending(ucac, myId, friendId, index, false);
+    add.dSetIsRejected(ucac, myId, friendId, index, true);
+    add.dSetDebtorConfirmed(ucac, myId, friendId, index, false);
+    add.dSetCreditorConfirmed(ucac, myId, friendId, index, false);
   }
 
   /* Friend functions */
   function addFriend(address ucac, bytes32 myId, bytes32 friendId) public {
-    if ( af.idEq(myId, friendId) ) revert(); //can't add yourself
+    if ( af.idEq(myId, friendId) ) revert(); //can't add yourself as a friend
     au = AbstractUcac(ucac);
 
     //if not initialized, create the Friendship
-    if ( !afd.fInitialized(myId, friendId) ) {
-      afd.fSetUcac(myId, friendId, ucac);
-      afd.fSetInitialized(myId, friendId, true);
-      afd.fSetf1Id(myId, friendId, myId);
-      afd.fSetf2Id(myId, friendId, friendId);
-      afd.fSetIsPending(myId, friendId, true);
-      afd.fSetf1Confirmed(myId, friendId, true);
+    if ( !afd.fInitialized(ucac, myId, friendId) ) {
+      afd.fSetUcac(ucac, myId, friendId, ucac);
+      afd.fSetInitialized(ucac, myId, friendId, true);
+      afd.fSetf1Id(ucac, myId, friendId, myId);
+      afd.fSetf2Id(ucac, myId, friendId, friendId);
+      afd.fSetIsPending(ucac, myId, friendId, true);
+      afd.fSetf1Confirmed(ucac, myId, friendId, true);
 
-      afd.pushFriendId(myId, friendId);
+      afd.pushFriendId(ucac, myId, friendId);
       afd.pushFriendId(friendId, myId);
       return;
     }
-    if ( afd.fIsMutual(myId, friendId) ) return;
+    if ( afd.fIsMutual(ucac, myId, friendId) ) return;
 
-    if ( af.idEq(afd.ff1Id(myId, friendId), myId) ) {
-      afd.fSetf1Confirmed(myId, friendId, true);
+    if ( af.idEq(afd.ff1Id(ucac, myId, friendId), myId) ) {
+      afd.fSetf1Confirmed(ucac, myId, friendId, true);
     }
-    if ( af.idEq(afd.ff2Id(myId, friendId), myId) ) {
-      afd.fSetf2Confirmed(myId, friendId, true);
+    if ( af.idEq(afd.ff2Id(ucac, myId, friendId), myId) ) {
+      afd.fSetf2Confirmed(ucac, myId, friendId, true);
     }
 
     //if friend has confirmed already, friendship is mutual
     if (
-        ( af.idEq(afd.ff1Id(myId, friendId), friendId) && afd.ff1Confirmed(myId, friendId))
+        ( af.idEq(afd.ff1Id(ucac, myId, friendId), friendId) && afd.ff1Confirmed(ucac, myId, friendId))
         ||
-        ( af.idEq(afd.ff2Id(myId, friendId), friendId) && afd.ff2Confirmed(myId, friendId))) {
-      afd.fSetIsMutual(myId, friendId, true);
-      afd.fSetIsPending(myId, friendId, false);
+        ( af.idEq(afd.ff2Id(ucac, myId, friendId), friendId) && afd.ff2Confirmed(ucac, myId, friendId))) {
+      afd.fSetIsMutual(ucac, myId, friendId, true);
+      afd.fSetIsPending(ucac, myId, friendId, false);
 
       return;
     }
     //if friend hasn't confirmed, make this pending
     else {
-      afd.fSetIsPending(myId, friendId, true);
+      afd.fSetIsPending(ucac, myId, friendId, true);
     }
   }
 
   function deleteFriend(address ucac, bytes32 myId, bytes32 friendId) {
     au = AbstractUcac(ucac);
     //we keep initialized set to true so that the friendship doesn't get recreated
-    afd.fSetf1Confirmed(myId, friendId, false);
-    afd.fSetf2Confirmed(myId, friendId, false);
+    afd.fSetf1Confirmed(ucac, myId, friendId, false);
+    afd.fSetf2Confirmed(ucac, myId, friendId, false);
 
-    afd.fSetIsMutual(myId, friendId, false);
-    afd.fSetIsPending(myId, friendId, false);
+    afd.fSetIsMutual(ucac, myId, friendId, false);
+    afd.fSetIsPending(ucac, myId, friendId, false);
   }
 
   /*  helpers and modifiers */
@@ -157,8 +157,8 @@ contract Flux {
     _;
   }
 
-  modifier areFriends(bytes32 _id1, bytes32 _id2) {
-    if ( ! afr.areFriends(_id1, _id2) ) revert();
+  modifier areFriends(address ucac, bytes32 _id1, bytes32 _id2) {
+    if ( ! afr.areFriends(ucac, _id1, _id2) ) revert();
     _;
   }
 
@@ -170,10 +170,10 @@ contract Flux {
 
   //returns false for success if debt not found
   //only returns pending, non-rejected debts
-  function findPendingDebt(bytes32 p1, bytes32 p2, uint debtId) private constant returns (uint index, bool success) {
-    for(uint i=0; i < add.numDebts(p1, p2); i++) {
-      if( add.dId(p1, p2, i) == debtId && add.dIsPending(p1, p2, i)
-          && ! add.dIsRejected(p1, p2, i) )
+  function findPendingDebt(address ucac, bytes32 p1, bytes32 p2, uint debtId) private constant returns (uint index, bool success) {
+    for(uint i=0; i < add.numDebts(ucac, p1, p2); i++) {
+      if( add.dId(ucac, p1, p2, i) == debtId && add.dIsPending(ucac, p1, p2, i)
+          && ! add.dIsRejected(ucac, p1, p2, i) )
         return (i, true);
     }
     return (i, false);

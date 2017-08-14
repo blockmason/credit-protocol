@@ -64,8 +64,8 @@ contract DebtReader {
     }
   }
 
-  function pendingDebts(bytes32 fId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
-    setFriendsT(fId);
+  function pendingDebts(address ucac, bytes32 fId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors) {
+    setFriendsT(ucac, fId);
 
     debtIdsT.length = 0;
     confirmersT.length = 0;
