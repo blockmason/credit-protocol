@@ -51,7 +51,7 @@ module.exports = function(deployer, network, accounts) {
         }).then(function(tx) {
             return Fid.deployed();
         }).then(function(fid) {
-            return fid.setMyAddress(Fid.address, {from: account1});
+            return fid.setIdUcac(Fid.address, {from: account1});
         }).then(function(tx) {
             return Flux.deployed();
         }).then(function(f) {
