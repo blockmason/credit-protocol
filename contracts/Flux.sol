@@ -35,10 +35,10 @@ contract Flux {
   }
 
   /* Debt recording functions */
-  function newDebt(address ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) public isMutexed {
+  function newDebt(address ucacContract, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc) public isMutexed {
     if ( amount == 0 ) revert();
     if ( amount < 0 )  revert();
-    au = AbstractUcac(ucac);
+    au = AbstractUcac(ucacContract);
     (allowed, provider, idUcac) = au.newDebt(msg.sender, debtorId, creditorId, currencyCode, amount, desc);
     if ( !allowed ) revert();
 
@@ -62,12 +62,12 @@ contract Flux {
     add.dSetNextDebtId(add.getNextDebtId() + 1);
   }
 
-  function confirmDebt(address ucac, bytes32 myId, bytes32 friendId, uint debtId) public isMutexed {
+  function confirmDebt(address ucacContract, bytes32 myId, bytes32 friendId, uint debtId) public isMutexed {
     uint index;
     bool success;
     (index, success) = findPendingDebt(idUcac, myId, friendId, debtId);
     if ( ! success ) return;
-    au = AbstractUcac(ucac);
+    au = AbstractUcac(ucacContract);
     (allowed, provider, idUcac) = au.confirmDebt(msg.sender, myId, friendId, debtId);
     if ( !allowed ) revert();
 
@@ -81,12 +81,12 @@ contract Flux {
     }
   }
 
-  function rejectDebt(address ucac, bytes32 myId, bytes32 friendId, uint debtId) public isMutexed {
+  function rejectDebt(address ucacContract, bytes32 myId, bytes32 friendId, uint debtId) public isMutexed {
     uint index;
     bool success;
     (index, success) = findPendingDebt(idUcac, myId, friendId, debtId);
     if ( ! success ) return;
-    au = AbstractUcac(ucac);
+    au = AbstractUcac(ucacContract);
     (allowed, provider, idUcac) = au.rejectDebt(msg.sender, myId, friendId, debtId);
     if ( !allowed ) revert();
 
@@ -97,9 +97,9 @@ contract Flux {
   }
 
   /* Friend functions */
-  function addFriend(address ucac, bytes32 myId, bytes32 friendId) public isMutexed {
+  function addFriend(address ucacContract, bytes32 myId, bytes32 friendId) public isMutexed {
     if ( af.idEq(myId, friendId) ) revert(); //can't add yourself as a friend
-    au = AbstractUcac(ucac);
+    au = AbstractUcac(ucacContract);
     (allowed, provider, idUcac) = au.addFriend(msg.sender, myId, friendId);
     if ( !allowed ) revert();
 
@@ -140,8 +140,8 @@ contract Flux {
     }
   }
 
-  function deleteFriend(address ucac, bytes32 myId, bytes32 friendId) public isMutexed {
-    au = AbstractUcac(ucac);
+  function deleteFriend(address ucacContract, bytes32 myId, bytes32 friendId) public isMutexed {
+    au = AbstractUcac(ucacContract);
     (allowed, provider, idUcac) = au.deleteFriend(msg.sender, myId, friendId);
     if ( !allowed ) revert();
 
@@ -159,8 +159,8 @@ contract Flux {
     _;
   }
 
-  modifier areFriends(address ucac, bytes32 _id1, bytes32 _id2) {
-    if ( ! afr.areFriends(idUcac, _id1, _id2) ) revert();
+  modifier areFriends(address _idUcac, bytes32 _id1, bytes32 _id2) {
+    if ( ! afr.areFriends(_idUcac, _id1, _id2) ) revert();
     _;
   }
 

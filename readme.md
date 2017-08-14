@@ -27,19 +27,19 @@ Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt trackin
 ```
 ## FriendReader
 ```
-0x579c35795a7435bf045fff3fc2d1735183ed71c3
+0xc798d31b0326b666239ba264307684e5551902ae
 ```
 ## DebtReader
 ```
-0x9c03020ac069e044d06865d5d3ab3d132b64a813
+0x0eb4f311b6a5060a87377662e5b2f042471c72c8
 ```
 ## Flux
 ```
-0xb2e1c2140f88cca0a7f70bf01ec51b2db0f6a665
+0x43705df4757191343b7ae24abe6d56ed07686d4f
 ```
 ## Fid
 ```
-0x79fb7bab2aee7651b5de0d485424ac54d20891f9
-(ucacId)
+0x73ef61d966b60107fc21396ec61395be85972515
+(idUcac)
 0xeedb62eb265d2b42556ecd83324fe020d4731c19 
 ```
