@@ -1,14 +1,14 @@
 pragma solidity ^0.4.11;
 
 import "./AbstractFoundation.sol";
-import "./AbstractCPData.sol";
+import "./AbstractFriendData.sol";
 
 contract Friend {
-  AbstractCPData add;
+  AbstractFriendData afd;
   AbstractFoundation af;
 
-  function Friend(address dataContract, address foundationContract) {
-    add = AbstractCPData(dataContract);
+  function Friend(address friendContract, address foundationContract) {
+    afd = AbstractFriendData(friendContract);
     af  = AbstractFoundation(foundationContract);
   }
 
@@ -21,13 +21,13 @@ contract Friend {
   bytes32[] currencies;
   modifier allBalancesZero(bytes32 p1, bytes32 p2) {
     currencies.length = 0;
-    for ( uint i = 0; i < add.numDebts(p1, p2); i++ ) {
-      bytes32 c = add.dCurrencyCode(p1, p2, i);
+    for ( uint i = 0; i < afd.numDebts(p1, p2); i++ ) {
+      bytes32 c = afd.dCurrencyCode(p1, p2, i);
       if ( ! isMember(c, currencies) ) {
         balByCurrency[c] = 0;
         currencies.push(c);
       }
-      balByCurrency[c] += add.dAmount(p1, p2, i);
+      balByCurrency[c] += afd.dAmount(p1, p2, i);
     }
     //throw error if all balances aren't 0
     for ( uint j=0; j < currencies.length; j++ )
@@ -36,57 +36,46 @@ contract Friend {
   }
 
   function areFriends(bytes32 _id1, bytes32 _id2) constant returns (bool) {
-    return add.fIsMutual(_id1, _id2);
+    return afd.fIsMutual(_id1, _id2);
   }
 
   function addFriend(bytes32 myId, bytes32 friendId) public isIdOwner(msg.sender, myId) {
     if ( af.idEq(myId, friendId) ) revert(); //can't add yourself
 
     //if not initialized, create the Friendship
-    if ( !add.fInitialized(myId, friendId) ) {
-      add.fSetInitialized(myId, friendId, true);
-      add.fSetf1Id(myId, friendId, myId);
-      add.fSetf2Id(myId, friendId, friendId);
-      add.fSetIsPending(myId, friendId, true);
-      add.fSetf1Confirmed(myId, friendId, true);
+    if ( !afd.fInitialized(myId, friendId) ) {
+      afd.fSetInitialized(myId, friendId, true);
+      afd.fSetf1Id(myId, friendId, myId);
+      afd.fSetf2Id(myId, friendId, friendId);
+      afd.fSetIsPending(myId, friendId, true);
+      afd.fSetf1Confirmed(myId, friendId, true);
 
-      add.fSetInitialized(friendId, myId, true);
-      add.fSetf1Id(friendId, myId, myId);
-      add.fSetf2Id(friendId, myId, friendId);
-      add.fSetIsPending(friendId, myId, true);
-      add.fSetf1Confirmed(friendId, myId, true);
-
-      add.pushFriendId(myId, friendId);
-      add.pushFriendId(friendId, myId);
+      afd.pushFriendId(myId, friendId);
+      afd.pushFriendId(friendId, myId);
       return;
     }
-    if ( add.fIsMutual(myId, friendId) ) return;
+    if ( afd.fIsMutual(myId, friendId) ) return;
 
-    if ( af.idEq(add.ff1Id(myId, friendId), myId) ) {
-      add.fSetf1Confirmed(myId, friendId, true);
-      add.fSetf1Confirmed(friendId, myId, true);
+    if ( af.idEq(afd.ff1Id(myId, friendId), myId) ) {
+      afd.fSetf1Confirmed(myId, friendId, true);
     }
-    if ( af.idEq(add.ff2Id(myId, friendId), myId) ) {
-      add.fSetf2Confirmed(myId, friendId, true);
-      add.fSetf2Confirmed(friendId, myId, true);
+    if ( af.idEq(afd.ff2Id(myId, friendId), myId) ) {
+      afd.fSetf2Confirmed(myId, friendId, true);
     }
 
     //if friend has confirmed already, friendship is mutual
     if (
-        ( af.idEq(add.ff1Id(myId, friendId), friendId) && add.ff1Confirmed(myId, friendId))
+        ( af.idEq(afd.ff1Id(myId, friendId), friendId) && afd.ff1Confirmed(myId, friendId))
         ||
-        ( af.idEq(add.ff2Id(myId, friendId), friendId) && add.ff2Confirmed(myId, friendId))) {
-      add.fSetIsMutual(myId, friendId, true);
-      add.fSetIsPending(myId, friendId, false);
+        ( af.idEq(afd.ff2Id(myId, friendId), friendId) && afd.ff2Confirmed(myId, friendId))) {
+      afd.fSetIsMutual(myId, friendId, true);
+      afd.fSetIsPending(myId, friendId, false);
 
-      add.fSetIsMutual(friendId, myId, true);
-      add.fSetIsPending(friendId, myId, false);
       return;
     }
     //if friend hasn't confirmed, make this pending
     else {
-      add.fSetIsPending(myId, friendId, true);
-      add.fSetIsPending(friendId, myId, true);
+      afd.fSetIsPending(myId, friendId, true);
     }
   }
 
@@ -95,24 +84,20 @@ contract Friend {
    */
   function deleteFriend(bytes32 myId, bytes32 friendId) public allBalancesZero(myId, friendId) isIdOwner(msg.sender, myId) {
     //we keep initialized set to true so that the friendship doesn't get recreated
-    add.fSetf1Confirmed(myId, friendId, false);
-    add.fSetf1Confirmed(friendId, myId, false);
-    add.fSetf2Confirmed(myId, friendId, false);
-    add.fSetf2Confirmed(friendId, myId, false);
+    afd.fSetf1Confirmed(myId, friendId, false);
+    afd.fSetf2Confirmed(myId, friendId, false);
 
-    add.fSetIsMutual(myId, friendId, false);
-    add.fSetIsMutual(friendId, myId, false);
+    afd.fSetIsMutual(myId, friendId, false);
 
-    add.fSetIsPending(myId, friendId, false);
-    add.fSetIsPending(friendId, myId, false);
+    afd.fSetIsPending(myId, friendId, false);
   }
 
   function numFriends(bytes32 fId) constant returns (uint) {
-    return add.numFriends(fId);
+    return afd.numFriends(fId);
   }
 
   function friendIdByIndex(bytes32 fId, uint index) returns (bytes32) {
-    return add.friendIdByIndex(fId, index);
+    return afd.friendIdByIndex(fId, index);
   }
 
   /*  Temporary variables */
@@ -120,9 +105,9 @@ contract Friend {
   bytes32[] ids2;
   function confirmedFriends(bytes32 fId) constant returns (bytes32[] confirmedFriends) {
     ids1.length = 0;
-    for ( uint i=0; i < add.numFriends(fId); i++ ) {
+    for ( uint i=0; i < afd.numFriends(fId); i++ ) {
       bytes32 currFriendId = friendIdByIndex(fId, i);
-      if ( add.fIsMutual(fId, currFriendId) )
+      if ( afd.fIsMutual(fId, currFriendId) )
         ids1.push(currFriendId);
     }
     return ids1;
@@ -131,15 +116,15 @@ contract Friend {
   function pendingFriends(bytes32 fId) constant returns (bytes32[] friendIds, bytes32[] confirmerIds) {
     ids1.length = 0;
     ids2.length = 0;
-    for ( uint i=0; i < add.numFriends(fId); i++ ) {
+    for ( uint i=0; i < afd.numFriends(fId); i++ ) {
       bytes32 friendId = friendIdByIndex(fId, i);
       //      Friendship memory fs = friendships[fId][currFriendId];
-      if ( add.fIsPending(fId, friendId) ) {
+      if ( afd.fIsPending(fId, friendId) ) {
         ids1.push(friendId);
-        if ( add.ff1Confirmed(fId, friendId) )
-          ids2.push(add.ff2Id(fId, friendId));
+        if ( afd.ff1Confirmed(fId, friendId) )
+          ids2.push(afd.ff2Id(fId, friendId));
         else
-          ids2.push(add.ff1Id(fId, friendId));
+          ids2.push(afd.ff1Id(fId, friendId));
       }
     }
     return (ids1, ids2);
