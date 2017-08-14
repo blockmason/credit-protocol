@@ -1,24 +1,9 @@
 pragma solidity ^0.4.11;
 
-contract CPData {
+contract DebtData {
   address admin;
   address admin2;
   address fluxContract;
-  address friendContract;
-
-  /*  Friend  */
-  struct Friend {
-    address ucac;
-    bool initialized;
-    bytes32 f1Id;
-    bytes32 f2Id;
-    bool isPending;
-    bool isMutual;
-    bool f1Confirmed;
-    bool f2Confirmed;
-  }
-  mapping ( bytes32 => bytes32[] ) friendIdList;
-  mapping ( bytes32 => mapping ( bytes32 => Friend )) friendships;
 
   /*  Debt  */
   mapping ( bytes32 => bool ) currencyCodes;
@@ -47,12 +32,12 @@ contract CPData {
   }
 
   modifier isParent() {
-    if ( (msg.sender != fluxContract) && (msg.sender != friendContract)) revert();
+    if ( (msg.sender != fluxContract) ) revert();
     _;
   }
 
   /* main functions */
-  function CPData(address _admin2) {
+  function DebtData(address _admin2) {
     admin = msg.sender;
     admin2 = _admin2;
   }
@@ -64,77 +49,9 @@ contract CPData {
   function getFluxContract() constant returns (address) {
     return fluxContract;
   }
-  function getFriendContract() constant returns (address) {
-    return friendContract;
-  }
+
   function getAdmins() constant returns (address, address) {
     return (admin, admin2);
-  }
-
-  /* Friend Getters */
-  function numFriends(bytes32 fId) constant returns (uint) {
-    return friendIdList[fId].length;
-  }
-  function friendIdByIndex(bytes32 fId, uint index) constant returns (bytes32) {
-    return friendIdList[fId][index];
-  }
-
-  function fUcac(bytes32 p1, bytes32 p2) constant returns (address) {
-    return friendships[p1][p2].ucac;
-  }
-  function fInitialized(bytes32 p1, bytes32 p2) constant returns (bool) {
-    return friendships[p1][p2].initialized;
-  }
-  function ff1Id(bytes32 p1, bytes32 p2) constant returns (bytes32) {
-    return friendships[p1][p2].f1Id;
-  }
-  function ff2Id(bytes32 p1, bytes32 p2) constant returns (bytes32) {
-    return friendships[p1][p2].f2Id;
-  }
-  function fIsPending(bytes32 p1, bytes32 p2) constant returns (bool) {
-    return friendships[p1][p2].isPending;
-  }
-  function fIsMutual(bytes32 p1, bytes32 p2) constant returns (bool) {
-    return friendships[p1][p2].isMutual;
-  }
-  function ff1Confirmed(bytes32 p1, bytes32 p2) constant returns (bool) {
-    return friendships[p1][p2].f1Confirmed;
-  }
-  function ff2Confirmed(bytes32 p1, bytes32 p2) constant returns (bool) {
-    return friendships[p1][p2].f2Confirmed;
-  }
-
-  /* Friend Setters */
-  function pushFriendId(bytes32 myId, bytes32 friendId) public isParent {
-    friendIdList[myId].push(friendId);
-  }
-  function setFriendIdByIndex(bytes32 myId, uint idx, bytes32 newFriendId) public isParent{
-    friendIdList[myId][idx] = newFriendId;
-  }
-
-  function fSetUcac(bytes32 p1, bytes32 p2, address ucac) public isParent {
-    friendships[p1][p2].ucac = ucac;
-  }
-  function fSetInitialized(bytes32 p1, bytes32 p2, bool initialized) public isParent {
-    friendships[p1][p2].initialized = initialized;
-  }
-  function fSetf1Id(bytes32 p1, bytes32 p2, bytes32 id) public isParent {
-    friendships[p1][p2].f1Id = id;
-  }
-  function fSetf2Id(bytes32 p1, bytes32 p2, bytes32 id) public isParent {
-    friendships[p1][p2].f2Id = id;
-  }
-  function fSetIsPending(bytes32 p1, bytes32 p2, bool isPending) public isParent {
-    friendships[p1][p2].isPending = isPending;
-  }
-  function fSetIsMutual(bytes32 p1, bytes32 p2, bool isMutual) public isParent {
-    friendships[p1][p2].isMutual = isMutual;
-  }
-  function fSetf1Confirmed(bytes32 p1, bytes32 p2, bool f1Confirmed) public isParent {
-    friendships[p1][p2].f1Confirmed = f1Confirmed;
-  }
-  function fSetf2Confirmed(bytes32 p1, bytes32 p2, bool f2Confirmed) public isParent {
-    friendships[p1][p2].f2Confirmed = f2Confirmed;
   }
 
   /* Flux helpers */
@@ -270,5 +187,4 @@ contract CPData {
     (f, s) = debtIndices(p1, p2);
     debts[f][s][idx].desc = desc;
   }
-
 }
