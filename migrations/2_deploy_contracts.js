@@ -92,7 +92,7 @@ module.exports = function(deployer, network, accounts) {
         }).then(function(tx) {
             return Fid.deployed();
         }).then(function(fid) {
-            return fid.setMyAddress(Fid.address);
+            return fid.setIdUcac(Fid.address, fnData);
         });
     }
 
