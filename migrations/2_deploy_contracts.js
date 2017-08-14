@@ -1,11 +1,11 @@
-var testFoundationContract = "0x73a79e86cb10ba4495c42ccbd1de4d0c69008da4";
+var testFoundationContract = "0xdd1c6c4fff2efd226f5f4df60b6ae5848b7973d6";
 
-var DebtData = artifacts.require("./.sol");
-var FriendData = artifacts.require("./.sol");
-var DebtReader = artifacts.require("./.sol");
-var FriendReader = artifacts.require("./.sol");
-var Flux = artifacts.require("./.sol");
-var Fid = artifacts.require("./.sol");
+var DebtData = artifacts.require("./DebtData.sol");
+var FriendData = artifacts.require("./FriendData.sol");
+var DebtReader = artifacts.require("./DebtReader.sol");
+var FriendReader = artifacts.require("./FriendReader.sol");
+var Flux = artifacts.require("./Flux.sol");
+var Fid = artifacts.require("./Fid.sol");
 
 var ropstenFoundationContract = "0x406b716b01ab7c0acc75ceb9fadcc48ce39f5550";
 
@@ -24,29 +24,33 @@ module.exports = function(deployer, network, accounts) {
     if ( network == "testrpc" ) {
         var user2 = "timg"; //also admin2
         var user3 = "jaredb";
+        var account1 = accounts[0];
         var account2 = accounts[1];
         var account3 = accounts[2];
 
-        deployer.deploy(DPData, account2, {from: accounts[0]}).then(function() {
-            return deployer.deploy(Friend, DPData.address, testFoundationContract, {from: accounts[0]});
+        deployer.deploy(DebtData, account2, {from: account1}).then(function() {
+            return deployer.deploy(FriendData, account2, {from: account1});
         }).then(function() {
-            return deployer.deploy(FluxxxyDP, admin, DPData.address, Friend.address, testFoundationContract, {from: accounts[0]});
+            return deployer.deploy(FriendReader, FriendData.address);
+        }).then(function() {
+            return deployer.deploy(DebtReader, DebtData.address, FriendReader.address, testFoundationContract);
+        }).then(function() {
+            return deployer.deploy(Flux, admin, DebtData.address, FriendData.address, FriendReader.address, testFoundationContract);
+        }).then(function() {
+            return deployer.deploy(Fid, admin, testFoundationContract, DebtData.address, FriendData.address);
         });
-
         deployer.then(function() {
-            return DPData.deployed();
-        }).then(function(dpdata) {
-            instance = dpdata;
-            return instance.setFriendContract(Friend.address, {from: accounts[0]});
+            return DebtData.deployed();
+        }).then(function(dd) {
+            return dd.setFluxContract(Flux.address, {from: account1});
         }).then(function(tx) {
-            return instance.setFluxContract(FluxxxyDP.address, {from: accounts[0]});
+            return FriendData.deployed();
+        }).then(function(fd) {
+            return fd.setFluxContract(Flux.address, {from: account1});
         }).then(function(tx) {
-            return Friend.deployed();
-        }).then(function(f) {
-            instance = f;
-            return instance.addFriend(user2, user3, {from: account2});
-        }).then(function(tx) {
-            return instance.addFriend(user3, user2, {from: account3});
+            return Fid.deployed();
+        }).then(function(fid) {
+            return fid.setMyAddress(Fid.address, {from: account1});
         });
     }
 
@@ -58,23 +62,29 @@ module.exports = function(deployer, network, accounts) {
                       gas: fnGasLimit,
                       gasPrice: fiveGwei};
 
-        deployer.deploy(DPData, metamaskAddr, contractData).then(function() {
-            return deployer.deploy(Friend, DPData.address, ropstenFoundationContract, contractData);
+        deployer.deploy(DebtData, metamaskAddr, contractData).then(function() {
+            return deployer.deploy(FriendData, metamaskAddr, contractData);
         }).then(function() {
-            return deployer.deploy(FluxxxyDP, admin, DPData.address, Friend.address, ropstenFoundationContract, contractData);
+            return deployer.deploy(FriendReader, FriendData.address, contractData);
+        }).then(function() {
+            return deployer.deploy(DebtReader, DebtData.address, FriendReader.address, ropstenFoundationContract, contractData);
+        }).then(function() {
+            return deployer.deploy(Flux, admin, DebtData.address, FriendData.address, FriendReader.address, ropstenFoundationContract, contractData);
+        }).then(function() {
+            return deployer.deploy(Fid, admin, ropstenFoundationContract, DebtData.address, FriendData.address);
         });
         deployer.then(function() {
-            return DPData.deployed();
-        }).then(function(fdata) {
-            instance = fdata;
-            return instance.setFriendContract(Friend.address, fnData);
+            return DebtData.deployed();
+        }).then(function(dd) {
+            return dd.setFluxContract(Flux.address, fnData);
         }).then(function(tx) {
-            return instance.setFluxContract(FluxxxyDP.address, fnData);
-        }).then(function(d) {
-            return FluxxxyDP.deployed();
-        }).then(function(d) {
-            instance = d;
-            return instance.addCurrencyCode(currency, fnData);
+            return FriendData.deployed();
+        }).then(function(fd) {
+            return fd.setFluxContract(Flux.address, fnData);
+        }).then(function(tx) {
+            return Fid.deployed();
+        }).then(function(fid) {
+            return fid.setMyAddress(Fid.address);
         });
     }
 

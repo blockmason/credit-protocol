@@ -15,3 +15,29 @@ Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt trackin
 
 ### security considerations for UCACs
 * UCACs must verify whether they want a user to add debts between ANY two parties, or only debts they are personally involved in
+
+
+## DebtData
+```
+
+```
+## FriendData
+```
+
+```
+## DebtReader
+```
+
+```
+## FriendReader
+```
+
+```
+## Flux
+```
+
+```
+## Fid
+```
+
+```
