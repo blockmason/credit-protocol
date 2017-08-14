@@ -19,7 +19,7 @@ Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt trackin
 
 ## DebtData
 ```
-
+0xb86341e3330abc4221552635ba20f1e6fbd41c9f
 ```
 ## FriendData
 ```

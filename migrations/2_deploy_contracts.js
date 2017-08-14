@@ -104,23 +104,28 @@ module.exports = function(deployer, network, accounts) {
                       gas: fnGasLimit,
                       gasPrice: fiveGwei};
 
-        var fdataContract = "0x2f6c7dd0966f8aa217425201de970049192bfc7b";
+        var ddataContract = "";
+        var fdataContract = "";
 
-        deployer.deploy(Friend, fdataContract, ropstenFoundationContract, contractData).then(function() {
-            return deployer.deploy(FluxxxyDP, admin, fdataContract, Friend.address, ropstenFoundationContract, contractData);
+        deployer.deploy(FriendReader, fdataContract).then(function() {
+            return deployer.deploy(DebtReader, ddataContract, FriendReader.address, testFoundationContract);
+        }).then(function() {
+            return deployer.deploy(Flux, admin, ddataContract, fdataContract, FriendReader.address, testFoundationContract);
+        }).then(function() {
+            return deployer.deploy(Fid, admin, testFoundationContract, ddataContract, fdataContract);
         });
         deployer.then(function() {
-            return DPData.at(fdataContract);
-        }).then(function(fdata) {
-            instance = fdata;
-            return instance.setFriendContract(Friend.address, fnData);
+            return DebtData.at(ddataContract);
+        }).then(function(r) {
+            return r.setFluxContract(Flux.address, fnData);
         }).then(function(tx) {
-            return instance.setFluxContract(FluxxxyDP.address, fnData);
+            return FriendData.at(fdataContract);
+        }).then(function(r) {
+            return r.setFluxContract(Flux.address, fnData);
         }).then(function(d) {
-            return FluxxxyDP.deployed();
-        }).then(function(d) {
-            instance = d;
-            return instance.addCurrencyCode(currency, fnData);
+            return Fid.deployed();
+        }).then(function(r) {
+            return r.setMyAddress(Fid.address, fnData);
         });
     }
 
