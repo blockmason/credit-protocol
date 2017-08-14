@@ -1,17 +1,26 @@
-var DPData = artifacts.require("./DPData.sol");
-var FluxxxyDP = artifacts.require("./FluxxxyDp.sol");
-var Friend = artifacts.require("./Friend.sol");
+var DebtData = artifacts.require("./DebtData.sol");
+var FriendData = artifacts.require("./FriendData.sol");
+var DebtReader = artifacts.require("./DebtReader.sol");
+var FriendReader = artifacts.require("./FriendReader.sol");
+var Flux = artifacts.require("./Flux.sol");
+var Fid = artifacts.require("./Fid.sol");
 
 //Note: replace this with Foundation's address when new one deployed on testrpc
-var foundation = "0xa61941c3526cb3e6425d8fb59eb86359b016190c";
+var foundation = "0xdd1c6c4fff2efd226f5f4df60b6ae5848b7973d6";
 var adminId = "timgalebach";
 var user2 = "timg";
 var user3 = "jaredb";
 var user4 = "lukez";
 var currency = "USD";
-var dpdata;
+var ddata;
+var fdata;
+var dread;
+var fread;
+var flux;
+var fid;
 var d;
 var f;
+var instance;
 
 contract('FriendInDebt', function(accounts) {
     var account1 = accounts[0];
@@ -21,57 +30,59 @@ contract('FriendInDebt', function(accounts) {
 
     var friends;
     it("add a friend, have pending, confirm friend, no more pending", async function() {
-        dpdata = await DPData.new(account2, {from: account1});
-        f = await Friend.new(dpdata.address, foundation, {from: account1});
-        return FluxxxyDP.new(adminId, dpdata.address, f.address, foundation, {from: account1}).then(function(debtInstance) {
+        var ddata = await DebtData.new(account2, {from: account1});
+        var fdata = await FriendData.new(account2, {from: account1});
+        var fread = await FriendReader.new(fdata.address, {from: account1});
+        var dread = await DebtReader.new(ddata.address, fread.address, foundation, {from: account1});
+        var flux  = await Flux.new(adminId, ddata.address, fdata.address, fread.address, foundation, {from: account1});
+        var fid   = await Fid.new(adminId, foundation, ddata.address, fdata.address, {from: account1});
+        return DebtData.deployed().then(function(debtInstance) {
             d = debtInstance;
-            return dpdata.setFriendContract(f.address, {from: account1});
+            return d.setFluxContract(flux.address, {from: account1});
         }).then(function(tx) {
-            return dpdata.setFluxContract(d.address, {from: account1});
+            return fdata.setFluxContract(flux.address, {from: account1});
         }).then(function(tx) {
-            return d.addCurrencyCode(currency, {from: account1});
+            return flux.addFriend(fid.address, user2, user3, {from: account2});
         }).then(function(tx) {
-            return f.addFriend(user2, user3, {from: account2});
-        }).then(function(tx) {
-            return f.pendingFriends(user3);
+            return fread.pendingFriends(fid.address, user3);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user2, "user2 not in the pending list");
             assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
-            return f.pendingFriends(user2);
+            return fread.pendingFriends(fid.address, user2);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user3, "user3 not in the pending list");
             assert.equal(friends[0].confirmerId, user3, "user3 not in the ids to confirm list");
-            return f.confirmedFriends(user2);
+            return fread.confirmedFriends(fid.address, user2);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "should not have confirmed friends");
-            return f.confirmedFriends(user3);
+            return fread.confirmedFriends(fid.address, user3);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "should not have confirmed friends");
-            return f.addFriend(user3, user2, {from: account3});
+            return flux.addFriend(fid.address, user3, user2, {from: account3});
         }).then(function(v) {
-            return f.pendingFriends(user2);
+            return fread.pendingFriends(fid.address, user2);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "user2 should not have pending friends");
-            return f.pendingFriends(user3);
+            return fread.pendingFriends(fid.address, user3);
         }).then(function(v) {
             friends = pendingFriends2Js(v.valueOf());
             assert.equal(friends.length, 0, "user3 should not have pending friends");
-            return f.confirmedFriends(user3);
+            return fread.confirmedFriends(fid.address, user3);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user2, "user3 should have confirmed friends");
-            return f.confirmedFriends(user2);
+            return fread.confirmedFriends(fid.address, user2);
         }).then(function(v) {
             friends = confirmedFriends2Js(v.valueOf());
             assert.equal(friends[0].friendId, user3, "user2 should have confirmed friends");
         });
     });
-
+    /*
     it("correct number of confirmed debt balances", async function() {
         var amt1 = 2000;
         var amt2 = 3000;
@@ -131,6 +142,7 @@ contract('FriendInDebt', function(accounts) {
             assert.equal(debts[1].totalDebts, 3, "should have 3 confirmed debts with user4");
         });
     });
+*/
 
     /*
     it("create debt; check,confirm it; create debt; check,reject it", async function() {
