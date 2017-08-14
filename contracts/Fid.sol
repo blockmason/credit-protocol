@@ -63,6 +63,14 @@ contract Fid {
     return (true, 0);
   }
 
+  //helpers
+  function isMember(bytes32 s, bytes32[] l) constant returns(bool) {
+    for ( uint i=0; i < l.length; i++ ) {
+      if ( af.idEq(l[i], s)) return true;
+    }
+    return false;
+  }
+
   //modifiers
   modifier isAdmin(address _caller) {
     require(af.idEq(admin, af.resolveToName(_caller)));
