@@ -38,7 +38,7 @@ module.exports = function(deployer, network, accounts) {
         }).then(function() {
             return deployer.deploy(Flux, admin, DebtData.address, FriendData.address, FriendReader.address, testFoundationContract);
         }).then(function() {
-            return deployer.deploy(Fid, admin, testFoundationContract, DebtData.address, FriendData.address);
+            return deployer.deploy(Fid, admin, testFoundationContract, DebtData.address, FriendReader.address);
         });
         deployer.then(function() {
             return DebtData.deployed();
@@ -79,7 +79,7 @@ module.exports = function(deployer, network, accounts) {
         }).then(function() {
             return deployer.deploy(Flux, admin, DebtData.address, FriendData.address, FriendReader.address, ropstenFoundationContract, contractData);
         }).then(function() {
-            return deployer.deploy(Fid, admin, ropstenFoundationContract, DebtData.address, FriendData.address);
+            return deployer.deploy(Fid, admin, ropstenFoundationContract, DebtData.address, FriendReader.address, contractData);
         });
         deployer.then(function() {
             return DebtData.deployed();
@@ -104,15 +104,16 @@ module.exports = function(deployer, network, accounts) {
                       gas: fnGasLimit,
                       gasPrice: fiveGwei};
 
-        var ddataContract = "";
-        var fdataContract = "";
+        var ddataContract   = "0xb86341e3330abc4221552635ba20f1e6fbd41c9f";
+        var fdataContract   = "0x3719413d1bda8a80f3bcbba49b6c48d5de88a3d7";
+        var idUcac          = "0xeedb62eb265d2b42556ecd83324fe020d4731c19";
 
-        deployer.deploy(FriendReader, fdataContract).then(function() {
-            return deployer.deploy(DebtReader, ddataContract, FriendReader.address, testFoundationContract);
+        deployer.deploy(FriendReader, fdataContract, contractData).then(function() {
+            return deployer.deploy(DebtReader, ddataContract, FriendReader.address, ropstenFoundationContract, contractData);
         }).then(function() {
-            return deployer.deploy(Flux, admin, ddataContract, fdataContract, FriendReader.address, testFoundationContract);
+            return deployer.deploy(Flux, admin, ddataContract, fdataContract, FriendReader.address, ropstenFoundationContract, contractData);
         }).then(function() {
-            return deployer.deploy(Fid, admin, testFoundationContract, ddataContract, fdataContract);
+            return deployer.deploy(Fid, admin, ropstenFoundationContract, ddataContract, FriendReader.address, contractData);
         });
         deployer.then(function() {
             return DebtData.at(ddataContract);
@@ -125,8 +126,27 @@ module.exports = function(deployer, network, accounts) {
         }).then(function(d) {
             return Fid.deployed();
         }).then(function(r) {
-            return r.setMyAddress(Fid.address, fnData);
+            return r.setIdUcac(idUcac, fnData);
         });
     }
 
+    if ( network == "ropstenFidOnly" ) {
+        var contractData =  {from: accounts[0],
+                             gas: contractGasLimit,
+                             gasPrice: fiveGwei};
+        var fnData = {from: accounts[0],
+                      gas: fnGasLimit,
+                      gasPrice: fiveGwei};
+
+        var ddataContract   = "0xb86341e3330abc4221552635ba20f1e6fbd41c9f";
+        var freaderContract = "0xe1ee0b302912b9261db349dfa153b50165dcf616";
+        var idUcac          = "0xeedb62eb265d2b42556ecd83324fe020d4731c19";
+
+        deployer.deploy(Fid, admin, ropstenFoundationContract, ddataContract, freaderContract, contractData);
+        deployer.then(function() {
+            return Fid.deployed();g
+        }).then(function(r) {
+            return r.setIdUcac(idUcac, fnData);
+        });
+    }
 };

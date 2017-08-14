@@ -30,6 +30,10 @@
         {
           "name": "capacityProvider",
           "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -72,6 +76,10 @@
         {
           "name": "capacityProvider",
           "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -102,6 +110,10 @@
         {
           "name": "capacityProvider",
           "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -131,6 +143,10 @@
         },
         {
           "name": "capacityProvider",
+          "type": "address"
+        },
+        {
+          "name": "ucacId",
           "type": "address"
         }
       ],
@@ -166,6 +182,10 @@
         {
           "name": "capacityProvider",
           "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -175,5 +195,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1502691727531
+  "updated_at": 1502713846521
 }
