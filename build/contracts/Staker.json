@@ -1,8 +1,15 @@
 {
   "contract_name": "Staker",
   "abi": [],
+<<<<<<< HEAD
   "unlinked_binary": "0x60606040523415600b57fe5b5b60338060196000396000f30060606040525bfe00a165627a7a72305820f03165ea454ffda0e739ea30f13186e67fc242c2f563f0d2483f4023bf034e9d0029",
   "networks": {},
   "schema_version": "0.0.5",
   "updated_at": 1502630976266
+=======
+  "unlinked_binary": "0x60606040523415600b57fe5b5b60338060196000396000f30060606040525bfe00a165627a7a72305820c1f88744ab07a42dee0687786774946dbcbf0b405adbe9eb0b253bfb767653be0029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1502717101384
+>>>>>>> staking
 }

@@ -1,0 +1,199 @@
+{
+  "contract_name": "AbstractUcac",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        },
+        {
+          "name": "debtId",
+          "type": "uint256"
+        }
+      ],
+      "name": "confirmDebt",
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": "bool"
+        },
+        {
+          "name": "capacityProvider",
+          "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "name": "debtorId",
+          "type": "bytes32"
+        },
+        {
+          "name": "creditorId",
+          "type": "bytes32"
+        },
+        {
+          "name": "currencyCode",
+          "type": "bytes32"
+        },
+        {
+          "name": "amount",
+          "type": "int256"
+        },
+        {
+          "name": "desc",
+          "type": "bytes32"
+        }
+      ],
+      "name": "newDebt",
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": "bool"
+        },
+        {
+          "name": "capacityProvider",
+          "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "deleteFriend",
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": "bool"
+        },
+        {
+          "name": "capacityProvider",
+          "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addFriend",
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": "bool"
+        },
+        {
+          "name": "capacityProvider",
+          "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_sender",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        },
+        {
+          "name": "debtId",
+          "type": "uint256"
+        }
+      ],
+      "name": "rejectDebt",
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": "bool"
+        },
+        {
+          "name": "capacityProvider",
+          "type": "address"
+        },
+        {
+          "name": "ucacId",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1502717101383
+}

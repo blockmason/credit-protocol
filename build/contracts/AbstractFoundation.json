@@ -67,5 +67,9 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
+<<<<<<< HEAD
   "updated_at": 1502630976265
+=======
+  "updated_at": 1502717101382
+>>>>>>> staking
 }

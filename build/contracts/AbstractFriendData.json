@@ -1,0 +1,546 @@
+{
+  "contract_name": "AbstractFriendData",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "fId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "numFriends",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff2Confirmed",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fSetf2Id",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "isMutual",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetIsMutual",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "friendIndices",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getAdmins",
+      "outputs": [
+        {
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "name": "admin2",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff1Confirmed",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getFluxContract",
+      "outputs": [
+        {
+          "name": "fluxContract",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "initialized",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetInitialized",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "fId",
+          "type": "bytes32"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "friendIdByIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "f2Confirmed",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetf2Confirmed",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff2Id",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "friendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "pushFriendId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fSetf1Id",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_fluxContract",
+          "type": "address"
+        }
+      ],
+      "name": "setFluxContract",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "isPending",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetIsPending",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ff1Id",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fIsPending",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_admin2",
+          "type": "address"
+        }
+      ],
+      "name": "FriendData",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "myId",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "newFriendId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setFriendIdByIndex",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fIsMutual",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "f1Confirmed",
+          "type": "bool"
+        }
+      ],
+      "name": "fSetf1Confirmed",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucac",
+          "type": "address"
+        },
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "fInitialized",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1502717101382
+}
