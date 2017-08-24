@@ -5,7 +5,18 @@ contract Stake {
 
   mapping ( address => address[] ) ucacIdToUcac;
 
-  function State(bytes32 _admin) {
+  function Stake(bytes32 _admin) {
     admin = _admin;
+  }
+
+  function isValidUcac(address ucacId, address ucac) {
+    return isMember(ucac, ucacIdToUcac[ucacId]);
+  }
+
+  function isMember(address a, address[] l) constant returns(bool) {
+    for ( uint i=0; i < l.length; i++ ) {
+      if ( a == l[i] ) return true;
+    }
+    return false;
   }
 }
