@@ -4,6 +4,14 @@ pragma solidity ^0.4.11;
     The Flux Capacitor for Debt Protocol
 */
 
+//issue:
+/*
+    (allowed, provider, idUcac) = au.rejectDebt(msg.sender, myId, friendId, debtId);
+returning the idUcac allows a malicious ucac to hijack any ucac's write space
+solution: functions call Stake first to grab the ucac address, indexed by ucacId
+
+*/
+
 //TODO: all write calls should call out to the staker to see if the token/address they get back from the UCAC is cool
 
 import "./AbstractUcac.sol";

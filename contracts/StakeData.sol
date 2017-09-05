@@ -1,6 +1,7 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.13;
 
 contract StakeData {
+  address stakeContract;
 
   struct Ucac {
     bytes32 id;
@@ -9,6 +10,22 @@ contract StakeData {
   }
 
   mapping (bytes32 => Ucac) ucacs; //indexed by ucacId
+
+  function StakeData() {
+
+  }
+
+  function setStakeContract() public isAdmin {
+
+  }
+
+  function getUcacAddr(bytes32 ucacId) public constant returns (address) {
+    return ucacs[ucacId].ucacAddr;
+  }
+
+  function setUcacAddr(bytes32 _ucacId, address _ucacAddr) public isParent {
+
+  }
 }
 
 

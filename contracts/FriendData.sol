@@ -16,9 +16,6 @@ contract FriendData {
     bool f1Confirmed;
     bool f2Confirmed;
   }
-  mapping ( bytes32 => bytes32[] ) friendIdList;
-  mapping ( bytes32 => mapping ( bytes32 => Friend )) friendships;
-=======
   mapping ( address => mapping ( bytes32 => bytes32[] )) friendIdList;
   mapping ( address => mapping ( bytes32 => mapping ( bytes32 => Friend ))) friendships;
 
