@@ -7,10 +7,7 @@ contract FriendData {
 
   /*  Friend  */
   struct Friend {
-<<<<<<< HEAD
     address ucac;
-=======
->>>>>>> staking
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
@@ -19,13 +16,11 @@ contract FriendData {
     bool f1Confirmed;
     bool f2Confirmed;
   }
-<<<<<<< HEAD
   mapping ( bytes32 => bytes32[] ) friendIdList;
   mapping ( bytes32 => mapping ( bytes32 => Friend )) friendships;
 =======
   mapping ( address => mapping ( bytes32 => bytes32[] )) friendIdList;
   mapping ( address => mapping ( bytes32 => mapping ( bytes32 => Friend ))) friendships;
->>>>>>> staking
 
   /*  modifiers  */
   modifier isAdmin() {
@@ -59,20 +54,16 @@ contract FriendData {
   bytes32 f;
   bytes32 s;
   /* Flux helpers */
-<<<<<<< HEAD
   function friendIndices(bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
     if ( friendships[p1][p2].initialized )
-=======
   function friendIndices(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
     if ( friendships[ucac][p1][p2].initialized )
->>>>>>> staking
       return (p1, p2);
     else
       return (p2, p1);
   }
 
   /* Friend Getters */
-<<<<<<< HEAD
   function numFriends(bytes32 fId) constant returns (uint) {
     return friendIdList[fId].length;
   }
@@ -152,7 +143,6 @@ contract FriendData {
   function fSetf2Confirmed(bytes32 p1, bytes32 p2, bool f2Confirmed) public isParent {
     (f, s) = friendIndices(p1, p2);
     friendships[f][s].f2Confirmed = f2Confirmed;
-=======
   function numFriends(address ucac, bytes32 fId) constant returns (uint) {
     return friendIdList[ucac][fId].length;
   }
@@ -224,7 +214,6 @@ contract FriendData {
   function fSetf2Confirmed(address ucac, bytes32 p1, bytes32 p2, bool f2Confirmed) public isParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].f2Confirmed = f2Confirmed;
->>>>>>> staking
   }
 
 }
