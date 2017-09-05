@@ -43,3 +43,11 @@ Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt trackin
 (idUcac)
 0xeedb62eb265d2b42556ecd83324fe020d4731c19 
 ```
+
+
+Staking notes:
+Ucacs are indexed by ucacId
+contain 
+- name
+- ucacAddr
+- ownerAddr
