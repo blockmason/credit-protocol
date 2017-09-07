@@ -18,10 +18,6 @@
       "constant": false,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
           "name": "p1",
           "type": "bytes32"
         },
@@ -34,22 +30,44 @@
           "type": "uint256"
         },
         {
-          "name": "isRejected",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "dSetTimestamp",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dIsPending",
+      "outputs": [
+        {
+          "name": "isPending",
           "type": "bool"
         }
       ],
-      "name": "dSetIsRejected",
-      "outputs": [],
       "payable": false,
       "type": "function"
     },
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
         {
           "name": "p1",
           "type": "bytes32"
@@ -76,27 +94,19 @@
       "constant": true,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
           "name": "p1",
           "type": "bytes32"
         },
         {
           "name": "p2",
           "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
         }
       ],
-      "name": "dCurrencyCode",
+      "name": "numDebts",
       "outputs": [
         {
-          "name": "currencyCode",
-          "type": "bytes32"
+          "name": "",
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -106,26 +116,22 @@
       "constant": true,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
           "name": "p1",
           "type": "bytes32"
         },
         {
           "name": "p2",
           "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
         }
       ],
-      "name": "dDebtorId",
+      "name": "debtIndices",
       "outputs": [
         {
-          "name": "debtorId",
+          "name": "first",
+          "type": "bytes32"
+        },
+        {
+          "name": "second",
           "type": "bytes32"
         }
       ],
@@ -151,6 +157,32 @@
     },
     {
       "constant": true,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dId",
+      "outputs": [
+        {
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
       "inputs": [],
       "name": "getFluxContract",
       "outputs": [
@@ -159,6 +191,31 @@
           "type": "address"
         }
       ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "isRejected",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetIsRejected",
+      "outputs": [],
       "payable": false,
       "type": "function"
     },
@@ -176,42 +233,43 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "currencyCode",
+          "type": "bytes32"
+        },
+        {
+          "name": "val",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetCurrencyCode",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
-          "name": "p1",
+          "name": "currencyCode",
           "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
         }
       ],
-      "name": "dDesc",
+      "name": "currencyValid",
       "outputs": [
         {
-          "name": "desc",
-          "type": "bytes32"
+          "name": "",
+          "type": "bool"
         }
       ],
       "payable": false,
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
         {
           "name": "p1",
           "type": "bytes32"
@@ -223,24 +281,21 @@
         {
           "name": "idx",
           "type": "uint256"
-        },
+        }
+      ],
+      "name": "dDebtorConfirmed",
+      "outputs": [
         {
           "name": "debtorConfirmed",
           "type": "bool"
         }
       ],
-      "name": "dSetDebtorConfirmed",
-      "outputs": [],
       "payable": false,
       "type": "function"
     },
     {
       "constant": true,
       "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
         {
           "name": "p1",
           "type": "bytes32"
@@ -254,70 +309,11 @@
           "type": "uint256"
         }
       ],
-      "name": "dCreditorId",
+      "name": "dUcac",
       "outputs": [
         {
-          "name": "creditorId",
-          "type": "bytes32"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "ucac",
+          "name": "",
           "type": "address"
-        },
-        {
-          "name": "p1",
-          "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
-        },
-        {
-          "name": "creditorId",
-          "type": "bytes32"
-        }
-      ],
-      "name": "dSetCreditorId",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
-          "name": "p1",
-          "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
-        }
-      ],
-      "name": "dIsPending",
-      "outputs": [
-        {
-          "name": "isPending",
-          "type": "bool"
         }
       ],
       "payable": false,
@@ -326,10 +322,6 @@
     {
       "constant": true,
       "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
         {
           "name": "p1",
           "type": "bytes32"
@@ -354,12 +346,34 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
+          "name": "p1",
+          "type": "bytes32"
         },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dDebtorId",
+      "outputs": [
+        {
+          "name": "debtorId",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
         {
           "name": "p1",
           "type": "bytes32"
@@ -373,11 +387,11 @@
           "type": "uint256"
         },
         {
-          "name": "amount",
-          "type": "int256"
+          "name": "creditorConfirmed",
+          "type": "bool"
         }
       ],
-      "name": "dSetAmount",
+      "name": "dSetCreditorConfirmed",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -385,10 +399,6 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
         {
           "name": "p1",
           "type": "bytes32"
@@ -412,12 +422,21 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
-          "name": "ucac",
+          "name": "_fluxContract",
           "type": "address"
-        },
+        }
+      ],
+      "name": "setFluxContract",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
         {
           "name": "p1",
           "type": "bytes32"
@@ -425,16 +444,16 @@
         {
           "name": "p2",
           "type": "bytes32"
-        }
-      ],
-      "name": "debtIndices",
-      "outputs": [
-        {
-          "name": "first",
-          "type": "bytes32"
         },
         {
-          "name": "second",
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dCurrencyCode",
+      "outputs": [
+        {
+          "name": "currencyCode",
           "type": "bytes32"
         }
       ],
@@ -444,10 +463,6 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
         {
           "name": "p1",
           "type": "bytes32"
@@ -461,24 +476,11 @@
           "type": "uint256"
         },
         {
-          "name": "debtorId",
-          "type": "bytes32"
+          "name": "debtorConfirmed",
+          "type": "bool"
         }
       ],
-      "name": "dSetDebtorId",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_fluxContract",
-          "type": "address"
-        }
-      ],
-      "name": "setFluxContract",
+      "name": "dSetDebtorConfirmed",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -497,12 +499,50 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
+          "name": "p1",
+          "type": "bytes32"
         },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        }
+      ],
+      "name": "pushBlankDebt",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "amount",
+          "type": "int256"
+        }
+      ],
+      "name": "dSetAmount",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
         {
           "name": "p1",
           "type": "bytes32"
@@ -530,69 +570,6 @@
       "constant": true,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
-          "name": "p1",
-          "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
-        }
-      ],
-      "name": "dDebtorConfirmed",
-      "outputs": [
-        {
-          "name": "debtorConfirmed",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
-          "name": "p1",
-          "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
-        },
-        {
-          "name": "timestamp",
-          "type": "uint256"
-        }
-      ],
-      "name": "dSetTimestamp",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
           "name": "p1",
           "type": "bytes32"
         },
@@ -616,12 +593,59 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "debtorId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "dSetDebtorId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
+          "name": "p1",
+          "type": "bytes32"
         },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "dDesc",
+      "outputs": [
+        {
+          "name": "desc",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
         {
           "name": "p1",
           "type": "bytes32"
@@ -649,57 +673,6 @@
       "constant": false,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
-          "name": "p1",
-          "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        }
-      ],
-      "name": "pushBlankDebt",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
-          "name": "p1",
-          "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        }
-      ],
-      "name": "numDebts",
-      "outputs": [
-        {
-          "name": "numDebts",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
           "name": "p1",
           "type": "bytes32"
         },
@@ -712,11 +685,11 @@
           "type": "uint256"
         },
         {
-          "name": "creditorConfirmed",
-          "type": "bool"
+          "name": "ucac",
+          "type": "address"
         }
       ],
-      "name": "dSetCreditorConfirmed",
+      "name": "dSetUcac",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -724,39 +697,6 @@
     {
       "constant": false,
       "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
-        {
-          "name": "p1",
-          "type": "bytes32"
-        },
-        {
-          "name": "p2",
-          "type": "bytes32"
-        },
-        {
-          "name": "idx",
-          "type": "uint256"
-        },
-        {
-          "name": "isPending",
-          "type": "bool"
-        }
-      ],
-      "name": "dSetIsPending",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "ucac",
-          "type": "address"
-        },
         {
           "name": "p1",
           "type": "bytes32"
@@ -780,12 +720,33 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
-          "name": "ucac",
-          "type": "address"
+          "name": "p1",
+          "type": "bytes32"
         },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "creditorId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "dSetCreditorId",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
         {
           "name": "p1",
           "type": "bytes32"
@@ -799,13 +760,38 @@
           "type": "uint256"
         }
       ],
-      "name": "dId",
+      "name": "dCreditorId",
       "outputs": [
         {
-          "name": "id",
-          "type": "uint256"
+          "name": "creditorId",
+          "type": "bytes32"
         }
       ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "p1",
+          "type": "bytes32"
+        },
+        {
+          "name": "p2",
+          "type": "bytes32"
+        },
+        {
+          "name": "idx",
+          "type": "uint256"
+        },
+        {
+          "name": "isPending",
+          "type": "bool"
+        }
+      ],
+      "name": "dSetIsPending",
+      "outputs": [],
       "payable": false,
       "type": "function"
     }
@@ -813,5 +799,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1502717101382
+  "updated_at": 1504747493546
 }

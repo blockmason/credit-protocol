@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 contract AbstractDebtReader {
-  function numDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (uint numDebts);
+  function numDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (uint);
   function pendingDebts(address ucac, bytes32 fId) constant returns (uint[] debtIds, bytes32[] confirmerIds, bytes32[] currency, int[] amounts, bytes32[] descs, bytes32[] debtors, bytes32[] creditors);
   function pendingDebtTimestamps(address ucac, bytes32 fId) constant returns (uint[] timestamps);
   function confirmedDebtBalances(address ucac, bytes32 fId) constant returns (bytes32[] currency, int[] amounts, bytes32[] counterpartyIds, uint[] totalDebts, uint[] mostRecent);

@@ -1,0 +1,27 @@
+{
+  "contract_name": "AbstractStakeData",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ucacId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getUcacAddr",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1504747459399
+}

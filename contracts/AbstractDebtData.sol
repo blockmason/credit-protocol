@@ -13,7 +13,7 @@ contract AbstractDebtData {
   function debtIndices(bytes32 p1, bytes32 p2) constant returns (bytes32 first, bytes32 second);
 
   /* Flux Getters   */
-  function numDebts(bytes32 p1, bytes32 p2) constant returns (uint numDebts);
+  function numDebts(bytes32 p1, bytes32 p2) constant returns (uint);
   function currencyValid(bytes32 currencyCode) constant returns (bool);
   function getNextDebtId() constant returns (uint);
   function dUcac(bytes32 p1, bytes32 p2, uint idx) constant returns (address);

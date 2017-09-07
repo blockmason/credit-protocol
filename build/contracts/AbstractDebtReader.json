@@ -134,7 +134,7 @@
       "name": "numDebts",
       "outputs": [
         {
-          "name": "numDebts",
+          "name": "",
           "type": "uint256"
         }
       ],
@@ -183,5 +183,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1502693304038
+  "updated_at": 1504747493546
 }
