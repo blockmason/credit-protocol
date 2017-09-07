@@ -1,5 +1,7 @@
 pragma solidity ^0.4.13;
 
+import "./AbstractStakeData.sol";
+
 contract Stake {
   bytes32 admin;
   AbstractStakeData asd;
