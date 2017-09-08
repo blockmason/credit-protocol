@@ -24,7 +24,7 @@ contract FriendReader {
   /*  Temporary variables */
   bytes32[] ids1;
   bytes32[] ids2;
-  function confirmedFriends(address ucac, bytes32 fId) constant returns (bytes32[] confirmedFriends) {
+  function confirmedFriends(address ucac, bytes32 fId) constant returns (bytes32[]) {
     ids1.length = 0;
     for ( uint i=0; i < afd.numFriends(ucac, fId); i++ ) {
       bytes32 currFriendId = friendIdByIndex(ucac, fId, i);

@@ -40,7 +40,7 @@ contract DebtReader {
     af  = AbstractFoundation(foundationContract);
   }
 
-  function numDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (uint numDebts) {
+  function numDebts(address ucac, bytes32 p1, bytes32 p2) constant returns (uint) {
     return add.numDebts(ucac, p1, p2);
   }
 
