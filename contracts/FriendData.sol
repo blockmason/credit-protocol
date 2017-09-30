@@ -1,13 +1,12 @@
 pragma solidity ^0.4.11;
 
-contract FriendData {
-  address admin;
-  address admin2;
-  address fluxContract;
+import "./Parentable.sol";
+
+contract FriendData is Parentable {
 
   /*  Friend  */
   struct Friend {
-    address ucac;
+    bytes32 ucac;
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
@@ -16,42 +15,18 @@ contract FriendData {
     bool f1Confirmed;
     bool f2Confirmed;
   }
-  mapping ( address => mapping ( bytes32 => bytes32[] )) friendIdList;
-  mapping ( address => mapping ( bytes32 => mapping ( bytes32 => Friend ))) friendships;
 
-  /*  modifiers  */
-  modifier isAdmin() {
-    if ( (admin != msg.sender) && (admin2 != msg.sender)) revert();
-    _;
-  }
+  //below are mapped by UCAC Id
+  mapping ( bytes32 => mapping ( bytes32 => bytes32[] )) public friendIdList;
+  mapping ( bytes32 => mapping ( bytes32 => mapping ( bytes32 => Friend ))) public friendships;
 
-  modifier isParent() {
-    if ( (msg.sender != fluxContract) ) revert();
-    _;
-  }
-
-  /* main functions */
-  function FriendData(address _admin2) {
-    admin = msg.sender;
-    admin2 = _admin2;
-  }
-
-  function setFluxContract(address _fluxContract) public isAdmin {
-    fluxContract = _fluxContract;
-  }
-
-  function getFluxContract() constant returns (address) {
-    return fluxContract;
-  }
-
-  function getAdmins() constant returns (address, address) {
-    return (admin, admin2);
-  }
-
+  /*
+     temporary variables to hold indices
+   */
   bytes32 f;
   bytes32 s;
   /* Flux helpers */
-  function friendIndices(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
+  function friendIndices(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
     if ( friendships[ucac][p1][p2].initialized )
       return (p1, p2);
     else
@@ -59,76 +34,76 @@ contract FriendData {
   }
 
   /* Friend Getters */
-  function numFriends(address ucac, bytes32 fId) constant returns (uint) {
+  function numFriends(bytes32 ucac, bytes32 fId) constant returns (uint) {
     return friendIdList[ucac][fId].length;
   }
-  function friendIdByIndex(address ucac, bytes32 fId, uint index) constant returns (bytes32) {
+  function friendIdByIndex(bytes32 ucac, bytes32 fId, uint index) constant returns (bytes32) {
     return friendIdList[ucac][fId][index];
   }
 
-  function fInitialized(address ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function fInitialized(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].initialized;
   }
-  function ff1Id(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32) {
+  function ff1Id(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bytes32) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f1Id;
   }
-  function ff2Id(address ucac, bytes32 p1, bytes32 p2) constant returns (bytes32) {
+  function ff2Id(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bytes32) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f2Id;
   }
-  function fIsPending(address ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function fIsPending(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].isPending;
   }
-  function fIsMutual(address ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function fIsMutual(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].isMutual;
   }
-  function ff1Confirmed(address ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function ff1Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f1Confirmed;
   }
-  function ff2Confirmed(address ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function ff2Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f2Confirmed;
   }
 
   /* Friend Setters */
 
-  function pushFriendId(address ucac, bytes32 myId, bytes32 friendId) public isParent {
+  function pushFriendId(bytes32 ucac, bytes32 myId, bytes32 friendId) public onlyParent  {
     friendIdList[ucac][myId].push(friendId);
   }
-  function setFriendIdByIndex(address ucac, bytes32 myId, uint idx, bytes32 newFriendId) public isParent{
+  function setFriendIdByIndex(bytes32 ucac, bytes32 myId, uint idx, bytes32 newFriendId) public onlyParent {
     friendIdList[ucac][myId][idx] = newFriendId;
   }
 
-  function fSetInitialized(address ucac, bytes32 p1, bytes32 p2, bool initialized) public isParent {
+  function fSetInitialized(bytes32 ucac, bytes32 p1, bytes32 p2, bool initialized) public onlyParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].initialized = initialized;
   }
-  function fSetf1Id(address ucac, bytes32 p1, bytes32 p2, bytes32 id) public isParent {
+  function fSetf1Id(bytes32 ucac, bytes32 p1, bytes32 p2, bytes32 id) public onlyParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].f1Id = id;
   }
-  function fSetf2Id(address ucac, bytes32 p1, bytes32 p2, bytes32 id) public isParent {
+  function fSetf2Id(bytes32 ucac, bytes32 p1, bytes32 p2, bytes32 id) public onlyParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].f2Id = id;
   }
-  function fSetIsPending(address ucac, bytes32 p1, bytes32 p2, bool isPending) public isParent {
+  function fSetIsPending(bytes32 ucac, bytes32 p1, bytes32 p2, bool isPending) public onlyParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].isPending = isPending;
   }
-  function fSetIsMutual(address ucac, bytes32 p1, bytes32 p2, bool isMutual) public isParent {
+  function fSetIsMutual(bytes32 ucac, bytes32 p1, bytes32 p2, bool isMutual) public onlyParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].isMutual = isMutual;
   }
-  function fSetf1Confirmed(address ucac, bytes32 p1, bytes32 p2, bool f1Confirmed) public isParent {
+  function fSetf1Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2, bool f1Confirmed) public onlyParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].f1Confirmed = f1Confirmed;
   }
-  function fSetf2Confirmed(address ucac, bytes32 p1, bytes32 p2, bool f2Confirmed) public isParent {
+  function fSetf2Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2, bool f2Confirmed) public onlyParent {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].f2Confirmed = f2Confirmed;
   }
