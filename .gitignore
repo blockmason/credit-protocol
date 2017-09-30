@@ -1,0 +1,4 @@
+*.node-xmlhttprequest-sync*
+node_modules/
+build/
+sale_abi.js
