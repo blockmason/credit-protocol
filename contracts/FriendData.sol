@@ -26,7 +26,7 @@ contract FriendData is Parentable {
   bytes32 f;
   bytes32 s;
   /* Flux helpers */
-  function friendIndices(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bytes32, bytes32) {
+  function friendIndices(bytes32 ucac, bytes32 p1, bytes32 p2) private constant returns (bytes32, bytes32) {
     if ( friendships[ucac][p1][p2].initialized )
       return (p1, p2);
     else
@@ -34,38 +34,38 @@ contract FriendData is Parentable {
   }
 
   /* Friend Getters */
-  function numFriends(bytes32 ucac, bytes32 fId) constant returns (uint) {
+  function numFriends(bytes32 ucac, bytes32 fId) public constant returns (uint) {
     return friendIdList[ucac][fId].length;
   }
-  function friendIdByIndex(bytes32 ucac, bytes32 fId, uint index) constant returns (bytes32) {
+  function friendIdByIndex(bytes32 ucac, bytes32 fId, uint index) public constant returns (bytes32) {
     return friendIdList[ucac][fId][index];
   }
 
-  function fInitialized(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function fInitialized(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].initialized;
   }
-  function ff1Id(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bytes32) {
+  function ff1Id(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (bytes32) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f1Id;
   }
-  function ff2Id(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bytes32) {
+  function ff2Id(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (bytes32) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f2Id;
   }
-  function fIsPending(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function fIsPending(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].isPending;
   }
-  function fIsMutual(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function fIsMutual(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].isMutual;
   }
-  function ff1Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function ff1Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f1Confirmed;
   }
-  function ff2Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2) constant returns (bool) {
+  function ff2Confirmed(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (bool) {
     (f, s) = friendIndices(ucac, p1, p2);
     return friendships[ucac][f][s].f2Confirmed;
   }
