@@ -9,7 +9,6 @@ contract DebtData is Parentable {
   /*  Debt  */
   //  mapping ( bytes32 => bool ) public currencyCodes;
   struct Debt {
-    bytes32 ucac;  //the ucac that authorized creation of this debt
     uint id;
     uint timestamp;
     int amount;
@@ -41,15 +40,6 @@ contract DebtData is Parentable {
   function numDebts(bytes32 ucac, bytes32 p1, bytes32 p2) public constant returns (uint) {
     (f, s) = debtIndices(ucac, p1, p2);
     return debts[ucac][f][s].length;
-  }
-
-  function getNextDebtId() public constant returns (uint) {
-    return nextDebtId;
-  }
-
-  function dUcac(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx) public constant returns (bytes32) {
-    (f, s) = debtIndices(ucac, p1, p2);
-    return debts[ucac][f][s][idx].ucac;
   }
 
   function dId(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx) public constant returns (uint) {
@@ -105,11 +95,6 @@ contract DebtData is Parentable {
   function pushBlankDebt(bytes32 ucac, bytes32 p1, bytes32 p2) public onlyParent {
     (f, s) = debtIndices(ucac, p1, p2);
     debts[ucac][f][s].push(blankDebt);
-  }
-
-  function dSetUcac(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx) public onlyParent {
-    (f, s) = debtIndices(ucac, p1, p2);
-    debts[ucac][f][s][idx].ucac = ucac;
   }
 
   function dSetId(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx, uint id) public onlyParent {

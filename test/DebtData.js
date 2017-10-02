@@ -10,10 +10,10 @@ const DebtData = artifacts.require('./DebtData.sol');
 contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
     const id1 = "id1";
     const id2 = "id2";
-    const id3 = "id3";
     const ucacMain = "ucacMain";
-    const smallNumber = 1;
-    const bigNumber = 9982372;
+    const one = new h.BigNumber(1);
+    const smallNumber = new h.BigNumber(2);
+    const bigNumber = new h.BigNumber(9982372);
     const currencyCode = "USD";
     const desc = "description";
 
@@ -30,13 +30,12 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
         //initialize all fields for 2 way relationship to non-defaults
         await this.dd.incrementDebtId({from: parent});
         await this.dd.pushBlankDebt(ucacMain, id2, id1, {from: parent});
-        await this.dd.dSetUcac(ucacMain, id1, id2, 0, {from: parent});
         await this.dd.dSetId(ucacMain, id1, id2, 0, smallNumber, {from: parent});
         await this.dd.dSetTimestamp(ucacMain, id1, id2, 0, bigNumber, {from: parent});
         await this.dd.dSetAmount(ucacMain, id1, id2, 0, smallNumber, {from: parent});
         await this.dd.dSetCurrencyCode(ucacMain, id1, id2, 0, currencyCode, {from: parent});
         await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id1, {from: parent});
-        await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id2, {from: parent});
+        await this.dd.dSetCreditorId(ucacMain, id1, id2, 0, id2, {from: parent});
         await this.dd.dSetIsPending(ucacMain, id1, id2, 0, true, {from: parent});
         await this.dd.dSetIsRejected(ucacMain, id1, id2, 0, true, {from: parent});
         await this.dd.dSetDebtorConfirmed(ucacMain, id1, id2, 0, true, {from: parent});
@@ -54,42 +53,51 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
         });
 
     });
-    /*
 
     describe("Value setting, getting, indices, and retrieval work", () => {
         it("has correct values for both directions of relationship", async function() {
-            (await this.dd.numFriends(ucacMain, id1)).valueOf().should.equal("2");
-            (await this.dd.numFriends(ucacMain, id2)).valueOf().should.equal("1");
-            (await this.dd.numFriends(ucacMain, id3)).valueOf().should.equal("1");
-            h.b2s((await this.dd.friendIdByIndex(ucacMain, id1, 0)).valueOf()).should.equal(id2);
-            h.b2s((await this.dd.friendIdByIndex(ucacMain, id1, 1)).valueOf()).should.equal(id3);
-            (await this.dd.fInitialized(ucacMain, id1, id2)).valueOf().should.equal(true);
-            (await this.dd.fInitialized(ucacMain, id2, id1)).valueOf().should.equal(true);
-            h.b2s((await this.dd.ff1Id(ucacMain, id1, id2)).valueOf()).should.equal(id1);
-            h.b2s((await this.dd.ff1Id(ucacMain, id2, id1)).valueOf()).should.equal(id1);
-            h.b2s((await this.dd.ff2Id(ucacMain, id1, id2)).valueOf()).should.equal(id2);
-            h.b2s((await this.dd.ff2Id(ucacMain, id2, id1)).valueOf()).should.equal(id2);
-            (await this.dd.fIsPending(ucacMain, id1, id2)).valueOf().should.equal(true);
-            (await this.dd.fIsPending(ucacMain, id2, id1)).valueOf().should.equal(true);
-            (await this.dd.fIsMutual(ucacMain, id1, id2)).valueOf().should.equal(true);
-            (await this.dd.fIsMutual(ucacMain, id2, id1)).valueOf().should.equal(true);
-            (await this.dd.ff1Confirmed(ucacMain, id1, id2)).valueOf().should.equal(true);
-            (await this.dd.ff1Confirmed(ucacMain, id2, id1)).valueOf().should.equal(true);
-            (await this.dd.ff2Confirmed(ucacMain, id1, id2)).valueOf().should.equal(true);
-            (await this.dd.ff2Confirmed(ucacMain, id2, id1)).valueOf().should.equal(true);
+            (await this.dd.nextDebtId.call()).should.be.bignumber.equal(one);
+            (await this.dd.numDebts(ucacMain, id1, id2)).should.be.bignumber.equal(one);
+            (await this.dd.numDebts(ucacMain, id2, id1)).should.be.bignumber.equal(one);
+
+            (await this.dd.dId(ucacMain, id1, id2, 0)).should.be.bignumber.equal(smallNumber);
+            (await this.dd.dId(ucacMain, id2, id1, 0)).should.be.bignumber.equal(smallNumber);
+            (await this.dd.dTimestamp(ucacMain, id1, id2, 0)).should.be.bignumber.equal(bigNumber);
+            (await this.dd.dTimestamp(ucacMain, id2, id1, 0)).should.be.bignumber.equal(bigNumber);
+            (await this.dd.dAmount(ucacMain, id1, id2, 0)).should.be.bignumber.equal(smallNumber);
+            (await this.dd.dAmount(ucacMain, id2, id1, 0)).should.be.bignumber.equal(smallNumber);
+
+            h.b2s((await this.dd.dCurrencyCode(ucacMain, id1, id2, 0)).valueOf()).should.equal(currencyCode);
+            h.b2s((await this.dd.dCurrencyCode(ucacMain, id2, id1, 0)).valueOf()).should.equal(currencyCode);
+            h.b2s((await this.dd.dDebtorId(ucacMain, id1, id2, 0)).valueOf()).should.equal(id1);
+            h.b2s((await this.dd.dDebtorId(ucacMain, id2, id1, 0)).valueOf()).should.equal(id1);
+            h.b2s((await this.dd.dCreditorId(ucacMain, id1, id2, 0)).valueOf()).should.equal(id2);
+            h.b2s((await this.dd.dCreditorId(ucacMain, id2, id1, 0)).valueOf()).should.equal(id2);
+
+            (await this.dd.dIsPending(ucacMain, id1, id2, 0)).valueOf().should.equal(true);
+            (await this.dd.dIsPending(ucacMain, id2, id1, 0)).valueOf().should.equal(true);
+            (await this.dd.dIsRejected(ucacMain, id1, id2, 0)).valueOf().should.equal(true);
+            (await this.dd.dIsRejected(ucacMain, id2, id1, 0)).valueOf().should.equal(true);
+            (await this.dd.dDebtorConfirmed(ucacMain, id1, id2, 0)).valueOf().should.equal(true);
+            (await this.dd.dCreditorConfirmed(ucacMain, id2, id1, 0)).valueOf().should.equal(true);
+            h.b2s((await this.dd.dDesc(ucacMain, id1, id2, 0)).valueOf()).should.equal(desc);
+            h.b2s((await this.dd.dDesc(ucacMain, id2, id1, 0)).valueOf()).should.equal(desc);
         });
 
         it("Only parent contract can call setters", async function() {
-            await this.dd.pushFriendId(ucacMain, id1, id2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.setFriendIdByIndex(ucacMain, id1, 0, id2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.fSetInitialized(ucacMain, id1, id2, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.fSetf1Id(ucacMain, id1, id2, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.fSetf2Id(ucacMain, id1, id2, id2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.fSetIsPending(ucacMain, id1, id2, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.fSetIsMutual(ucacMain, id1, id2, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.fSetf1Confirmed(ucacMain, id1, id2, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.fSetf2Confirmed(ucacMain, id1, id2, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.incrementDebtId({from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.pushBlankDebt(ucacMain, id2, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetId(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetTimestamp(ucacMain, id1, id2, 0, bigNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetAmount(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetCurrencyCode(ucacMain, id1, id2, 0, currencyCode, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetIsPending(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetIsRejected(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDebtorConfirmed(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetCreditorConfirmed(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDesc(ucacMain, id1, id2, 0, desc, {from: p1}).should.be.rejectedWith(h.EVMThrow);
         });
     });
-*/
 });
