@@ -8,7 +8,6 @@ contract DebtData is Parentable {
 
   /*  Debt  */
   //  mapping ( bytes32 => bool ) public currencyCodes;
-  uint nextDebtId;
   struct Debt {
     bytes32 ucac;  //the ucac that authorized creation of this debt
     uint id;
@@ -24,6 +23,7 @@ contract DebtData is Parentable {
     bytes32 desc;
   }
   mapping ( bytes32 => mapping (bytes32 => mapping ( bytes32 => Debt[] ))) public debts;
+  uint public nextDebtId;
   Debt private blankDebt; //Used to push onto debts
 
 
