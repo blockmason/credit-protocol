@@ -1,6 +1,6 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
-import "./AbstractFriendData.sol";
+import "./FriendData.sol";
 
 contract FriendReader {
   AbstractFriendData afd;
