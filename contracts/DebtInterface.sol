@@ -4,7 +4,7 @@ import "./DebtData.sol";
 import "./FriendInterface.sol";
 import "./AbstractFoundation.sol";
 
-contract DebtReader is Parentable {
+contract DebtInterface is Parentable {
 
   DebtData dd;
   FriendInterface fi;
@@ -34,7 +34,7 @@ contract DebtReader is Parentable {
   uint[] timestampsT;
   uint[] totalDebtsT;
 
-  function DebtReader(address _debtDataContract, address _friendInterfaceContract, address _foundationContract) {
+  function DebtInterface(address _debtDataContract, address _friendInterfaceContract, address _foundationContract) {
     dd = DebtData(_debtDataContract);
     fi = FriendInterface(_friendInterfaceContract);
     af  = AbstractFoundation(_foundationContract);
