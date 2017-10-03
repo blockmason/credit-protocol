@@ -12,8 +12,8 @@ contract Stake is Adminable {
     sd = StakeData(_stakeDataContract);
   }
 
-  function ucacAddress(bytes32 ucacId) constant returns (address) {
-    return sd.getUcacAddr(ucacId);
-  }
+  //TODO:
+  // min length for ucacIds
+  // min tokens for creating ucacId
 
 }
