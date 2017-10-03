@@ -10,7 +10,7 @@ const FriendData = artifacts.require('./FriendData.sol');
 contract('FriendData', function([admin1, admin2, parent, p1, p2]) {
     const id1 = "id1";
     const id2 = "id2";
-    const id3 = "id3"
+    const id3 = "id3";
     const ucacMain = "ucacMain";
 
     before(async function() {
