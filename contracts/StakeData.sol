@@ -1,6 +1,7 @@
 pragma solidity ^0.4.15;
 
 import "./Parentable.sol";
+import "./CPToken.sol";
 
 contract StakeData is Parentable {
 
@@ -10,7 +11,17 @@ contract StakeData is Parentable {
     address owner2;
   }
 
+  CPToken private token;
   mapping (bytes32 => Ucac) public ucacs; //indexed by ucacId
+  mapping (address => uint) public stakedTokens; //indexed by token owner address
+
+  function StakeData(address _tokenContract) {
+    token = CPToken(_tokenContract);
+  }
+
+  function setToken(address _tokenContract) public onlyAdmin {
+    token = CPToken(_tokenContract);
+  }
 
   function getUcacAddr(bytes32 _ucacId) public constant returns (address) {
     return ucacs[_ucacId].ucacContractAddr;
@@ -39,4 +50,30 @@ contract StakeData is Parentable {
   function setOwner2(bytes32 _ucacId, address _newOwner) public onlyParent {
     ucacs[_ucacId].owner2 = _newOwner;
   }
+
+  /* Token staking functionality */
+
+  /**
+      @dev only the parent contract can call this, but this locks the functionality in
+   **/
+  function stakeTokens(uint _numTokens) public onlyParent {
+    /*
+      1. check that this contract is approved to spend
+      2. transfer the tokens to this contract
+      3. update stakedTokens with the owner
+     */
+  }
+
+  /**
+     @dev
+     has no modifiers--people can always get their tokens back
+   **/
+  function returnTokens(uint _numTokens) public {
+    /*
+      1. check that msg.sender owns enough
+      2. check that our balance of tokens is high enough (duplicate check??)
+      3. transfer ownership to msg.sender
+     */
+  }
+
 }
