@@ -43,17 +43,17 @@ contract Stake is Adminable {
      */
   }
 
-  function stakeTokens() public {
+  function stakeTokens(bytes32 _ucacId, uint _numTokens) public {
     /*
-      - ucac has to exist
-      -
+      - can only stake to initialized ucacs
+      - get currentToken from StakeData and pass it as the token address
+      - pass msg.sender as the stakeHolder
      */
   }
 
-  //TODO:
+  //NOTES:
   // min length for ucacIds
   // name staking/ucac ownership
-  // owner1 and owner2 -- owner1 must stake the correct number of tokens--owner2 is a backup option
   /*
     if owner1 doesn't have the right number of tokens staked, someone else can take over the contract
    */
