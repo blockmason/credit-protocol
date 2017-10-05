@@ -15,19 +15,22 @@ contract StakeData is Parentable {
 
   /** the token currently being checked by the contract for staking **/
   CPToken private currentToken;
-  mapping (bytes32 => Ucac) public ucacs; //indexed by ucacId
+  mapping (bytes32 => Ucac) private ucacs; //indexed by ucacId
   /**
-      indexed by token contract => token owner address => amount of tokens
+      indexed by token contract => token owner address => Ucac => amount of tokens
 
       indexes by token contract to make sure that switching currentToken doesn't
       lock users' tokens
   **/
-  mapping (address => mapping (address => uint)) public stakedTokens; //
+  mapping (address => mapping (address => mapping (bytes32 => uint))) private stakedTokens;
 
   function StakeData(address _tokenContract) {
     currentToken = CPToken(_tokenContract);
   }
 
+  /**
+      @dev leaves an upgrade path for the token contract. Tokens are safe because stakedTokens can always be reclaimed by their current owner, even if the currentToken has to be changed.
+   **/
   function setToken(address _tokenContract) public onlyAdmin {
     currentToken = CPToken(_tokenContract);
   }
@@ -75,13 +78,13 @@ contract StakeData is Parentable {
 
   /**
      @notice Checks if this address is already in this name.
-     @param _name The name of the ID.
+     @param _tokenContract The token contract this msg.sender owns tokens for
      @param _addr The address to check.
    **/
-  function returnTokens(address _tokenContract, uint _numTokens) public {
-    require ( stakedTokens[_tokenContract][msg.sender] >= _numTokens );
+  function unstakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public {
     CPToken t = CPToken(_tokenContract);
-    stakedTokens[_tokenContract][msg.sender].sub(_numTokens);
+    //sub enforces balance being >= 0
+    stakedTokens[_tokenContract][msg.sender][_ucacId].sub(_numTokens);
     t.transfer(msg.sender, _numTokens);
   }
 
