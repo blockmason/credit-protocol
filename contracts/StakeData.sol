@@ -13,12 +13,14 @@ contract StakeData is Parentable {
     address owner2;
   }
 
-  /** the token currently being checked by the contract for staking **/
+  /**
+      @dev The token currently being checked by the contract for staking. Shouldn't change, but we leave an upgrade path.
+  **/
   CPToken private currentToken;
   mapping (bytes32 => Ucac) private ucacs; //indexed by ucacId
-  /**
-      indexed by token contract => token owner address => Ucac => amount of tokens
 
+  /**
+      @dev Indexed by token contract => token owner address => Ucac => amount of tokens
       indexes by token contract to make sure that switching currentToken doesn't
       lock users' tokens
   **/
@@ -66,14 +68,13 @@ contract StakeData is Parentable {
   /* Token staking functionality */
 
   /**
-      @dev only the parent contract can call this, but this locks the functionality in
+      @dev only the parent contract can call this (to enable pausing of token staking for security reasons), but this locks in where tokens go to and how they are stored.
    **/
   function stakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public onlyParent {
-    /*
-      1. check that this contract is approved to spend
-      2. transfer the tokens to this contract
-      3. update stakedTokens with the owner and ucac
-     */
+    CPToken t = CPToken(_tokenContract);
+    require (t.allowance(msg.sender, this) >= _numTokens);
+    stakedTokens[_tokenContract][msg.sender][_ucacId].add(_numTokens);
+    transferFrom(msg.sender, this, _numTokens);
   }
 
   /**
