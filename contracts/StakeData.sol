@@ -71,13 +71,13 @@ contract StakeData is Parentable {
   /**
       @dev only the parent contract can call this (to enable pausing of token staking for security reasons), but this locks in where tokens go to and how they are stored.
    **/
-  function stakeTokens(bytes32 _ucacId, uint _numTokens) public onlyParent {
-    require(currentToken.allowance(msg.sender, this) >= _numTokens);
-    uint256 updatedStakedTokens = stakedTokens[address(currentToken)][msg.sender][_ucacId].add(_numTokens);
-    stakedTokens[address(currentToken)][msg.sender][_ucacId] = updatedStakedTokens;
+  function stakeTokens(bytes32 _ucacId, address _stakeholder, uint _numTokens) public onlyParent {
+    require(currentToken.allowance(_stakeholder, this) >= _numTokens);
+    uint256 updatedStakedTokens = stakedTokens[address(currentToken)][_stakeholder][_ucacId].add(_numTokens);
+    stakedTokens[address(currentToken)][_stakeholder][_ucacId] = updatedStakedTokens;
     uint256 updatedNumTokens =  ucacs[address(currentToken)][_ucacId].numTokens.add(_numTokens);
     ucacs[address(currentToken)][_ucacId].numTokens = updatedNumTokens;
-    currentToken.transferFrom(msg.sender, this, _numTokens);
+    currentToken.transferFrom(_stakeholder, this, _numTokens);
   }
 
   /**

@@ -88,6 +88,25 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
 
     describe("Stake tokens", () => {
 
+        beforeEach(async function() {
+            await this.stakeData.setToken(this.cpToken.address, {from: admin1}).should.be.fulfilled;
+            // mint some tokens to admin1, admin2
+            await this.cpToken.mint(admin1, h.toWei(1000));
+            await this.cpToken.mint(admin1, h.toWei(2000));
+            await this.cpToken.finishMinting();
+            await this.cpToken.endSale();
+        });
+
+        it("allows user to stake and unstake; after token switch, allows users to unstake old tokens", async function() {
+            await this.cpToken.approve(this.stakeData.address, h.toWei(10), {from: admin1}).should.be.fulfilled;
+            await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(10), {from: parent}).should.be.fulfilled;
+            await this.stakeData.unstakeTokens(this.cpToken.address, ucacId1, h.toWei(5), {from: admin1}).should.be.fulfilled;
+        });
+
+        it("allows multiple users to stake and unstake", async function() {
+            await this.cpToken.approve(this.stakeData.address, h.toWei(10), {from: admin1}).should.be.fulfilled;
+            await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(10), {from: parent}).should.be.fulfilled;
+        });
     });
 
 });
