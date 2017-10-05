@@ -68,11 +68,11 @@ contract StakeData is Parentable {
   /**
       @dev only the parent contract can call this, but this locks the functionality in
    **/
-  function stakeTokens(uint _numTokens) public onlyParent {
+  function stakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public onlyParent {
     /*
       1. check that this contract is approved to spend
       2. transfer the tokens to this contract
-      3. update stakedTokens with the owner
+      3. update stakedTokens with the owner and ucac
      */
   }
 
