@@ -25,7 +25,7 @@ contract StakeData is Parentable {
       indexes by token contract to make sure that switching currentToken doesn't
       lock users' tokens
   **/
-  mapping (address => mapping (address => mapping (bytes32 => uint))) public stakedTokens;
+  mapping (address => mapping (address => mapping (bytes32 => uint))) public stakedTokensMap;
 
   function StakeData(address _tokenContract) {
     currentToken = CPToken(_tokenContract);
@@ -73,8 +73,8 @@ contract StakeData is Parentable {
    **/
   function stakeTokens(bytes32 _ucacId, address _stakeholder, uint _numTokens) public onlyParent {
     require(currentToken.allowance(_stakeholder, this) >= _numTokens);
-    uint256 updatedStakedTokens = stakedTokens[address(currentToken)][_stakeholder][_ucacId].add(_numTokens);
-    stakedTokens[address(currentToken)][_stakeholder][_ucacId] = updatedStakedTokens;
+    uint256 updatedStakedTokens = stakedTokensMap[address(currentToken)][_stakeholder][_ucacId].add(_numTokens);
+    stakedTokensMap[address(currentToken)][_stakeholder][_ucacId] = updatedStakedTokens;
     uint256 updatedNumTokens =  ucacs[address(currentToken)][_ucacId].numTokens.add(_numTokens);
     ucacs[address(currentToken)][_ucacId].numTokens = updatedNumTokens;
     currentToken.transferFrom(_stakeholder, this, _numTokens);
@@ -88,8 +88,8 @@ contract StakeData is Parentable {
    **/
   function unstakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public {
     CPToken t = CPToken(_tokenContract);
-    uint256 updatedStakedTokens = stakedTokens[_tokenContract][msg.sender][_ucacId].sub(_numTokens);
-    stakedTokens[_tokenContract][msg.sender][_ucacId] = updatedStakedTokens;
+    uint256 updatedStakedTokens = stakedTokensMap[_tokenContract][msg.sender][_ucacId].sub(_numTokens);
+    stakedTokensMap[_tokenContract][msg.sender][_ucacId] = updatedStakedTokens;
     uint256 updatedNumTokens = ucacs[_tokenContract][_ucacId].numTokens.sub(_numTokens);
     ucacs[_tokenContract][_ucacId].numTokens = updatedNumTokens;
     t.transfer(msg.sender, _numTokens);
