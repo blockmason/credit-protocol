@@ -6,6 +6,7 @@ const should = require('chai')
           .should();
 
 const StakeData = artifacts.require('./StakeData.sol');
+const CPToken = artifacts.require('./CPToken.sol');
 
 contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
     const id1 = "id1";
