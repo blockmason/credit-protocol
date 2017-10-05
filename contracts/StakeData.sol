@@ -75,6 +75,7 @@ contract StakeData is Parentable {
     CPToken t = CPToken(_tokenContract);
     require (t.allowance(msg.sender, this) >= _numTokens);
     stakedTokens[_tokenContract][msg.sender][_ucacId].add(_numTokens);
+    ucacs[_tokenContract][_ucacId].numTokens.add(_numTokens);
     t.transferFrom(msg.sender, this, _numTokens);
   }
 
