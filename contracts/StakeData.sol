@@ -2,8 +2,10 @@ pragma solidity ^0.4.15;
 
 import "./Parentable.sol";
 import "./CPToken.sol";
+import "./SafeMath.sol";
 
 contract StakeData is Parentable {
+  using SafeMath for uint256;
 
   struct Ucac {
     address ucacContractAddr;
@@ -11,16 +13,23 @@ contract StakeData is Parentable {
     address owner2;
   }
 
-  CPToken private token;
+  /** the token currently being checked by the contract for staking **/
+  CPToken private currentToken;
   mapping (bytes32 => Ucac) public ucacs; //indexed by ucacId
-  mapping (address => uint) public stakedTokens; //indexed by token owner address
+  /**
+      indexed by token contract => token owner address => amount of tokens
+
+      indexes by token contract to make sure that switching currentToken doesn't
+      lock users' tokens
+  **/
+  mapping (address => mapping (address => uint)) public stakedTokens; //
 
   function StakeData(address _tokenContract) {
-    token = CPToken(_tokenContract);
+    currentToken = CPToken(_tokenContract);
   }
 
   function setToken(address _tokenContract) public onlyAdmin {
-    token = CPToken(_tokenContract);
+    currentToken = CPToken(_tokenContract);
   }
 
   function getUcacAddr(bytes32 _ucacId) public constant returns (address) {
@@ -65,15 +74,15 @@ contract StakeData is Parentable {
   }
 
   /**
-     @dev
-     has no modifiers--people can always get their tokens back
+     @notice Checks if this address is already in this name.
+     @param _name The name of the ID.
+     @param _addr The address to check.
    **/
-  function returnTokens(uint _numTokens) public {
-    /*
-      1. check that msg.sender owns enough
-      2. check that our balance of tokens is high enough (duplicate check??)
-      3. transfer ownership to msg.sender
-     */
+  function returnTokens(address _tokenContract, uint _numTokens) public {
+    require ( stakedTokens[_tokenContract][msg.sender] >= _numTokens );
+    CPToken t = CPToken(_tokenContract);
+    stakedTokens[_tokenContract][msg.sender].sub(_numTokens);
+    t.transfer(msg.sender, _numTokens);
   }
 
 }
