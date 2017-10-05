@@ -45,12 +45,31 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             addrPrime.should.be.bignumber.equal(this.cpTokenPrime.address);
         });
 
-        it("allows Ucac info to be set and reset", async function() {
+        it("allows Ucac info (ucacAddr, owner1, owner2) to be set and reset", async function() {
             // rejects attemps to set UcacAddr by non-parent
             await this.stakeData.setUcacAddr(this.cpToken.address, ucacId1, this.cpToken.address, {from: admin1}).should.be.rejectedWith(h.EVMThrow);
 
+            // testing with ucacId1
             await this.stakeData.setUcacAddr(this.cpToken.address, ucacId1, this.cpToken.address, {from: parent}).should.be.fulfilled;
+            await this.stakeData.setOwner1(this.cpToken.address, ucacId1, admin1, {from: parent}).should.be.fulfilled;
+            await this.stakeData.setOwner2(this.cpToken.address, ucacId1, admin1, {from: parent}).should.be.fulfilled;
+            const addr1 = await this.stakeData.getUcacAddr(this.cpToken.address, ucacId1).should.be.fulfilled;
+            addr1.should.be.bignumber.equal(this.cpToken.address);
+            const owner1 = await this.stakeData.getUcacAddr(this.cpToken.address, ucacId1).should.be.fulfilled;
+            addr1.should.be.bignumber.equal(this.cpToken.address);
+            const owner2 = await this.stakeData.getOwner1(this.cpToken.address, ucacId1).should.be.fulfilled;
+            addr1.should.be.bignumber.equal(this.cpToken.address);
+
+            // testing with ucacId2
             await this.stakeData.setUcacAddr(this.cpToken.address, ucacId2, web3.toBigNumber(3), {from: parent}).should.be.fulfilled;
+            await this.stakeData.setOwner1(this.cpToken.address, ucacId2, admin1, {from: parent}).should.be.fulfilled;
+            await this.stakeData.setOwner2(this.cpToken.address, ucacId2, admin2, {from: parent}).should.be.fulfilled;
+            const addr2 = await this.stakeData.getUcacAddr(this.cpToken.address, ucacId2).should.be.fulfilled;
+            addr2.should.be.bignumber.equal(web3.toBigNumber(3));
+            const owner1_2 = await this.stakeData.getOwner1(this.cpToken.address, ucacId2).should.be.fulfilled;
+            owner1_2.should.be.bignumber.equal(admin1);
+            const owner2_2 = await this.stakeData.getOwner2(this.cpToken.address, ucacId2).should.be.fulfilled;
+            owner2_2.should.be.bignumber.equal(admin2);
         });
 
     });
