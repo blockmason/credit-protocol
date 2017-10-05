@@ -17,15 +17,15 @@ contract StakeData is Parentable {
   /**
       @dev The token currently being checked by the contract for staking. Shouldn't change, but we leave an upgrade path.
   **/
-  CPToken private currentToken;
-  mapping (address => mapping (bytes32 => Ucac)) private ucacs; //indexed by ucacId
+  CPToken public currentToken;
+  mapping (address => mapping (bytes32 => Ucac)) public ucacs; //indexed by ucacId
 
   /**
       @dev Indexed by token contract => token owner address => Ucac => amount of tokens
       indexes by token contract to make sure that switching currentToken doesn't
       lock users' tokens
   **/
-  mapping (address => mapping (address => mapping (bytes32 => uint))) private stakedTokens;
+  mapping (address => mapping (address => mapping (bytes32 => uint))) public stakedTokens;
 
   function StakeData(address _tokenContract) {
     currentToken = CPToken(_tokenContract);
