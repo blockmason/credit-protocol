@@ -31,9 +31,8 @@ contract Stake is Adminable {
       - ucacContractAddr must match msg.sender
       - check whether currentHourTimestamp + 1 hour > now
       - if yes, do the tx and reset txsPastHour to 0
-      - if no, check lastTxTimestamp. if it's after
-      - increment txsPastHour
-      -
+      - if no, check lastTxTimestamp. if it's after currentHourTimestamp, increment
+- if not, do nothing
      */
   }
 
