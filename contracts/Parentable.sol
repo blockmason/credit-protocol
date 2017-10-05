@@ -11,6 +11,7 @@ contract Parentable is Adminable {
   }
 
   function changeParent(address _parentContract) public onlyAdmin {
+    require(_parentContract != address(0));
     parentContract = _parentContract;
   }
 }

@@ -14,10 +14,12 @@ contract Adminable {
   }
 
   function setAdmin1(address _newAdmin1) onlyAdmin {
+    require(_newAdmin1 != address(0));
     admin1 = _newAdmin1;
   }
 
   function setAdmin2(address _newAdmin2) onlyAdmin {
+    require(_newAdmin2 != address(0));
     admin2 = _newAdmin2;
   }
 }
