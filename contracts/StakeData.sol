@@ -34,10 +34,6 @@ contract StakeData is Parentable {
   /**
       @dev leaves an upgrade path for the token contract. Tokens are safe because stakedTokens can always be reclaimed by their current owner, even if the currentToken has to be changed.
    **/
-  function setToken(address _tokenContract) public onlyAdmin {
-    currentToken = CPToken(_tokenContract);
-  }
-
   function getUcacAddr(address _tokenContract, bytes32 _ucacId) public constant returns (address) {
     return ucacs[_tokenContract][_ucacId].ucacContractAddr;
   }
@@ -66,6 +62,10 @@ contract StakeData is Parentable {
     ucacs[_tokenContract][_ucacId].owner2 = _newOwner;
   }
 
+  function setToken(address _tokenContract) public onlyAdmin {
+    currentToken = CPToken(_tokenContract);
+  }
+
   /* Token staking functionality */
 
   /**
@@ -73,7 +73,7 @@ contract StakeData is Parentable {
    **/
   function stakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public onlyParent {
     CPToken t = CPToken(_tokenContract);
-    require (t.allowance(msg.sender, this) >= _numTokens);
+    require(t.allowance(msg.sender, this) >= _numTokens);
     stakedTokens[_tokenContract][msg.sender][_ucacId].add(_numTokens);
     ucacs[_tokenContract][_ucacId].numTokens.add(_numTokens);
     t.transferFrom(msg.sender, this, _numTokens);
