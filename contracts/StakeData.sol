@@ -87,7 +87,6 @@ contract StakeData is Parentable {
    **/
   function unstakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public {
     CPToken t = CPToken(_tokenContract);
-    //sub enforces balance being >= 0
     stakedTokens[_tokenContract][msg.sender][_ucacId].sub(_numTokens);
     ucacs[_tokenContract][_ucacId].numTokens.sub(_numTokens);
     t.transfer(msg.sender, _numTokens);

@@ -47,10 +47,12 @@ Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt trackin
 
 Staking notes:
 Ucacs are indexed by ucacId
-contain 
+contain
+
 - ucacId (bytes32)
 - ucacAddr (contract address; can be changed)
 - ownerId (foundationId)
+- numTokens (uint)
 
 
 ##To update:
