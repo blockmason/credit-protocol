@@ -71,12 +71,13 @@ contract StakeData is Parentable {
   /**
       @dev only the parent contract can call this (to enable pausing of token staking for security reasons), but this locks in where tokens go to and how they are stored.
    **/
-  function stakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public onlyParent {
-    CPToken t = CPToken(_tokenContract);
-    require(t.allowance(msg.sender, this) >= _numTokens);
-    stakedTokens[_tokenContract][msg.sender][_ucacId].add(_numTokens);
-    ucacs[_tokenContract][_ucacId].numTokens.add(_numTokens);
-    t.transferFrom(msg.sender, this, _numTokens);
+  function stakeTokens(bytes32 _ucacId, uint _numTokens) public onlyParent {
+    require(currentToken.allowance(msg.sender, this) >= _numTokens);
+    uint256 updatedStakedTokens = stakedTokens[address(currentToken)][msg.sender][_ucacId].add(_numTokens);
+    stakedTokens[address(currentToken)][msg.sender][_ucacId] = updatedStakedTokens;
+    uint256 updatedNumTokens =  ucacs[address(currentToken)][_ucacId].numTokens.add(_numTokens);
+    ucacs[address(currentToken)][_ucacId].numTokens = updatedNumTokens;
+    currentToken.transferFrom(msg.sender, this, _numTokens);
   }
 
   /**
@@ -87,8 +88,10 @@ contract StakeData is Parentable {
    **/
   function unstakeTokens(address _tokenContract, bytes32 _ucacId, uint _numTokens) public {
     CPToken t = CPToken(_tokenContract);
-    stakedTokens[_tokenContract][msg.sender][_ucacId].sub(_numTokens);
-    ucacs[_tokenContract][_ucacId].numTokens.sub(_numTokens);
+    uint256 updatedStakedTokens = stakedTokens[_tokenContract][msg.sender][_ucacId].sub(_numTokens);
+    stakedTokens[_tokenContract][msg.sender][_ucacId] = updatedStakedTokens;
+    uint256 updatedNumTokens = ucacs[_tokenContract][_ucacId].numTokens.sub(_numTokens);
+    ucacs[_tokenContract][_ucacId].numTokens = updatedNumTokens;
     t.transfer(msg.sender, _numTokens);
   }
 
