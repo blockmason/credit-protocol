@@ -99,8 +99,18 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
 
         it("allows user to stake and unstake; after token switch, allows users to unstake old tokens", async function() {
             await this.cpToken.approve(this.stakeData.address, h.toWei(10), {from: admin1}).should.be.fulfilled;
+            // stake tokens
             await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(10), {from: parent}).should.be.fulfilled;
+
+            // staked tokens should = 10
+            const stakedTokens = await this.stakeData.stakedTokens(this.cpToken.address, admin1, ucacId1).should.be.fulfilled;
+            stakedTokens.should.be.bignumber.equal(h.toWei(10));
+
+            // unstake tokens
             await this.stakeData.unstakeTokens(this.cpToken.address, ucacId1, h.toWei(5), {from: admin1}).should.be.fulfilled;
+            // staked tokens should = 5
+            const stakedTokens2 = await this.stakeData.stakedTokens(this.cpToken.address, admin1, ucacId1).should.be.fulfilled;
+            stakedTokens2.should.be.bignumber.equal(h.toWei(5));
         });
 
         it("allows multiple users to stake and unstake", async function() {
