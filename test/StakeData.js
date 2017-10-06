@@ -121,8 +121,8 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             // switch token contracts
             await this.stakeData.setToken(this.cpTokenPrime.address, {from: admin1}).should.be.fulfilled;
 
-            // stake a small amount of ether
-            await this.cpTokenPrime.approve(this.stakeData.address, h.toWei(3), {from: admin1}).should.be.fulfilled;
+            // stake 3 tokens to new token contract
+            await this.cpTokenPrime.approve(this.stakeData.address, h.toWei(6), {from: admin1}).should.be.fulfilled;
             await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(3), {from: parent}).should.be.fulfilled;
 
             // staked tokens should = 3
@@ -135,11 +135,26 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             const stakedTokens4 = await this.stakeData.stakedTokensMap(this.cpToken.address, admin1, ucacId1).should.be.fulfilled;
             stakedTokens4.should.be.bignumber.equal(0);
 
-            // unstake some tokens from current token contract
+            // unstake 2 tokens from current token contract
             await this.stakeData.unstakeTokens(this.cpTokenPrime.address, ucacId1, h.toWei(2), {from: admin1}).should.be.fulfilled;
             // staked tokens should = 1
             const stakedTokens5 = await this.stakeData.stakedTokensMap(this.cpTokenPrime.address, admin1, ucacId1).should.be.fulfilled;
             stakedTokens5.should.be.bignumber.equal(h.toWei(1));
+
+            // stake 3 tokens to ucacId2
+            await this.stakeData.stakeTokens(ucacId2, admin1, h.toWei(3), {from: parent}).should.be.fulfilled;
+            const stakedTokens6 = await this.stakeData.stakedTokensMap(this.cpTokenPrime.address, admin1, ucacId2).should.be.fulfilled;
+            stakedTokens6.should.be.bignumber.equal(h.toWei(3));
+
+            // check that admin1's tokenPrime balance equals its original
+            // quantity - 4 (6 - 4 = 2)
+            const remainingTokensPrime = await this.cpTokenPrime.balanceOf(admin1);
+            remainingTokensPrime.should.be.bignumber.equal(h.toWei(2));
+
+            // check that admin1's tokenPrime balance has be restored to its original
+            // quantity (1000)
+            const remainingTokens = await this.cpToken.balanceOf(admin1);
+            remainingTokens.should.be.bignumber.equal(h.toWei(1000));
         });
 
         it("allows multiple users to stake and unstake", async function() {
@@ -154,8 +169,6 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
 
             const stakedTokens_1 = await this.stakeData.stakedTokensMap(this.cpToken.address, admin2, ucacId1).should.be.fulfilled;
             stakedTokens_1.should.be.bignumber.equal(h.toWei(10));
-
-
         });
     });
 
