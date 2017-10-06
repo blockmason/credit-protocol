@@ -1,7 +1,7 @@
 pragma solidity 0.4.15;
 
-import './MintableToken.sol';
-import './LimitedTransferToken.sol';
+import 'zeppelin-solidity/contracts/token/MintableToken.sol';
+import 'zeppelin-solidity/contracts/token/LimitedTransferToken.sol';
 
 contract CPToken is MintableToken, LimitedTransferToken {
     string public name = "BLOCKMASON CREDIT PROTOCOL TOKEN";

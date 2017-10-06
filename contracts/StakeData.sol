@@ -2,7 +2,7 @@ pragma solidity 0.4.15;
 
 import "./Parentable.sol";
 import "./CPToken.sol";
-import "./SafeMath.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract StakeData is Parentable {
   using SafeMath for uint256;
