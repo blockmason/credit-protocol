@@ -14,6 +14,7 @@ contract Stake is Adminable {
   }
 
   StakeData private sd;
+  address fluxContract;
 
   uint public tokensPerTxPerHour;
   uint public tokensToOwnUcac;
@@ -22,16 +23,19 @@ contract Stake is Adminable {
 
   mapping (bytes32 => TxRecord) ucacTxs;
 
-  function Stake(address _stakeDataContract) {
+  function Stake(address _stakeDataContract, flu) {
     sd = StakeData(_stakeDataContract);
     tokensPerTxPerHour = 100;
     tokensToOwnUcac = 1000;
     minUcacIdLength = 8;
   }
 
-  function ucacTx(bytes32 ucacId) public {
+  function setFlux(address _fluxContract) public onlyAdmin {
+    fluxContract = _fluxContract;
+  }
+
+  function ucacTx(bytes32 ucacId) public onlyFlux {
     /*
-      - ucacContractAddr must match msg.sender
       - check whether currentHourTimestamp + 1 hour > now
       - if yes, do the tx and reset txsPastHour to 0
       - if no, check lastTxTimestamp. if it's after currentHourTimestamp, increment
@@ -85,6 +89,11 @@ contract Stake is Adminable {
   }
 
   /* helpers */
+  modifier onlyFlux() {
+    require(msg.sender == fluxContract);
+    _;
+  }
+
   function bytes32Len(bytes32 b) private returns (uint8 length) {
     uint8 tmpLen = 0;
     for (uint8 i=0; i < 32; i++) {
