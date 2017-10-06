@@ -34,16 +34,16 @@ contract StakeData is Parentable {
   /**
       @dev leaves an upgrade path for the token contract. Tokens are safe because stakedTokens can always be reclaimed by their current owner, even if the currentToken has to be changed.
    **/
-  function getUcacAddr(address _tokenContract, bytes32 _ucacId) public constant returns (address) {
-    return ucacs[_tokenContract][_ucacId].ucacContractAddr;
+  function getUcacAddr(bytes32 _ucacId) public constant returns (address) {
+    return ucacs[address(currentToken)][_ucacId].ucacContractAddr;
   }
 
-  function getOwner1(address _tokenContract, bytes32 _ucacId) public constant returns (address) {
-    return ucacs[_tokenContract][_ucacId].owner1;
+  function getOwner1(bytes32 _ucacId) public constant returns (address) {
+    return ucacs[address(currentToken)][_ucacId].owner1;
   }
 
-  function getOwner2(address _tokenContract, bytes32 _ucacId) public constant returns (address) {
-    return ucacs[_tokenContract][_ucacId].owner2;
+  function getOwner2(bytes32 _ucacId) public constant returns (address) {
+    return ucacs[address(currentToken)][_ucacId].owner2;
   }
 
   function isOwner(address _tokenContract, bytes32 _ucacId, address _owner) public constant returns (bool) {
