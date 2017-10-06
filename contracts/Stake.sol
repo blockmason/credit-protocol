@@ -1,9 +1,9 @@
 pragma solidity ^0.4.13;
 
-import "./Adminable.sol";
-import "./StakeData.sol";
+import "blockmason-solidity-libs/contracts/Adminable.sol";
 import "tce-contracts/contracts/CPToken.sol";
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "./StakeData.sol";
+
 
 contract Stake is Adminable {
   using SafeMath for uint256;

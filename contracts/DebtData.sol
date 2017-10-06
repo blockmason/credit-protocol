@@ -1,7 +1,7 @@
 pragma solidity ^0.4.15;
 
-import "./Parentable.sol";
-import "./SafeMath.sol";
+import "blockmason-solidity-libs/contracts/Parentable.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract DebtData is Parentable {
   using SafeMath for uint256;

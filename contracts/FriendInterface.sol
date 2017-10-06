@@ -1,6 +1,7 @@
 pragma solidity ^0.4.15;
 
 import "./FriendData.sol";
+import "blockmason-solidity-libs/contracts/Parentable.sol";
 import "./AbstractFoundation.sol";
 
 contract FriendInterface is Parentable {

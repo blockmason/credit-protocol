@@ -2,6 +2,7 @@ pragma solidity ^0.4.15;
 
 import "./DebtData.sol";
 import "./FriendInterface.sol";
+import "blockmason-solidity-libs/contracts/Parentable.sol";
 import "./AbstractFoundation.sol";
 
 contract DebtInterface is Parentable {

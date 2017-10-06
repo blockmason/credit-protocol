@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-import "./Parentable.sol";
+import "blockmason-solidity-libs/contracts/Parentable.sol";
 
 contract FriendData is Parentable {
 
