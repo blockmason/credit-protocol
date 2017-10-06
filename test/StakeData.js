@@ -61,9 +61,9 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             addr1.should.be.bignumber.equal(this.cpToken.address);
 
             // ### testing isOwner
-            const isOwnerT1 = await this.stakeData.isOwner(this.cpToken.address, ucacId1, admin1).should.be.fulfilled;
+            const isOwnerT1 = await this.stakeData.isUcacOwner(this.cpToken.address, ucacId1, admin1).should.be.fulfilled;
             assert(isOwnerT1, "admit1 is an owner of ucacId2");
-            const isOwnerT2 = await this.stakeData.isOwner(this.cpToken.address, ucacId1, admin2).should.be.fulfilled;
+            const isOwnerT2 = await this.stakeData.isUcacOwner(this.cpToken.address, ucacId1, admin2).should.be.fulfilled;
             assert(!isOwnerT2, "admin2 is not an owner of ucacId2");
 
             // ## testing with ucacId2
@@ -78,9 +78,9 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             owner2_2.should.be.bignumber.equal(admin2);
 
             // ### testing isOwner
-            const isOwnerT3 = await this.stakeData.isOwner(this.cpToken.address, ucacId2, admin1).should.be.fulfilled;
+            const isOwnerT3 = await this.stakeData.isUcacOwner(this.cpToken.address, ucacId2, admin1).should.be.fulfilled;
             assert(isOwnerT3, "admit1 is an owner of ucacId2");
-            const isOwnerT4 = await this.stakeData.isOwner(this.cpToken.address, ucacId2, parent).should.be.fulfilled;
+            const isOwnerT4 = await this.stakeData.isUcacOwner(this.cpToken.address, ucacId2, parent).should.be.fulfilled;
             assert(!isOwnerT4, "parent is not an owner of ucacId2");
         });
 
