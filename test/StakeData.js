@@ -174,6 +174,38 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             const stakedTokens_1 = await this.stakeData.stakedTokensMap(this.cpToken.address, admin2, ucacId1).should.be.fulfilled;
             stakedTokens_1.should.be.bignumber.equal(h.toWei(10));
         });
+
+        it("maintains an accurate totalStakedTokens count for multiple UCACs", async function() {
+            await this.cpToken.approve(this.stakeData.address, h.toWei(500), {from: admin1}).should.be.fulfilled;
+            // stake 10 tokens to ucacId1
+            await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(10), {from: parent}).should.be.fulfilled;
+
+            // ucacId1.totalStakedTokens = 10
+            const totalStakedTokens_0 = await this.stakeData.getTotalStakedTokens(ucacId1).should.be.fulfilled;
+            totalStakedTokens_0.should.be.bignumber.equal(h.toWei(10));
+
+            // stake 3 tokens to ucacId2
+            await this.stakeData.stakeTokens(ucacId2, admin1, h.toWei(3), {from: parent}).should.be.fulfilled;
+
+            // ucacId2.totalStakedTokens = 3
+            const totalStakedTokens_1 = await this.stakeData.getTotalStakedTokens(ucacId2).should.be.fulfilled;
+            totalStakedTokens_1.should.be.bignumber.equal(h.toWei(3));
+
+            // stake 5 tokens to ucacId2
+            await this.stakeData.stakeTokens(ucacId2, admin1, h.toWei(5), {from: parent}).should.be.fulfilled;
+
+            // ucacId2.totalStakedTokens = 8
+            const totalStakedTokens_2 = await this.stakeData.getTotalStakedTokens(ucacId2).should.be.fulfilled;
+            totalStakedTokens_2.should.be.bignumber.equal(h.toWei(8));
+
+            // unstake 1 token from ucacId2
+            await this.stakeData.unstakeTokens(this.cpToken.address, ucacId2, h.toWei(1), {from: admin1}).should.be.fulfilled;
+
+            // ucacId2 totalStakedTokens = 7
+            const totalStakedTokens_3 = await this.stakeData.getTotalStakedTokens(ucacId2).should.be.fulfilled;
+            totalStakedTokens_3.should.be.bignumber.equal(h.toWei(7));
+        });
+
     });
 
 });
