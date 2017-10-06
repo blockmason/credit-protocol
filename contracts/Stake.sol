@@ -35,10 +35,15 @@ contract Stake is Adminable {
     fluxContract = _fluxContract;
   }
 
-  function ucacTx(bytes32 ucacId) public onlyFlux {
+  function ucacTx(bytes32 _ucacId) public onlyFlux {
+    if (now > (currentHourTimestamp + 1 hour)) {
+      currentHourTimestamp = now;
+      ucacTxs[_ucacId].txsPastHour = 1;
+    }
+    else {
+
+    }
     /*
-      - check whether currentHourTimestamp + 1 hour > now
-      - if yes, do the tx and reset txsPastHour to 0
       - if no, check lastTxTimestamp. if it's after currentHourTimestamp, increment
 - if not, do nothing
      */
