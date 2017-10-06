@@ -50,16 +50,16 @@ contract StakeData is Parentable {
     return ucacs[_tokenContract][_ucacId].owner1 == _owner || ucacs[_tokenContract][_ucacId].owner2 == _owner;
   }
 
-  function setUcacAddr(address _tokenContract, bytes32 _ucacId, address _ucacContractAddr) public onlyParent {
-    ucacs[_tokenContract][_ucacId].ucacContractAddr = _ucacContractAddr;
+  function setUcacAddr(bytes32 _ucacId, address _ucacContractAddr) public onlyParent {
+    ucacs[address(currentToken)][_ucacId].ucacContractAddr = _ucacContractAddr;
   }
 
-  function setOwner1(address _tokenContract, bytes32 _ucacId, address _newOwner) public onlyParent {
-    ucacs[_tokenContract][_ucacId].owner1 = _newOwner;
+  function setOwner1(bytes32 _ucacId, address _newOwner) public onlyParent {
+    ucacs[address(currentToken)][_ucacId].owner1 = _newOwner;
   }
 
-  function setOwner2(address _tokenContract, bytes32 _ucacId, address _newOwner) public onlyParent {
-    ucacs[_tokenContract][_ucacId].owner2 = _newOwner;
+  function setOwner2(bytes32 _ucacId, address _newOwner) public onlyParent {
+    ucacs[address(currentToken)][_ucacId].owner2 = _newOwner;
   }
 
   function setToken(address _tokenContract) public onlyAdmin {
