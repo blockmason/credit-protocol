@@ -158,12 +158,16 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
         });
 
         it("allows multiple users to stake and unstake", async function() {
+            // ## admin1 stakes
             await this.cpToken.approve(this.stakeData.address, h.toWei(10), {from: admin1}).should.be.fulfilled;
+            // ### non-parent should be unable to stake
+            await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(10), {from: admin1}).should.be.rejectedWith(h.EVMThrow);
             await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(10), {from: parent}).should.be.fulfilled;
 
             const stakedTokens_0 = await this.stakeData.stakedTokensMap(this.cpToken.address, admin1, ucacId1).should.be.fulfilled;
             stakedTokens_0.should.be.bignumber.equal(h.toWei(10));
 
+            // ## admin2 stakes
             await this.cpToken.approve(this.stakeData.address, h.toWei(10), {from: admin2}).should.be.fulfilled;
             await this.stakeData.stakeTokens(ucacId1, admin2, h.toWei(10), {from: parent}).should.be.fulfilled;
 
