@@ -1,7 +1,7 @@
 pragma solidity 0.4.15;
 
 import "./Parentable.sol";
-import "./CPToken.sol";
+import "tce-contracts/contracts/CPToken.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract StakeData is Parentable {
