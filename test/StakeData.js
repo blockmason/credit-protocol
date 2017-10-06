@@ -113,18 +113,16 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             const stakedTokens4 = await this.stakeData.stakedTokensMap(admin1, ucacId1).should.be.fulfilled;
             stakedTokens4.should.be.bignumber.equal(0);
 
+            // check that admin1's token balance has be restored to its original
+            // quantity (1000)
+            const remainingTokens = await this.cpToken.balanceOf(admin1);
+            remainingTokens.should.be.bignumber.equal(h.toWei(1000));
+
             await this.cpToken.approve(this.stakeData.address, h.toWei(3), {from: admin1}).should.be.fulfilled;
             // stake 3 tokens to ucacId2
             await this.stakeData.stakeTokens(ucacId2, admin1, h.toWei(3), {from: parent}).should.be.fulfilled;
             const stakedTokens5 = await this.stakeData.stakedTokensMap(admin1, ucacId2).should.be.fulfilled;
             stakedTokens5.should.be.bignumber.equal(h.toWei(3));
-
-            /*
-            // check that admin1's tokenPrime balance has be restored to its original
-            // quantity (1000)
-            const remainingTokens = await this.cpToken.balanceOf(admin1);
-            remainingTokens.should.be.bignumber.equal(h.toWei(1000));
-             */
         });
 
         it("allows multiple users to stake and unstake", async function() {
