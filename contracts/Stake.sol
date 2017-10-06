@@ -3,8 +3,10 @@ pragma solidity ^0.4.13;
 import "./Adminable.sol";
 import "./StakeData.sol";
 import "tce-contracts/contracts/CPToken.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract Stake is Adminable {
+  using SafeMath for uint256;
 
   struct TxRecord {
     uint txsPastHour;
@@ -41,7 +43,6 @@ contract Stake is Adminable {
      @dev msg.sender must have approved StakeData to spend enough tokens
    **/
   function createAndStakeUcac(address _owner2, address _ucacContractAddr, bytes32 _ucacId, uint _tokensToStake) {
-    address owner1 = sd.getOwner1(_ucacId);
     require(!ucacInitialized(_ucacId));
     require(bytes32Len(_ucacId) >= minUcacIdLength);
     require(_tokensToStake >= tokensToOwnUcac);
@@ -56,19 +57,24 @@ contract Stake is Adminable {
     sd.stakeTokens(_ucacId, msg.sender, _tokensToStake);
   }
 
-  function takeoverUcac(address _owner2, address _newUcacContractAddr, bytes32 _ucacId, uint _tokensToStake) public {
-  address currentOwner1 = sd.getOwner1(_ucacId);
-  uint ownerStake = sd.stakedTokensMap(address(sd.currentToken), currentOwner1, _ucacId);
-    /*
-      - add owner2 and msg.sender as owners
-      - change contract address
-     */
+  function takeoverUcac(address _owner2, address _newUcacContractAddr, bytes32 _ucacId, uint _additionalTokensToStake) public {
+    address currentOwner1 = sd.getOwner1(_ucacId);
+    uint ownerStake = sd.stakedTokensMap(address(sd.currentToken), currentOwner1, _ucacId);
+    uint newOwnerStake = sd.stakedTokensMap(address(sd.currentToken), msg.sender, _ucacId);
+    require(ownerStake < tokensToOwnUcac);
+    require(newOwnerStake.add(_additionalTokensToStake) >= tokensToOwnUcac);
+    sd.setOwner1(_ucacId, msg.sender);
+    sd.setOwner2(_ucacId, _owner2);
+    sd.setUcacAddr(_ucacId, _newUcacContractAddr);
+
+    if(_additionalTokensToStake > 0)
+      sd.stakeTokens(_ucacId, msg.sender, _additionalTokensToStake);
   }
 
   function transferUcacOwnership(bytes32 _ucacId, address _newOwner1, address _newOwner2) public {
-    uint ownerStake = sd.stakedTokensMap(address(sd.currentToken), _newOwner1, _ucacId);
+    uint newOwnerStake = sd.stakedTokensMap(address(sd.currentToken), _newOwner1, _ucacId);
     require(sd.isUcacOwner(address(sd.currentToken), _ucacId, msg.sender));
-    require(ownerStake >= tokensToOwnUcac);
+    require(newOwnerStake >= tokensToOwnUcac);
     sd.setOwner1(_ucacId, _newOwner1);
     sd.setOwner2(_ucacId, _newOwner2);
   }
