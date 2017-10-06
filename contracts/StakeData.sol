@@ -14,60 +14,48 @@ contract StakeData is Parentable {
     address owner2;
   }
 
-  /**
-      @dev The token currently being checked by the contract for staking. Shouldn't change, but we leave an upgrade path.
-  **/
-  CPToken public currentToken;
-  mapping (address => mapping (bytes32 => Ucac)) public ucacs; //indexed by ucacId
+  CPToken public token;
+  mapping (bytes32 => Ucac) public ucacs; //indexed by ucacId
 
   /**
-      @dev Indexed by token contract => token owner address => Ucac => amount of tokens
-      indexes by token contract to make sure that switching currentToken doesn't
-      lock users' tokens
+      @dev Indexed by token owner address => Ucac => amount of tokens
   **/
-  mapping (address => mapping (address => mapping (bytes32 => uint))) public stakedTokensMap;
+  mapping (address => mapping (bytes32 => uint)) public stakedTokensMap;
 
   function StakeData(address _tokenContract) {
-    currentToken = CPToken(_tokenContract);
+    token = CPToken(_tokenContract);
   }
 
-  /**
-      @dev leaves an upgrade path for the token contract. Tokens are safe because stakedTokens can always be reclaimed by their current owner, even if the currentToken has to be changed.
-   **/
   function getUcacAddr(bytes32 _ucacId) public constant returns (address) {
-    return ucacs[currentToken][_ucacId].ucacContractAddr;
+    return ucacs[_ucacId].ucacContractAddr;
   }
 
   function getOwner1(bytes32 _ucacId) public constant returns (address) {
-    return ucacs[currentToken][_ucacId].owner1;
+    return ucacs[_ucacId].owner1;
   }
 
   function getOwner2(bytes32 _ucacId) public constant returns (address) {
-    return ucacs[currentToken][_ucacId].owner2;
+    return ucacs[_ucacId].owner2;
   }
 
   function getTotalStakedTokens(bytes32 _ucacId) public constant returns (uint256) {
-    return ucacs[currentToken][_ucacId].totalStakedTokens;
+    return ucacs[_ucacId].totalStakedTokens;
   }
 
-  function isUcacOwner(address _tokenContract, bytes32 _ucacId, address _owner) public constant returns (bool) {
-    return ucacs[_tokenContract][_ucacId].owner1 == _owner || ucacs[_tokenContract][_ucacId].owner2 == _owner;
+  function isUcacOwner(bytes32 _ucacId, address _owner) public constant returns (bool) {
+    return ucacs[_ucacId].owner1 == _owner || ucacs[_ucacId].owner2 == _owner;
   }
 
   function setUcacAddr(bytes32 _ucacId, address _ucacContractAddr) public onlyParent {
-    ucacs[currentToken][_ucacId].ucacContractAddr = _ucacContractAddr;
+    ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
   }
 
   function setOwner1(bytes32 _ucacId, address _newOwner) public onlyParent {
-    ucacs[currentToken][_ucacId].owner1 = _newOwner;
+    ucacs[_ucacId].owner1 = _newOwner;
   }
 
   function setOwner2(bytes32 _ucacId, address _newOwner) public onlyParent {
-    ucacs[currentToken][_ucacId].owner2 = _newOwner;
-  }
-
-  function setToken(address _tokenContract) public onlyAdmin {
-    currentToken = CPToken(_tokenContract);
+    ucacs[_ucacId].owner2 = _newOwner;
   }
 
   /* Token staking functionality */
@@ -76,26 +64,25 @@ contract StakeData is Parentable {
       @dev only the parent contract can call this (to enable pausing of token staking for security reasons), but this locks in where tokens go to and how they are stored.
    **/
   function stakeTokens(bytes32 _ucacId, address _stakeholder, uint _numTokens) public onlyParent {
-    require(currentToken.allowance(_stakeholder, this) >= _numTokens);
-    uint256 updatedStakedTokens = stakedTokensMap[currentToken][_stakeholder][_ucacId].add(_numTokens);
-    stakedTokensMap[currentToken][_stakeholder][_ucacId] = updatedStakedTokens;
-    uint256 updatedNumTokens =  ucacs[currentToken][_ucacId].totalStakedTokens.add(_numTokens);
-    ucacs[currentToken][_ucacId].totalStakedTokens = updatedNumTokens;
-    currentToken.transferFrom(_stakeholder, this, _numTokens);
+    require(token.allowance(_stakeholder, this) >= _numTokens);
+    uint256 updatedStakedTokens = stakedTokensMap[_stakeholder][_ucacId].add(_numTokens);
+    stakedTokensMap[_stakeholder][_ucacId] = updatedStakedTokens;
+    uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
+    ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
+    token.transferFrom(_stakeholder, this, _numTokens);
   }
 
   /**
      @notice Checks if this address is already in this name.
-     @param _tokenContract The token contract this msg.sender owns tokens for
      @param _ucacId Id of the ucac tokens are staked to
      @param _numTokens Number of tokens the user wants to unstake
    **/
-  function unstakeTokens(CPToken _tokenContract, bytes32 _ucacId, uint _numTokens) public {
-    uint256 updatedStakedTokens = stakedTokensMap[_tokenContract][msg.sender][_ucacId].sub(_numTokens);
-    stakedTokensMap[_tokenContract][msg.sender][_ucacId] = updatedStakedTokens;
-    uint256 updatedNumTokens = ucacs[_tokenContract][_ucacId].totalStakedTokens.sub(_numTokens);
-    ucacs[_tokenContract][_ucacId].totalStakedTokens = updatedNumTokens;
-    _tokenContract.transfer(msg.sender, _numTokens);
+  function unstakeTokens(bytes32 _ucacId, uint _numTokens) public {
+    uint256 updatedStakedTokens = stakedTokensMap[msg.sender][_ucacId].sub(_numTokens);
+    stakedTokensMap[msg.sender][_ucacId] = updatedStakedTokens;
+    uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
+    ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
+    token.transfer(msg.sender, _numTokens);
   }
 
 }

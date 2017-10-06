@@ -14,7 +14,7 @@ contract Stake is Adminable {
   }
 
   StakeData private sd;
-  address fluxContract;
+  address public fluxContract;
 
   uint public tokensPerTxPerHour;
   uint public tokensToOwnUcac;
@@ -23,8 +23,9 @@ contract Stake is Adminable {
 
   mapping (bytes32 => TxRecord) ucacTxs;
 
-  function Stake(address _stakeDataContract, flu) {
+  function Stake(address _stakeDataContract, address _fluxContract) {
     sd = StakeData(_stakeDataContract);
+    fluxContract = _fluxContract;
     tokensPerTxPerHour = 100;
     tokensToOwnUcac = 1000;
     minUcacIdLength = 8;
@@ -63,8 +64,8 @@ contract Stake is Adminable {
 
   function takeoverUcac(address _owner2, address _newUcacContractAddr, bytes32 _ucacId, uint _additionalTokensToStake) public {
     address currentOwner1 = sd.getOwner1(_ucacId);
-    uint ownerStake = sd.stakedTokensMap(address(sd.currentToken), currentOwner1, _ucacId);
-    uint newOwnerStake = sd.stakedTokensMap(address(sd.currentToken), msg.sender, _ucacId);
+    uint ownerStake = sd.stakedTokensMap(currentOwner1, _ucacId);
+    uint newOwnerStake = sd.stakedTokensMap(msg.sender, _ucacId);
     require(ownerStake < tokensToOwnUcac);
     require(newOwnerStake.add(_additionalTokensToStake) >= tokensToOwnUcac);
     sd.setOwner1(_ucacId, msg.sender);
@@ -76,8 +77,8 @@ contract Stake is Adminable {
   }
 
   function transferUcacOwnership(bytes32 _ucacId, address _newOwner1, address _newOwner2) public {
-    uint newOwnerStake = sd.stakedTokensMap(address(sd.currentToken), _newOwner1, _ucacId);
-    require(sd.isUcacOwner(address(sd.currentToken), _ucacId, msg.sender));
+    uint newOwnerStake = sd.stakedTokensMap(_newOwner1, _ucacId);
+    require(sd.isUcacOwner(_ucacId, msg.sender));
     require(newOwnerStake >= tokensToOwnUcac);
     sd.setOwner1(_ucacId, _newOwner1);
     sd.setOwner2(_ucacId, _newOwner2);
