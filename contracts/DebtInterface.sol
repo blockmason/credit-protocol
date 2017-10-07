@@ -206,25 +206,23 @@ contract DebtInterface is Parentable {
 
   function confirmDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
     uint index;
-    bool success;
-    (index, success) = findPendingDebt(ucacId, myId, friendId, debtId);
-    if ( ! success ) return;
+    index = dd.debtIndex(debtId);
 
     if ( af.idEq(myId, dd.dDebtorId(ucacId, myId, friendId, index)) && !dd.dDebtorConfirmed(ucacId, myId, friendId, index) && dd.dCreditorConfirmed(ucacId, myId, friendId, index) ) {
       dd.dSetDebtorConfirmed(ucacId, myId, friendId, index, true);
       dd.dSetIsPending(ucacId, myId, friendId, index, false);
     }
-    if ( af.idEq(myId, dd.dCreditorId(ucacId, myId, friendId, index)) && !dd.dCreditorConfirmed(ucacId, myId, friendId, index) && dd.dDebtorConfirmed(ucacId, myId, friendId, index) ) {
+    else if ( af.idEq(myId, dd.dCreditorId(ucacId, myId, friendId, index)) && !dd.dCreditorConfirmed(ucacId, myId, friendId, index) && dd.dDebtorConfirmed(ucacId, myId, friendId, index) ) {
       dd.dSetCreditorConfirmed(ucacId, myId, friendId, index, true);
       dd.dSetIsPending(ucacId, myId, friendId, index, false);
     }
+    else
+      throw();
   }
 
   function rejectDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
     uint index;
-    bool success;
-    (index, success) = findPendingDebt(ucacId, myId, friendId, debtId);
-    if ( ! success ) return;
+    index = dd.debtIndex(debtId);
 
     dd.dSetIsPending(ucacId, myId, friendId, index, false);
     dd.dSetIsRejected(ucacId, myId, friendId, index, true);
@@ -239,17 +237,4 @@ contract DebtInterface is Parentable {
     }
     return false;
   }
-
-  /** returns false for success if debt not found
-   only returns pending, non-rejected debts
-  **/
-  function findPendingDebt(bytes32 ucacId, bytes32 p1, bytes32 p2, uint debtId) private constant returns (uint index, bool success) {
-    for(uint i=0; i < dd.numDebts(ucacId, p1, p2); i++) {
-      if( dd.dId(ucacId, p1, p2, i) == debtId && dd.dIsPending(ucacId, p1, p2, i)
-          && ! dd.dIsRejected(ucacId, p1, p2, i) )
-        return (i, true);
-    }
-    return (i, false);
-  }
-
 }
