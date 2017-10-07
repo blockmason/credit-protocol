@@ -198,28 +198,14 @@ contract DebtInterface is Parentable {
     if ( amount == 0 ) revert();
     if ( amount < 0 )  revert();
 
-    dd.pushBlankDebt(ucacId, debtorId, creditorId);
-    uint idx = dd.numDebts(ucacId, debtorId, creditorId) - 1;
-
-    dd.dSetId(ucacId, debtorId, creditorId, idx, dd.nextDebtId());
-    dd.dSetTimestamp(ucacId, debtorId, creditorId, idx, now);
-    dd.dSetAmount(ucacId, debtorId, creditorId, idx, amount);
-    dd.dSetCurrencyCode(ucacId, debtorId, creditorId, idx, currencyCode);
-    dd.dSetDebtorId(ucacId, debtorId, creditorId, idx, debtorId);
-    dd.dSetCreditorId(ucacId, debtorId, creditorId, idx, creditorId);
-    dd.dSetIsPending(ucacId, debtorId, creditorId, idx, true);
-    dd.dSetDesc(ucacId, debtorId, creditorId, idx, desc);
-
     if ( af.idEq(af.resolveToName(msg.sender), debtorId) )
-      dd.dSetDebtorConfirmed(ucacId, debtorId, creditorId, idx, true);
+      dd.initDebt(ucacId, debtorId, creditorId, currencyCode, amount, desc, true, false);
     else
-      dd.dSetCreditorConfirmed(ucacId, debtorId, creditorId, idx, true);
-
-    dd.incrementDebtId();
+      dd.initDebt(ucacId, debtorId, creditorId, currencyCode, amount, desc, false, true);
   }
 
   function confirmDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
-    uint index;
+    uint index
     bool success;
     (index, success) = findPendingDebt(ucacId, myId, friendId, debtId);
     if ( ! success ) return;
@@ -235,7 +221,7 @@ contract DebtInterface is Parentable {
   }
 
   function rejectDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
-    uint index;
+    uint index
     bool success;
     (index, success) = findPendingDebt(ucacId, myId, friendId, debtId);
     if ( ! success ) return;

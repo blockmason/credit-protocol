@@ -21,7 +21,16 @@ contract DebtData is Parentable {
     bool creditorConfirmed;
     bytes32 desc;
   }
+
+  struct DebtIndex {
+    bytes32 ucac;
+    bytes32 f;
+    bytes32 s;
+    uint index;
+  }
+
   mapping ( bytes32 => mapping (bytes32 => mapping ( bytes32 => Debt[] ))) public debts;
+  mapping ( uint => DebtIndex ) public debtsByDebtId;
   uint public nextDebtId;
   Debt private blankDebt; //Used to push onto debts
 
@@ -145,5 +154,35 @@ contract DebtData is Parentable {
   function dSetDesc(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx, bytes32 desc) public onlyParent {
     (f, s) = debtIndices(ucac, p1, p2);
     debts[ucac][f][s][idx].desc = desc;
+  }
+
+  /* batch setters */
+  /**
+
+   **/
+  function initDebt(bytes32 ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc, bool debtorConfirmed, bool creditorConfirmed) public onlyParent {
+    pushBlankDebt(ucac, debtorId, creditorId);
+    uint index = numDebts(ucac, debtorId, creditorId).sub(1);
+    (f, s) = debtIndices(ucac, debtorId, creditorId);
+
+    debtsByDebtId[nextDebtId].ucac = ucac;
+    debtsByDebtId[nextDebtId].f = f;
+    debtsByDebtId[nextDebtId].s = s;
+    debtsByDebtId[nextDebtId].index = index;
+
+    debts[ucac][f][s][index].id = nextDebtId;
+    debts[ucac][f][s][index].timestamp = now;
+    debts[ucac][f][s][index].amount = amount;
+    debts[ucac][f][s][index].currencyCode = currencyCode;
+    debts[ucac][f][s][index].debtorId = debtorId;
+    debts[ucac][f][s][index].creditorId = creditorId;
+    debts[ucac][f][s][index].isPending = true;
+    debts[ucac][f][s][index].desc = desc;
+    if(debtorConfirmed)
+      debts[ucac][f][s][index].debtorConfirmed = true;
+    if(creditorConfirmed)
+      debts[ucac][f][s][index].creditorConfirmed = true;
+
+    nextDebtId = nextDebtId.add(1);
   }
 }
