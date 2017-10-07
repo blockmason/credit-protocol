@@ -71,7 +71,11 @@ contract FriendData is Parentable {
   }
 
   /* Friend Setters */
+<<<<<<< HEAD
+  // Add new friend Id to my friend list
+=======
 
+>>>>>>> parent of 34eac30... comments with function logic
   function pushFriendId(bytes32 ucac, bytes32 myId, bytes32 friendId) public onlyParent  {
     friendIdList[ucac][myId].push(friendId);
   }
@@ -116,7 +120,9 @@ contract FriendData is Parentable {
     friendships[ucac][f][s].f1Id = myId;
     friendships[ucac][f][s].f2Id = friendId;
     friendships[ucac][f][s].isPending = true;
+    friendships[ucac][f][s].isMutual = false;
     friendships[ucac][f][s].f1Confirmed = true;
+    friendships[ucac][f][s].f2Confirmed = false;
 
     friendIdList[ucac][myId].push(friendId);
     friendIdList[ucac][friendId].push(myId);
