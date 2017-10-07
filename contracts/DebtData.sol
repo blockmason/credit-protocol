@@ -156,7 +156,12 @@ contract DebtData is Parentable {
     debts[ucac][f][s][idx].desc = desc;
   }
 
-  /* batch setters */
+  /* batch functions */
+
+  function debtIndex(uint _debtId) public constant returns (bytes32, bytes32, bytes32, uint) {
+    return (debtsByDebtId[_debtId].ucac, debtsByDebtId[_debtId].f, debtsByDebtId[_debtId].s, debtsByDebtId[_debtId].index);
+  }
+
   /**
 
    **/
