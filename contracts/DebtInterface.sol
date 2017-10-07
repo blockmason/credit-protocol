@@ -205,7 +205,7 @@ contract DebtInterface is Parentable {
   }
 
   function confirmDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
-    uint index
+    uint index;
     bool success;
     (index, success) = findPendingDebt(ucacId, myId, friendId, debtId);
     if ( ! success ) return;
@@ -221,7 +221,7 @@ contract DebtInterface is Parentable {
   }
 
   function rejectDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
-    uint index
+    uint index;
     bool success;
     (index, success) = findPendingDebt(ucacId, myId, friendId, debtId);
     if ( ! success ) return;
