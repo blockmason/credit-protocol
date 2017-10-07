@@ -163,9 +163,9 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
             (await this.dd.nextDebtId.call()).should.be.bignumber.equal(four);
 
             //check debtsById
-            const debtInfo1 = await this.dd.debtIndex(1);
-            const debtInfo2 = await this.dd.debtIndex(2);
-            const debtInfo3 = await this.dd.debtIndex(3);
+            const debtInfo1 = await this.dd.debtFullIndex(1);
+            const debtInfo2 = await this.dd.debtFullIndex(2);
+            const debtInfo3 = await this.dd.debtFullIndex(3);
 
             h.b2s(debtInfo1[0]).should.be.equal(ucacMain);
             h.b2s(debtInfo1[1]).should.be.equal(id1);

@@ -217,7 +217,7 @@ contract DebtInterface is Parentable {
       dd.dSetIsPending(ucacId, myId, friendId, index, false);
     }
     else
-      throw();
+      revert();
   }
 
   function rejectDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
