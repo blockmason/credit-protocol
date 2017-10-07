@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "runtest.sh <TEST_SCRIPT_FILE>"
+    exit
+fi
+
 function cleanup {
     kill -9 $testrpc_pid
 }
