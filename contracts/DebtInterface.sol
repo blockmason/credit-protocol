@@ -205,19 +205,7 @@ contract DebtInterface is Parentable {
   }
 
   function confirmDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
-    uint index;
-    index = dd.debtIndex(debtId);
-
-    if ( af.idEq(myId, dd.dDebtorId(ucacId, myId, friendId, index)) && !dd.dDebtorConfirmed(ucacId, myId, friendId, index) && dd.dCreditorConfirmed(ucacId, myId, friendId, index) ) {
-      dd.dSetDebtorConfirmed(ucacId, myId, friendId, index, true);
-      dd.dSetIsPending(ucacId, myId, friendId, index, false);
-    }
-    else if ( af.idEq(myId, dd.dCreditorId(ucacId, myId, friendId, index)) && !dd.dCreditorConfirmed(ucacId, myId, friendId, index) && dd.dDebtorConfirmed(ucacId, myId, friendId, index) ) {
-      dd.dSetCreditorConfirmed(ucacId, myId, friendId, index, true);
-      dd.dSetIsPending(ucacId, myId, friendId, index, false);
-    }
-    else
-      revert();
+    dd.confirmDebt(ucacId, myId, friendId, debtId);
   }
 
   function rejectDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {

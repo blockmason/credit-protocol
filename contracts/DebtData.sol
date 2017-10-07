@@ -1,6 +1,7 @@
 pragma solidity ^0.4.15;
 
 import "blockmason-solidity-libs/contracts/Parentable.sol";
+import "blockmason-solidity-libs/contracts/Helpers.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract DebtData is Parentable {
@@ -195,6 +196,24 @@ contract DebtData is Parentable {
     nextDebtId = nextDebtId.add(1);
   }
 
+  function confirmDebt(bytes32 ucac, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
+    (f, s) = debtIndices(ucac, myId, friendId);
+    uint index = debtsByDebtId[debtId].index;
+    bool debtorSameAsMyId = Helpers.compare(myId, debts[ucac][f][s][index].debtorId) == 0;
+    bool creditorSameAsMyId = Helpers.compare(myId, debts[ucac][f][s][index].creditorId) == 0;
+
+    if(debtorSameAsMyId && !debts[ucac][f][s][index].debtorConfirmed && debts[ucac][f][s][index].creditorConfirmed) {
+      debts[ucac][f][s][index].debtorConfirmed = true;
+      debts[ucac][f][s][index].isPending = false;
+    }
+    else if(creditorSameAsMyId && !debts[ucac][f][s][index].creditorConfirmed && debts[ucac][f][s][index].debtorConfirmed) {
+      debts[ucac][f][s][index].creditorConfirmed = true;
+      debts[ucac][f][s][index].isPending = false;
+    }
+    else
+      revert();
+  }
+
   function rejectDebt(bytes32 ucac, bytes32 rejector, bytes32 rejectee, uint debtId) public onlyParent {
     (f, s) = debtIndices(ucac, rejector, rejectee);
     uint index = debtsByDebtId[debtId].index;
@@ -204,4 +223,5 @@ contract DebtData is Parentable {
     debts[ucac][f][s][index].debtorConfirmed = false;
     debts[ucac][f][s][index].creditorConfirmed = false;
   }
+
 }
