@@ -56,6 +56,8 @@ contract FriendInterface is Parentable {
 
   /* Friend functions */
   function addFriend(bytes32 ucacId, bytes32 myId, bytes32 friendId) public onlyParent {
+    require(!af.idEq(myId, friendId)); //can't be friends with yourself
+
     //if not initialized, create the Friendship
     if ( !fd.fInitialized(ucacId, myId, friendId) ) {
       fd.initFriendship(ucacId, myId, friendId);
