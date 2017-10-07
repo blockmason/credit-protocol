@@ -163,7 +163,7 @@ contract DebtData is Parentable {
   function initDebt(bytes32 ucac, bytes32 debtorId, bytes32 creditorId, bytes32 currencyCode, int amount, bytes32 desc, bool debtorConfirmed, bool creditorConfirmed) public onlyParent {
     (f, s) = debtIndices(ucac, debtorId, creditorId);
     debts[ucac][f][s].push(blankDebt);
-    uint index = numDebts(ucac, debtorId, creditorId).sub(1);
+    uint index = (debts[ucac][f][s].length).sub(1);
 
     debtsByDebtId[nextDebtId].ucac = ucac;
     debtsByDebtId[nextDebtId].f = f;
