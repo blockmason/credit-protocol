@@ -41,6 +41,10 @@ contract StakeData is Parentable {
     return ucacs[_ucacId].totalStakedTokens;
   }
 
+  function getAddrAndStaked(bytes32 _ucacId) public constant returns (address, uint256) {
+    return (ucacs[_ucacId].ucacContractAddr, ucacs[_ucacId].totalStakedTokens);
+  }
+
   function isUcacOwner(bytes32 _ucacId, address _owner) public constant returns (bool) {
     return ucacs[_ucacId].owner1 == _owner || ucacs[_ucacId].owner2 == _owner;
   }

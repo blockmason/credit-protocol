@@ -36,17 +36,29 @@ contract Stake is Adminable {
   }
 
   function ucacTx(bytes32 _ucacId) public onlyFlux {
-    if (now > (currentHourTimestamp + 1 hour)) {
+    if (now > (currentHourTimestamp + 1 hours)) {
       currentHourTimestamp = now;
       ucacTxs[_ucacId].txsPastHour = 1;
     }
     else {
-
+      if(ucacTxs[_ucacId].lastTxTimestamp > currentHourTimestamp)
+        ucacTxs[_ucacId].txsPastHour.add(1);
+      else
+        ucacTxs[_ucacId].txsPastHour = 1;
     }
-    /*
-      - if no, check lastTxTimestamp. if it's after currentHourTimestamp, increment
-- if not, do nothing
-     */
+    ucacTxs[_ucacId].lastTxTimestamp = now;
+  }
+
+  /**
+     @dev
+  **/
+  address contractT;
+  uint totalStakedT;
+  function ucacStatus(bytes32 _ucacId) constant public returns (bool hasCapacity, address ucacContract){
+    (contractT, totalStakedT) = sd.getAddrAndStaked(_ucacId);
+    uint totalCapacity = totalStakedT.div(tokensPerTxPerHour);
+    uint usedCapacity = (ucacTxs[_ucacId].txsPastHour).mul(tokensPerTxPerHour);
+    return (totalCapacity.sub(usedCapacity) >= tokensPerTxPerHour, contractT);
   }
 
   /**
