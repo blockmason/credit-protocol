@@ -221,13 +221,7 @@ contract DebtInterface is Parentable {
   }
 
   function rejectDebt(bytes32 ucacId, bytes32 myId, bytes32 friendId, uint debtId) public onlyParent {
-    uint index;
-    index = dd.debtIndex(debtId);
-
-    dd.dSetIsPending(ucacId, myId, friendId, index, false);
-    dd.dSetIsRejected(ucacId, myId, friendId, index, true);
-    dd.dSetDebtorConfirmed(ucacId, myId, friendId, index, false);
-    dd.dSetCreditorConfirmed(ucacId, myId, friendId, index, false);
+    dd.rejectDebt(ucacId, myId, friendId, debtId);
   }
 
   /*  helpers  */

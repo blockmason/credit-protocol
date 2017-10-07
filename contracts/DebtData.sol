@@ -194,4 +194,14 @@ contract DebtData is Parentable {
 
     nextDebtId = nextDebtId.add(1);
   }
+
+  function rejectDebt(bytes32 ucac, bytes32 rejector, bytes32 rejectee, uint debtId) public onlyParent {
+    (f, s) = debtIndices(ucac, rejector, rejectee);
+    uint index = debtsByDebtId[debtId].index;
+
+    debts[ucac][f][s][index].isPending = false;
+    debts[ucac][f][s][index].isRejected = true;
+    debts[ucac][f][s][index].debtorConfirmed = false;
+    debts[ucac][f][s][index].creditorConfirmed = false;
+  }
 }
