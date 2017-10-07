@@ -107,4 +107,25 @@ contract FriendData is Parentable {
     (f, s) = friendIndices(ucac, p1, p2);
     friendships[ucac][f][s].f2Confirmed = f2Confirmed;
   }
+
+  /* batch functions */
+
+  function initFriendship(bytes32 _ucacId, bytes32 myId, bytes32 friendId) public onlyParent {
+    (f, s) = friendIndices(_ucacId, myId, friendId);
+    friendships[_ucacId][f][s].initialized = true;
+    friendships[_ucacId][f][s].f1Id = myId;
+    friendships[_ucacId][f][s].f2Id = friendId;
+    friendships[_ucacId][f][s].isPending = true;
+    friendships[_ucacId][f][s].f1Confirmed = true;
+
+    fd.fSetInitialized(_ucacId, myId, friendId, true);
+    fd.fSetf1Id(_ucacId, myId, friendId, myId);
+    fd.fSetf2Id(_ucacId, myId, friendId, friendId);
+    fd.fSetIsPending(_ucacId, myId, friendId, true);
+    fd.fSetf1Confirmed(_ucacId, myId, friendId, true);
+
+    friendIdList[ucac][myId].push(friendId);
+    friendIdList[ucac][friendId].push(myId);
+  }
+
 }

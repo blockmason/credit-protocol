@@ -54,18 +54,11 @@ contract FriendInterface is Parentable {
     return (ids1, ids2);
   }
 
-    /* Friend functions */
+  /* Friend functions */
   function addFriend(bytes32 ucacId, bytes32 myId, bytes32 friendId) public onlyParent {
     //if not initialized, create the Friendship
     if ( !fd.fInitialized(ucacId, myId, friendId) ) {
-      fd.fSetInitialized(ucacId, myId, friendId, true);
-      fd.fSetf1Id(ucacId, myId, friendId, myId);
-      fd.fSetf2Id(ucacId, myId, friendId, friendId);
-      fd.fSetIsPending(ucacId, myId, friendId, true);
-      fd.fSetf1Confirmed(ucacId, myId, friendId, true);
-
-      fd.pushFriendId(ucacId, myId, friendId);
-      fd.pushFriendId(ucacId, friendId, myId);
+      fd.initFriendship(ucacId, myId, friendId);
       return;
     }
     if ( fd.fIsMutual(ucacId, myId, friendId) ) return;
