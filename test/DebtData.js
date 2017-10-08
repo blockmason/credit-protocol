@@ -60,6 +60,22 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
             await this.dd.changeParent(p1, {from: admin1}).should.be.fulfilled;
             await this.dd.changeParent(p1, {from: admin2}).should.be.fulfilled;
         });
+        it("Only parent contract can call setters", async function() {
+            await this.dd.incrementDebtId({from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.pushBlankDebt(ucacMain, id2, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetId(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetTimestamp(ucacMain, id1, id2, 0, bigNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetAmount(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetCurrencyCode(ucacMain, id1, id2, 0, currencyCode, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetIsPending(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetIsRejected(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDebtorConfirmed(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetCreditorConfirmed(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dSetDesc(ucacMain, id1, id2, 0, desc, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.initDebt(ucacMain, id1, id2, currencyCode, bigNumber, desc, true, false, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+        });
 
     });
 
@@ -93,30 +109,17 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
             h.b2s((await this.dd.dDesc(ucacMain, id2, id1, 0)).valueOf()).should.equal(desc);
         });
 
-        it("Only parent contract can call setters", async function() {
-            await this.dd.incrementDebtId({from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.pushBlankDebt(ucacMain, id2, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetId(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetTimestamp(ucacMain, id1, id2, 0, bigNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetAmount(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetCurrencyCode(ucacMain, id1, id2, 0, currencyCode, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetDebtorId(ucacMain, id1, id2, 0, id2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetIsPending(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetIsRejected(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetDebtorConfirmed(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetCreditorConfirmed(ucacMain, id1, id2, 0, true, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetDesc(ucacMain, id1, id2, 0, desc, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.initDebt(ucacMain, id1, id2, currencyCode, bigNumber, desc, true, false, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-        });
+        
     });
 
     describe("Batch functions", () => {
         it("initDebt sets values correctly for multiple debts", async function() {
             await this.dd.initDebt(ucacMain, id1, id2, currencyCode, smallNumber, desc, true, false, {from: parent}).should.be.fulfilled;
+            (await this.dd.nextDebtId.call()).should.be.bignumber.equal(two);
             await this.dd.initDebt(ucacMain, id1, id2, currencyCode2, smallNumber2, desc2, false, true, {from: parent}).should.be.fulfilled;
+            (await this.dd.nextDebtId.call()).should.be.bignumber.equal(three);
             await this.dd.initDebt(ucacMain, id3, id1, currencyCode2, smallNumber2, desc2, true, false, {from: parent}).should.be.fulfilled;
-
+            
             //check numDebts
             (await this.dd.numDebts(ucacMain, id1, id2)).should.be.bignumber.equal(three);
             (await this.dd.numDebts(ucacMain, id3, id1)).should.be.bignumber.equal(one);
