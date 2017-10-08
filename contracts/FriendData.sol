@@ -6,7 +6,6 @@ contract FriendData is Parentable {
 
   /*  Friend  */
   struct Friend {
-    bytes32 ucac;
     bool initialized;
     bytes32 f1Id;
     bytes32 f2Id;
