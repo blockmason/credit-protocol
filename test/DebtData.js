@@ -39,7 +39,7 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
         //initialize all fields for 2 way relationship to non-defaults
         await this.dd.incrementDebtId({from: parent});
         await this.dd.pushBlankDebt(ucacMain, id2, id1, {from: parent});
-        await this.dd.dSetId(ucacMain, id1, id2, 0, smallNumber, {from: parent});
+        await this.dd.dGenerateId(ucacMain, id1, id2, 0, {from: parent});
         await this.dd.dSetTimestamp(ucacMain, id1, id2, 0, bigNumber, {from: parent});
         await this.dd.dSetAmount(ucacMain, id1, id2, 0, smallNumber, {from: parent});
         await this.dd.dSetCurrencyCode(ucacMain, id1, id2, 0, currencyCode, {from: parent});
@@ -63,7 +63,7 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
         it("Only parent contract can call setters", async function() {
             await this.dd.incrementDebtId({from: p1}).should.be.rejectedWith(h.EVMThrow);
             await this.dd.pushBlankDebt(ucacMain, id2, id1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.dd.dSetId(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.dd.dGenerateId(ucacMain, id1, id2, 0, {from: p1}).should.be.rejectedWith(h.EVMThrow);
             await this.dd.dSetTimestamp(ucacMain, id1, id2, 0, bigNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
             await this.dd.dSetAmount(ucacMain, id1, id2, 0, smallNumber, {from: p1}).should.be.rejectedWith(h.EVMThrow);
             await this.dd.dSetCurrencyCode(ucacMain, id1, id2, 0, currencyCode, {from: p1}).should.be.rejectedWith(h.EVMThrow);
@@ -81,12 +81,12 @@ contract('DebtData', function([admin1, admin2, parent, p1, p2]) {
 
     describe("Value setting, getting, indices, and retrieval work", () => {
         it("has correct values for both directions of relationship", async function() {
-            (await this.dd.nextDebtId.call()).should.be.bignumber.equal(one);
+            (await this.dd.nextDebtId.call()).should.be.bignumber.equal(two);
             (await this.dd.numDebts(ucacMain, id1, id2)).should.be.bignumber.equal(one);
             (await this.dd.numDebts(ucacMain, id2, id1)).should.be.bignumber.equal(one);
 
-            (await this.dd.dId(ucacMain, id1, id2, 0)).should.be.bignumber.equal(smallNumber);
-            (await this.dd.dId(ucacMain, id2, id1, 0)).should.be.bignumber.equal(smallNumber);
+            (await this.dd.dId(ucacMain, id1, id2, 0)).should.be.bignumber.equal(two);
+            (await this.dd.dId(ucacMain, id2, id1, 0)).should.be.bignumber.equal(two);
             (await this.dd.dTimestamp(ucacMain, id1, id2, 0)).should.be.bignumber.equal(bigNumber);
             (await this.dd.dTimestamp(ucacMain, id2, id1, 0)).should.be.bignumber.equal(bigNumber);
             (await this.dd.dAmount(ucacMain, id1, id2, 0)).should.be.bignumber.equal(smallNumber);
