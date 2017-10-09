@@ -101,20 +101,14 @@ contract DebtData is Parentable {
   function incrementDebtId() public onlyParent {
     nextDebtId = nextDebtId.add(1);
   }
-
-  /* DANGEROUS: admin should have specific reason to use */
-  function setNextDebtId(uint _nextDebtId) public onlyParent {
-    nextDebtId = _nextDebtId;
-  }
-
   function pushBlankDebt(bytes32 ucac, bytes32 p1, bytes32 p2) public onlyParent {
     (f, s) = debtIndices(ucac, p1, p2);
     debts[ucac][f][s].push(blankDebt);
   }
-
-  function dSetId(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx, uint id) public onlyParent {
+  function dGenerateId(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx) public onlyParent {
     (f, s) = debtIndices(ucac, p1, p2);
-    debts[ucac][f][s][idx].id = id;
+    debts[ucac][f][s][idx].id = nextDebtId;
+    nextDebtId = nextDebtId.add(1);
   }
   function dSetTimestamp(bytes32 ucac, bytes32 p1, bytes32 p2, uint idx, uint timestamp) public onlyParent {
     (f, s) = debtIndices(ucac, p1, p2);
