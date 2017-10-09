@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity 0.4.15;
 
 import "blockmason-solidity-libs/contracts/Adminable.sol";
 import "tce-contracts/contracts/CPToken.sol";
@@ -13,7 +13,7 @@ contract Stake is Adminable {
     uint lastTxTimestamp;
   }
 
-  StakeData private sd;
+  StakeData private stakeData;
   address public fluxContract;
 
   uint public tokensPerTxPerHour;
@@ -24,7 +24,7 @@ contract Stake is Adminable {
   mapping (bytes32 => TxRecord) ucacTxs;
 
   function Stake(address _stakeDataContract, address _fluxContract) {
-    sd = StakeData(_stakeDataContract);
+    stakeData = StakeData(_stakeDataContract);
     fluxContract = _fluxContract;
     tokensPerTxPerHour = 100;
     tokensToOwnUcac = 1000;
@@ -49,16 +49,13 @@ contract Stake is Adminable {
     ucacTxs[_ucacId].lastTxTimestamp = now;
   }
 
-  /**
-     @dev
-  **/
-  address contractT;
-  uint totalStakedT;
-  function ucacStatus(bytes32 _ucacId) constant public returns (bool hasCapacity, address ucacContract){
-    (contractT, totalStakedT) = sd.getAddrAndStaked(_ucacId);
-    uint totalCapacity = totalStakedT.div(tokensPerTxPerHour);
+  function ucacStatus(bytes32 _ucacId) constant public returns (bool hasCapacity, address _ucacContract){
+    address ucacContract;
+    uint256 totalStakedTokens;
+    (ucacContract, totalStakedTokens) = stakeData.getAddrAndStaked(_ucacId);
+    uint totalCapacity = totalStakedTokens.div(tokensPerTxPerHour);
     uint usedCapacity = (ucacTxs[_ucacId].txsPastHour).mul(tokensPerTxPerHour);
-    return (totalCapacity.sub(usedCapacity) >= tokensPerTxPerHour, contractT);
+    return (totalCapacity.sub(usedCapacity) >= tokensPerTxPerHour, ucacContract);
   }
 
   /**
@@ -68,42 +65,42 @@ contract Stake is Adminable {
     require(!ucacInitialized(_ucacId));
     require(bytes32Len(_ucacId) >= minUcacIdLength);
     require(_tokensToStake >= tokensToOwnUcac);
-    sd.setOwner1(_ucacId, msg.sender);
-    sd.setOwner2(_ucacId, _owner2);
-    sd.setUcacAddr(_ucacId, _ucacContractAddr);
-    sd.stakeTokens(_ucacId, msg.sender, _tokensToStake);
+    stakeData.setOwner1(_ucacId, msg.sender);
+    stakeData.setOwner2(_ucacId, _owner2);
+    stakeData.setUcacAddr(_ucacId, _ucacContractAddr);
+    stakeData.stakeTokens(_ucacId, msg.sender, _tokensToStake);
   }
 
   function stakeTokens(bytes32 _ucacId, uint _tokensToStake) public {
     require(ucacInitialized(_ucacId));
-    sd.stakeTokens(_ucacId, msg.sender, _tokensToStake);
+    stakeData.stakeTokens(_ucacId, msg.sender, _tokensToStake);
   }
 
   function takeoverUcac(address _owner2, address _newUcacContractAddr, bytes32 _ucacId, uint _additionalTokensToStake) public {
-    address currentOwner1 = sd.getOwner1(_ucacId);
-    uint ownerStake = sd.stakedTokensMap(currentOwner1, _ucacId);
-    uint newOwnerStake = sd.stakedTokensMap(msg.sender, _ucacId);
+    address currentOwner1 = stakeData.getOwner1(_ucacId);
+    uint ownerStake = stakeData.stakedTokensMap(currentOwner1, _ucacId);
+    uint newOwnerStake = stakeData.stakedTokensMap(msg.sender, _ucacId);
     require(ownerStake < tokensToOwnUcac);
     require(newOwnerStake.add(_additionalTokensToStake) >= tokensToOwnUcac);
-    sd.setOwner1(_ucacId, msg.sender);
-    sd.setOwner2(_ucacId, _owner2);
-    sd.setUcacAddr(_ucacId, _newUcacContractAddr);
+    stakeData.setOwner1(_ucacId, msg.sender);
+    stakeData.setOwner2(_ucacId, _owner2);
+    stakeData.setUcacAddr(_ucacId, _newUcacContractAddr);
 
     if(_additionalTokensToStake > 0)
-      sd.stakeTokens(_ucacId, msg.sender, _additionalTokensToStake);
+      stakeData.stakeTokens(_ucacId, msg.sender, _additionalTokensToStake);
   }
 
   function transferUcacOwnership(bytes32 _ucacId, address _newOwner1, address _newOwner2) public {
-    uint newOwnerStake = sd.stakedTokensMap(_newOwner1, _ucacId);
-    require(sd.isUcacOwner(_ucacId, msg.sender));
+    uint newOwnerStake = stakeData.stakedTokensMap(_newOwner1, _ucacId);
+    require(stakeData.isUcacOwner(_ucacId, msg.sender));
     require(newOwnerStake >= tokensToOwnUcac);
-    sd.setOwner1(_ucacId, _newOwner1);
-    sd.setOwner2(_ucacId, _newOwner2);
+    stakeData.setOwner1(_ucacId, _newOwner1);
+    stakeData.setOwner2(_ucacId, _newOwner2);
   }
 
 
   function ucacInitialized(bytes32 _ucacId) public constant returns (bool) {
-    return sd.getUcacAddr(_ucacId) == address(0);
+    return stakeData.getUcacAddr(_ucacId) == address(0);
   }
 
   /* helpers */

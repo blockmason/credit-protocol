@@ -42,7 +42,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stake.setFlux(flux, {from: admin1}).should.be.fulfilled;
             await this.stake.setFlux(flux, {from: admin2}).should.be.fulfilled;
         });
-        
+
         it("onlyFlux correct", async function() {
             await this.stake.ucacTx(good_ucacId1, {from: p1}).should.be.rejectedWith(h.EVMThrow);
             await this.stake.ucacTx(good_ucacId1, {from: flux}).should.be.fulfilled;
@@ -50,7 +50,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
     });
 
     describe("Ucac status control", () => {
-        
+
         beforeEach(async function() {
             // mint some tokens to p1, p2
             await this.cpToken.mint(p1, h.toWei(20000));
@@ -59,7 +59,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.cpToken.endSale();
             await this.stake.createAndStakeUcac(p2, this.cpToken.address, good_ucacId1, tokensToOwnUcac, {from: p1});
         });
-        
+
         it("ucacTx correct", async function() {
             // ucac not initialized
             await this.stake.ucacTx(good_ucacId2, {from: flux}).should.be.rejectedWith(h.EVMThrow);
@@ -73,14 +73,14 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             // third tx, txsPastHour = 3
             await this.stake.ucacTx(good_ucacId1, {from: flux}).should.be.fulfilled;
             (await this.dd.ucacTxs[good_ucacId1].txsPastHour.call()).should.be.bignumber.equal(three);
-            
+
             // time jump less than 1 hour
             h.increaseTime(500); // Unsure about this call
             (await this.dd.ucacTxs[good_ucacId1].txsPastHour.call()).should.be.bignumber.equal(three);
             // fourth tx, txsPastHour = 4
             await this.stake.ucacTx(good_ucacId1, {from: flux}).should.be.fulfilled;
             (await this.dd.ucacTxs[good_ucacId1].txsPastHour.call()).should.be.bignumber.equal(four);
-            
+
             // time jump more than 1 hour
             h.increaseTime(10000);
             (await this.dd.ucacTxs[good_ucacId1].txsPastHour.call()).should.be.bignumber.equal(zero);
@@ -94,14 +94,14 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stake.ucacTx(good_ucacId1, {from: flux}).should.be.fulfilled;
             (await this.dd.ucacTxs[good_ucacId1].txsPastHour.call()).should.be.bignumber.equal(three);
         });
-        
+
         it("ucacStatus correct", async function() {
-            
+
         });
     });
-    
+
     describe("Other functions", () => {
-        
+
         beforeEach(async function() {
             // mint some tokens to p1, p2
             await this.cpToken.mint(p1, h.toWei(20000));
@@ -110,21 +110,21 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.cpToken.endSale();
             await this.stake.createAndStakeUcac(p2, this.cpToken.address, good_ucacId1, tokensToOwnUcac, {from: p1});
         });
-        
+
         it("stakeTokens correct", async function() {
             // ucac initialized
             await this.stake.stakeTokens(good_ucacId1, h.toWei(500), {from: p1}).should.be.fulfilled;
             // ucac not initialized
             await this.stake.stakeTokens(good_ucacId2, h.toWei(500), {from: p1}).should.be.rejectedWith(h.EVMThrow);
         });
-        
+
         it("ucacInitialized correct", async function() {
             // ucac initialized
             (await this.stake.ucacInitialized(good_ucacId1, {from: p1})).valueOf().should.equal(true);
             // ucac not initialized
             (await this.stake.ucacInitialized(good_ucacId2, {from: p1})).valueOf().should.equal(false);
         });
-        
+
         it("bytes32Len correct", async function() {
             // empty string
             (await this.stake.bytes32Len(empty)).valueOf().should.equal("0"); // Unsure about this call
@@ -137,9 +137,9 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             // 35 byte string
             await this.stake.bytes32Len(toolong_ucacId).should.be.rejectedWith(h.EVMThrow);
         });
-        
+
     });
-    
+
     describe("Ownership functions", () => {
 
         beforeEach(async function() {
@@ -151,7 +151,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.cpToken.finishMinting();
             await this.cpToken.endSale();
         });
-        
+
         it("createAndStakeUcac correct", async function() {
             // correct function
             await this.stake.createAndStakeUcac(p2, this.cpToken.address, minlen_ucacId, tokensToOwnUcac, {from: p1}).should.be.fulfilled;
@@ -167,7 +167,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             // too few tokens owned
             await this.stake.createAndStakeUcac(p1, this.cpToken.address, good_ucacId2, tokensToOwnUcac, {from: p2}).should.be.rejectedWith(h.EVMThrow);
         });
-        
+
         it("takeoverUcac correct", async function() {
             // takeover with new stake
             await this.stake.createAndStakeUcac(admin2, this.cpToken.address, good_ucacId1, tokensToOwnUcac, {from: admin1});
@@ -183,7 +183,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stakedata.getOwner1(good_ucacId1).should.be.bignumber.equal(p1);
             await this.stakedata.getOwner2(good_ucacId1).should.be.bignumber.equal(p2);
         });
-        
+
         it("takeoverUcac throws", async function() {
             // create ucac
             await this.stake.createAndStakeUcac(admin2, this.cpToken.address, good_ucacId1, tokensToOwnUcac, {from: admin1});
@@ -200,7 +200,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             // ucac not initialized
             await this.stake.takeoverUcac(p2, this.cpToken.address, good_ucacId2, tokensToOwnUcac, {from: p1}).should.be.rejectedWith(h.EVMThrow);
         });
-        
+
         it("transferUcacOwnership correct", async function() {
             // initialize and stake a ucac
             await this.stake.createAndStakeUcac(admin2, this.cpToken.address, good_ucacId1, tokensToOwnUcac, {from: admin1});
@@ -216,7 +216,7 @@ contract('Stake', function([admin1, admin2, parent, flux, p1, p2]) {
             // newOwnerStake too small
             await this.stake.transferUcacOwnership(good_ucacId1, admin2, p2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
         });
-        
+
     });
-    
+
 });
