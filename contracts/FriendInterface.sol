@@ -2,15 +2,15 @@ pragma solidity ^0.4.15;
 
 import "./FriendData.sol";
 import "blockmason-solidity-libs/contracts/Parentable.sol";
-import "./AbstractFoundation.sol";
+import "foundation/contracts/Foundation.sol";
 
 contract FriendInterface is Parentable {
   FriendData fd;
-  AbstractFoundation af;
+  Foundation af;
 
   function FriendInterface(address _friendDataContract, address _foundationContract) {
     fd = FriendData(_friendDataContract);
-    af = AbstractFoundation(_foundationContract);
+    af = Foundation(_foundationContract);
   }
 
   function areFriends(bytes32 ucacId, bytes32 _id1, bytes32 _id2) constant returns (bool) {

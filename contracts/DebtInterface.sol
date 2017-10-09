@@ -3,13 +3,13 @@ pragma solidity ^0.4.15;
 import "./DebtData.sol";
 import "./FriendInterface.sol";
 import "blockmason-solidity-libs/contracts/Parentable.sol";
-import "./AbstractFoundation.sol";
+import "foundation/contracts/Foundation.sol";
 
 contract DebtInterface is Parentable {
 
   DebtData dd;
   FriendInterface fi;
-  AbstractFoundation af;
+  Foundation af;
 
   //T is for Temp
   uint debtIdT;
@@ -38,7 +38,7 @@ contract DebtInterface is Parentable {
   function DebtInterface(address _debtDataContract, address _friendInterfaceContract, address _foundationContract) {
     dd = DebtData(_debtDataContract);
     fi = FriendInterface(_friendInterfaceContract);
-    af  = AbstractFoundation(_foundationContract);
+    af  = Foundation(_foundationContract);
   }
 
   function numDebts(bytes32 ucacId, bytes32 p1, bytes32 p2) constant returns (uint) {
