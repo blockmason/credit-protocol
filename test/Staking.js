@@ -11,6 +11,7 @@ const CPToken = artifacts.require('tce-contracts/contracts/CPToken.sol');
 
 const ucacId1 = web3.fromAscii("hi");
 const ucacId2 = web3.fromAscii("yo");
+const tokensToOwnUcac = web3.toWei(1000);
 
 contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
 
@@ -23,6 +24,7 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
         this.stake = await Stake.new(this.stakeData.address, {from: admin1});
         await this.cpToken.mint(p1, h.toWei(20000));
         await this.cpToken.mint(p2, h.toWei(20000));
+        await this.cpToken.mint(admin1, h.toWei(20000));
         await this.cpToken.finishMinting();
         await this.cpToken.endSale();
         await this.stake.changeParent(flux, {from: admin1}).should.be.fulfilled;
@@ -79,6 +81,7 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
         });
 
         it("ucacTx decay mechanism works as expected, blocks txs beyond limit", async function() {
+
         });
 
     });
@@ -86,9 +89,27 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
     describe("UCAC ownership", () => {
 
         it("can take over ucac", async function() {
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: admin1}).should.be.fulfilled;
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p2}).should.be.fulfilled;
+            // takeover with new stake
+            await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(1001), {from: p1}).should.be.fulfilled;
+            await this.stakeData.unstakeTokens(ucacId1, h.toWei(500), {from: p1}).should.be.fulfilled;
+            await this.stake.takeOverUcac(admin1, this.cpToken.address, ucacId1, tokensToOwnUcac, {from: p2}).should.be.fulfilled;
+            assert(p2 === await this.stakeData.getOwner1(ucacId1), "address string matches p2");
+            assert(admin1 === await this.stakeData.getOwner2(ucacId1), "address string matches admin1");
+
+            // takeover with existing stake
+            await this.stake.createAndStakeUcac(admin2, this.cpToken.address, ucacId2, tokensToOwnUcac, {from: admin1});
+            await this.stake.stakeTokens(ucacId2, tokensToOwnUcac, {from: p1});
+            await this.stakeData.unstakeTokens(ucacId2, h.toWei(500), {from: admin1});
+            await this.stake.takeOverUcac(p2, this.cpToken.address, ucacId2, 0, {from: p1}).should.be.fulfilled;
+            assert(p1 === await this.stakeData.getOwner1(ucacId2), "address string matches p2");
+            assert(p2 === await this.stakeData.getOwner2(ucacId2), "address string matches admin1");
         });
 
         it("can transfer ucac ownership", async function() {
+
         });
 
     });

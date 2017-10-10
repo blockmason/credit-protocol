@@ -78,6 +78,7 @@ contract StakeData is Parentable {
      @param _numTokens Number of tokens the user wants to unstake
    **/
   function unstakeTokens(bytes32 _ucacId, uint _numTokens) public {
+    // SafeMath will throw if _numTokens is greater than a sender's stakedTokens amount
     uint256 updatedStakedTokens = stakedTokensMap[msg.sender][_ucacId].sub(_numTokens);
     stakedTokensMap[msg.sender][_ucacId] = updatedStakedTokens;
     uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
