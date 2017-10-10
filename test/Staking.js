@@ -10,6 +10,7 @@ const Stake = artifacts.require('./Stake.sol');
 const CPToken = artifacts.require('tce-contracts/contracts/CPToken.sol');
 
 const ucacId1 = web3.fromAscii("hi");
+const ucacId2 = web3.fromAscii("yo");
 
 contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
 
@@ -42,7 +43,13 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stakeData.changeParent(this.stake.address, {from: admin1}).should.be.fulfilled;
         });
 
-        it("ucacInitilized detects initialized and uninitialized ucacs", async function() {
+        it("createAndStakeUcac requires minimum stake & ucacInitilized detects initialized and uninitialized ucacs", async function() {
+            // not enough approved tokens to create UCAC
+            await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(1001), {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            assert(!(await this.stake.ucacInitialized(ucacId1)), "ucac is uninitialized");
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(1001), {from: p1}).should.be.fulfilled;
+            assert(await this.stake.ucacInitialized(ucacId1), "ucac is initialized");
         });
 
         it("stakeTokens stakes appropriate number of tokens for initialized ucacs", async function() {
