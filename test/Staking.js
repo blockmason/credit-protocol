@@ -7,6 +7,7 @@ const should = require('chai')
 
 const StakeData = artifacts.require('./StakeData.sol');
 const Stake = artifacts.require('./Stake.sol');
+const CPToken = artifacts.require('tce-contracts/contracts/CPToken.sol');
 
 contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
 
@@ -14,8 +15,12 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
     });
 
     beforeEach(async function() {
-        this.stakeData = await StakeData.new({from: admin1});
+        this.cpToken = await CPToken.new({from: admin1});
+        this.stakeData = await StakeData.new(this.cpToken.address, {from: admin1});
         this.stake = await Stake.new(this.stakeData.address, {from: admin1});
+        await this.cpToken.mint(p1, h.toWei(20000));
+        await this.cpToken.finishMinting();
+        await this.cpToken.endSale();
     });
 
     describe("UCAC parenthood", () => {
@@ -32,16 +37,13 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stakeData.changeParent(this.stake.address, {from: admin1}).should.be.fulfilled;
         });
 
-        it("Stake is able to call getTotalStakedTokens as parent", async function() {
+        it("Stake is able to call ucacTx  as parent", async function() {
             await this.stake.changeParent(flux, {from: admin1}).should.be.fulfilled;
             await this.stakeData.changeParent(this.stake.address, {from: admin1}).should.be.fulfilled;
-            const a = await this.stakeData.getTotalStakedTokens(web3.fromAscii("hi")).should.be.fulfilled;
-            console.log(a);
-            a.should.be.bignumber.equal(web3.toBigNumber(0));
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac(p1, p2, web3.fromAscii("hi"), 1001, {from: p1}).should.be.fulfilled;
+            await this.stake.ucacTx(web3.fromAscii("hi"), {from: flux}).should.be.fulfilled;
             await this.stake.ucacTx(web3.fromAscii("hi"), {from: flux}).should.be.fulfilled;
         });
-
-
     });
-
 });
