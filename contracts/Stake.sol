@@ -5,7 +5,6 @@ import "tce-contracts/contracts/CPToken.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "./StakeData.sol";
 
-
 contract Stake is Parentable {
   using SafeMath for uint256;
 
