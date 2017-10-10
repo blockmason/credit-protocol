@@ -109,7 +109,24 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
         });
 
         it("can transfer ucac ownership", async function() {
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: admin1}).should.be.fulfilled;
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: admin2}).should.be.fulfilled;
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p2}).should.be.fulfilled;
 
+            // initialize and stake a ucac
+            await this.stake.createAndStakeUcac(admin2, this.cpToken.address, ucacId1, tokensToOwnUcac, {from: admin1});
+            await this.stake.stakeTokens(ucacId1, tokensToOwnUcac, {from: p1});
+            // correct function
+            await this.stake.transferUcacOwnership(ucacId1, p1, p2, {from: admin1}).should.be.fulfilled;
+            assert(p1 === await this.stakeData.getOwner1(ucacId1), "address string matches p2");
+            assert(p2 === await this.stakeData.getOwner2(ucacId1), "address string matches admin1");
+            // ucac not initialized
+            await this.stake.transferUcacOwnership(ucacId2, admin1, p2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            // msg.sender not owner
+            await this.stake.transferUcacOwnership(ucacId1, admin1, p2, {from: admin1}).should.be.rejectedWith(h.EVMThrow);
+            // newOwnerStake too small
+            await this.stake.transferUcacOwnership(ucacId1, admin2, p2, {from: p1}).should.be.rejectedWith(h.EVMThrow);
         });
 
     });
