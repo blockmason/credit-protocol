@@ -22,7 +22,7 @@ exports.b2s = function(bytes) {
 
 exports.increaseTime = function(duration) {
     const id = Date.now()
-    
+
     return new Promise((resolve, reject) => {
     web3.currentProvider.sendAsync({
       jsonrpc: '2.0',

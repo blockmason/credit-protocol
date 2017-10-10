@@ -48,12 +48,26 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(1001), {from: p1}).should.be.rejectedWith(h.EVMThrow);
             assert(!(await this.stake.ucacInitialized(ucacId1)), "ucac is uninitialized");
             await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
+
+            // not enough tokens staked to create UCAC
+            await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(101), {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            assert(!(await this.stake.ucacInitialized(ucacId1)), "ucac is uninitialized");
+            // can initialize UCAC  with minimum staking amount
             await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(1001), {from: p1}).should.be.fulfilled;
             assert(await this.stake.ucacInitialized(ucacId1), "ucac is initialized");
         });
 
         it("stakeTokens stakes appropriate number of tokens for initialized ucacs", async function() {
-
+            const creationStake = web3.toBigNumber(web3.toWei(3500));
+            const postCreationStake = web3.toBigNumber(web3.toWei(100));
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
+            // stakeTokens call rejected prior to initialization
+            await this.stake.stakeTokens(ucacId2, h.toWei(100), {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.stake.createAndStakeUcac(p1, p2, ucacId2, creationStake, {from: p1}).should.be.fulfilled;
+            // stakeTokens call successful post-initialization
+            await this.stake.stakeTokens(ucacId2, postCreationStake, {from: p1}).should.be.fulfilled;
+            const a = await this.stake.ucacStatus(ucacId2).should.be.fulfilled;
+            a[0].should.be.bignumber.equal(creationStake.add(postCreationStake));
         });
 
         it("Stake.sol is able to call ucacTx as parent of StakeData.sol", async function() {

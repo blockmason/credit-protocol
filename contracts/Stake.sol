@@ -25,7 +25,7 @@ contract Stake is Parentable {
   function Stake(address _stakeDataContract) {
     stakeData = StakeData(_stakeDataContract);
     txPerTokenPerHour = 100;
-    tokensToOwnUcac = 1000;
+    tokensToOwnUcac = 1000 * 10 ** 18;
   }
 
   // TODO this is incomplete. the logging should include information about the
