@@ -21,7 +21,6 @@ contract Stake is Parentable {
   mapping (bytes32 => TxRecord) ucacTxs;
 
   event DebtIssued(bytes32 indexed ucacId);
-  event Debug(uint a, uint b);
 
   function Stake(address _stakeDataContract) {
     stakeData = StakeData(_stakeDataContract);
@@ -52,8 +51,7 @@ contract Stake is Parentable {
   }
 
   function ucacStatus(bytes32 _ucacId) public constant returns (uint, uint) {
-    uint256 totalStakedTokens;
-    totalStakedTokens = stakeData.getTotalStakedTokens(_ucacId);
+    uint256 totalStakedTokens = stakeData.getTotalStakedTokens(_ucacId);
     return (totalStakedTokens, ucacTxs[_ucacId].txsLevel);
   }
 
