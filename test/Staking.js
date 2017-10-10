@@ -16,9 +16,13 @@ const tokensToOwnUcac = web3.toWei(1000);
 contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
 
     before(async function() {
+        // Advance to the next block to correctly read time in the solidity
+        // "now" function interpreted by testrpc
+        await h.advanceBlock();
     });
 
     beforeEach(async function() {
+        this.latestTime = h.latestTime();
         this.cpToken = await CPToken.new({from: admin1});
         this.stakeData = await StakeData.new(this.cpToken.address, {from: admin1});
         this.stake = await Stake.new(this.stakeData.address, {from: admin1});
@@ -80,8 +84,18 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
         });
 
-        it("ucacTx decay mechanism works as expected, blocks txs beyond limit", async function() {
-
+        it("ucacTx decay mechanism works as expected", async function() {
+            await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(1000), {from: p1}).should.be.fulfilled;
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
+            const a = await this.stake.ucacStatus(ucacId1).should.be.fulfilled;
+            await h.increaseTimeTo(this.latestTime + h.duration.seconds(500));
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
+            const b = await this.stake.ucacStatus(ucacId1).should.be.fulfilled;
+            assert(b[1] < a[1], "txLevel dropped");
         });
 
     });

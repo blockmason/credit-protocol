@@ -50,6 +50,7 @@ contract Stake is Parentable {
     DebtIssued(_ucacId);
   }
 
+  // TODO this should refresh the txlevel perhaps, but then it could not be constant
   function ucacStatus(bytes32 _ucacId) public constant returns (uint, uint) {
     uint256 totalStakedTokens = stakeData.getTotalStakedTokens(_ucacId);
     return (totalStakedTokens, ucacTxs[_ucacId].txsLevel);
