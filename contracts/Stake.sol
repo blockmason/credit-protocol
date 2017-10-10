@@ -45,7 +45,7 @@ contract Stake is Parentable {
         ucacTxs[_ucacId].txsLevel = ucacTxs[_ucacId].txsLevel - currentDecay + 10 ** 18 / txPerTokenPerHour;
     }
 
-    // require(totalStaked >= ucacTxs[_ucacId].txsLevel);
+    require(totalStaked >= ucacTxs[_ucacId].txsLevel);
     ucacTxs[_ucacId].lastTxTimestamp = now;
 
     DebtIssued(_ucacId);
@@ -54,7 +54,7 @@ contract Stake is Parentable {
   function ucacStatus(bytes32 _ucacId) public constant returns (uint, uint) {
     uint256 totalStakedTokens;
     totalStakedTokens = stakeData.getTotalStakedTokens(_ucacId);
-    return (txPerTokenPerHour, ucacTxs[_ucacId].txsLevel);
+    return (totalStakedTokens, ucacTxs[_ucacId].txsLevel);
   }
 
   /**
@@ -94,7 +94,6 @@ contract Stake is Parentable {
     stakeData.setOwner1(_ucacId, _newOwner1);
     stakeData.setOwner2(_ucacId, _newOwner2);
   }
-
 
   function ucacInitialized(bytes32 _ucacId) public constant returns (bool) {
     return stakeData.getUcacAddr(_ucacId) != address(0);

@@ -9,6 +9,8 @@ const StakeData = artifacts.require('./StakeData.sol');
 const Stake = artifacts.require('./Stake.sol');
 const CPToken = artifacts.require('tce-contracts/contracts/CPToken.sol');
 
+const ucacId1 = web3.fromAscii("hi");
+
 contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
 
     before(async function() {
@@ -23,7 +25,7 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
         await this.cpToken.endSale();
     });
 
-    describe("UCAC parenthood", () => {
+    describe("UCAC parenthood, basic ucac creation, staking and txing", () => {
 
         it("onlyAdmin can change parents", async function() {
             await this.stake.changeParent(flux, {from: p1}).should.be.rejectedWith(h.EVMThrow);
@@ -41,9 +43,10 @@ contract('StakeData', function([admin1, admin2, parent, flux, p1, p2]) {
             await this.stake.changeParent(flux, {from: admin1}).should.be.fulfilled;
             await this.stakeData.changeParent(this.stake.address, {from: admin1}).should.be.fulfilled;
             await this.cpToken.approve(this.stakeData.address, h.toWei(20000), {from: p1}).should.be.fulfilled;
-            await this.stake.createAndStakeUcac(p1, p2, web3.fromAscii("hi"), 1001, {from: p1}).should.be.fulfilled;
-            await this.stake.ucacTx(web3.fromAscii("hi"), {from: flux}).should.be.fulfilled;
-            await this.stake.ucacTx(web3.fromAscii("hi"), {from: flux}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac(p1, p2, ucacId1, h.toWei(1001), {from: p1}).should.be.fulfilled;
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
+            await this.stake.ucacTx(ucacId1, {from: flux}).should.be.fulfilled;
         });
     });
 });
