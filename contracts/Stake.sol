@@ -1,74 +1,68 @@
 pragma solidity 0.4.15;
 
-import "blockmason-solidity-libs/contracts/Adminable.sol";
+import "blockmason-solidity-libs/contracts/Parentable.sol";
 import "tce-contracts/contracts/CPToken.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "./StakeData.sol";
 
 
-contract Stake is Adminable {
+contract Stake is Parentable {
   using SafeMath for uint256;
 
   struct TxRecord {
-    uint txsPastHour;
+    uint txsLevel;
     uint lastTxTimestamp;
   }
 
-  StakeData private stakeData;
-  address public fluxContract;
+  StakeData public stakeData;
 
-  uint public tokensPerTxPerHour;
+  uint public txDecay; // per second
   uint public tokensToOwnUcac;
-  uint8 public minUcacIdLength;
-  uint public currentHourTimestamp;
 
   mapping (bytes32 => TxRecord) ucacTxs;
 
-  function Stake(address _stakeDataContract, address _fluxContract) {
+  function Stake(address _stakeDataContract) {
     stakeData = StakeData(_stakeDataContract);
-    fluxContract = _fluxContract;
-    tokensPerTxPerHour = 100;
+    txDecay = uint256(10 ** 18) / 3600;
     tokensToOwnUcac = 1000;
-    minUcacIdLength = 8;
   }
 
-  function setFlux(address _fluxContract) public onlyAdmin {
-    fluxContract = _fluxContract;
+  // TODO this should log something to the blockcahin or create a debt record beyond simply throwing when a tx rate limit is reached
+  function ucacTx(bytes32 _ucacId) public onlyParent {
+
+    // require(ucacInitialized(_ucacId));
+
+    // get number of staked tokens
+    uint256 totalStaked = stakeData.getTotalStakedTokens(_ucacId);
+
+    // uint256 currentDecay = txDecay * (now - ucacTxs[_ucacId].lastTxTimestamp);
+    // if (ucacTxs[_ucacId].txsLevel < currentDecay) {
+    //     ucacTxs[_ucacId].txsLevel = 10 ** 16;
+    // } else {
+    //     ucacTxs[_ucacId].txsLevel = ucacTxs[_ucacId].txsLevel - currentDecay + 10 ** 16;
+    // }
+    // require(totalStaked > ucacTxs[_ucacId].txsLevel);
+    // ucacTxs[_ucacId].lastTxTimestamp = now;
   }
 
-  function ucacTx(bytes32 _ucacId) public onlyFlux {
-    if (now > (currentHourTimestamp + 1 hours)) {
-      currentHourTimestamp = now;
-      ucacTxs[_ucacId].txsPastHour = 1;
-    }
-    else {
-      if(ucacTxs[_ucacId].lastTxTimestamp > currentHourTimestamp)
-        ucacTxs[_ucacId].txsPastHour.add(1);
-      else
-        ucacTxs[_ucacId].txsPastHour = 1;
-    }
-    ucacTxs[_ucacId].lastTxTimestamp = now;
-  }
-
-  function ucacStatus(bytes32 _ucacId) constant public returns (bool hasCapacity, address _ucacContract){
+  function ucacStatus(bytes32 _ucacId) public constant returns (bool hasCapacity, address _ucacContract){
     address ucacContract;
     uint256 totalStakedTokens;
     (ucacContract, totalStakedTokens) = stakeData.getAddrAndStaked(_ucacId);
-    uint totalCapacity = totalStakedTokens.div(tokensPerTxPerHour);
-    uint usedCapacity = (ucacTxs[_ucacId].txsPastHour).mul(tokensPerTxPerHour);
-    return (totalCapacity.sub(usedCapacity) >= tokensPerTxPerHour, ucacContract);
+    uint totalCapacity = totalStakedTokens.div(txDecay);
+    uint usedCapacity = (ucacTxs[_ucacId].txsLevel).mul(txDecay);
+    return (totalCapacity.sub(usedCapacity) >= txDecay, ucacContract);
   }
 
   /**
      @dev msg.sender must have approved StakeData to spend enough tokens
    **/
-  function createAndStakeUcac(address _owner2, address _ucacContractAddr, bytes32 _ucacId, uint _tokensToStake) {
-    require(!ucacInitialized(_ucacId));
-    require(bytes32Len(_ucacId) >= minUcacIdLength);
+  function createAndStakeUcac(address _owner2, address _ucacContractAddr, bytes32 _ucacId, uint _tokensToStake) public {
     require(_tokensToStake >= tokensToOwnUcac);
-    stakeData.setOwner1(_ucacId, msg.sender);
-    stakeData.setOwner2(_ucacId, _owner2);
-    stakeData.setUcacAddr(_ucacId, _ucacContractAddr);
-    stakeData.stakeTokens(_ucacId, msg.sender, _tokensToStake);
+    // stakeData.setUcacAddr(_ucacId, _ucacContractAddr);
+    // stakeData.setOwner1(_ucacId, msg.sender);
+    // stakeData.setOwner2(_ucacId, _owner2);
+    // stakeData.stakeTokens(_ucacId, msg.sender, _tokensToStake);
   }
 
   function stakeTokens(bytes32 _ucacId, uint _tokensToStake) public {
@@ -76,7 +70,7 @@ contract Stake is Adminable {
     stakeData.stakeTokens(_ucacId, msg.sender, _tokensToStake);
   }
 
-  function takeoverUcac(address _owner2, address _newUcacContractAddr, bytes32 _ucacId, uint _additionalTokensToStake) public {
+  function takeOverUcac(address _owner2, address _newUcacContractAddr, bytes32 _ucacId, uint _additionalTokensToStake) public {
     address currentOwner1 = stakeData.getOwner1(_ucacId);
     uint ownerStake = stakeData.stakedTokensMap(currentOwner1, _ucacId);
     uint newOwnerStake = stakeData.stakedTokensMap(msg.sender, _ucacId);
@@ -84,7 +78,7 @@ contract Stake is Adminable {
     require(newOwnerStake.add(_additionalTokensToStake) >= tokensToOwnUcac);
     stakeData.setOwner1(_ucacId, msg.sender);
     stakeData.setOwner2(_ucacId, _owner2);
-    stakeData.setUcacAddr(_ucacId, _newUcacContractAddr);
+    //stakeData.setUcacAddr(_ucacId, _newUcacContractAddr);
 
     if(_additionalTokensToStake > 0)
       stakeData.stakeTokens(_ucacId, msg.sender, _additionalTokensToStake);
@@ -100,29 +94,7 @@ contract Stake is Adminable {
 
 
   function ucacInitialized(bytes32 _ucacId) public constant returns (bool) {
-    return stakeData.getUcacAddr(_ucacId) == address(0);
+    return stakeData.getUcacAddr(_ucacId) != address(0);
   }
-
-  /* helpers */
-  modifier onlyFlux() {
-    require(msg.sender == fluxContract);
-    _;
-  }
-
-  function bytes32Len(bytes32 b) private returns (uint8 length) {
-    uint8 tmpLen = 0;
-    for (uint8 i=0; i < 32; i++) {
-      if(b[i] == 0) break;
-      else tmpLen += 1;
-    }
-      return tmpLen;
-  }
-
-  //NOTES:
-  // min length for ucacIds
-  // name staking/ucac ownership
-  /*
-    if owner1 doesn't have the right number of tokens staked, someone else can take over the contract
-   */
 
 }

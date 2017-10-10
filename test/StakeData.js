@@ -21,7 +21,6 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
 
     beforeEach(async function() {
         this.cpToken = await CPToken.new({from: admin1});
-//        this.cpTokenPrime = await CPToken.new({from: admin1});
         this.stakeData = await StakeData.new(this.cpToken.address, {from: admin1});
         await this.stakeData.setAdmin2(admin2, {from: admin1});
         await this.stakeData.changeParent(parent, {from: admin1});
@@ -81,7 +80,6 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
 
         it("can't stake tokens without approved spending; can't stake to unapproved stakeHolder", async function() {
             await this.stakeData.stakeTokens(ucacId1, admin1, h.toWei(3), {from: parent}).should.be.rejectedWith(h.EVMThrow);
-
 
             await this.cpToken.approve(this.stakeData.address, h.toWei(3), {from: admin1}).should.be.fulfilled;
             await this.stakeData.stakeTokens(ucacId1, admin2, h.toWei(3), {from: parent}).should.be.rejectedWith(h.EVMThrow);
