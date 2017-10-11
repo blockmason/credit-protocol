@@ -2,6 +2,7 @@ pragma solidity 0.4.15;
 
 import "blockmason-solidity-libs/contracts/Parentable.sol";
 import "tce-contracts/contracts/CPToken.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract StakeData is Parentable {
   using SafeMath for uint256;
@@ -41,10 +42,6 @@ contract StakeData is Parentable {
     return ucacs[_ucacId].totalStakedTokens;
   }
 
-  function getAddrAndStaked(bytes32 _ucacId) public constant returns (address, uint256) {
-    return (ucacs[_ucacId].ucacContractAddr, ucacs[_ucacId].totalStakedTokens);
-  }
-
   function isUcacOwner(bytes32 _ucacId, address _owner) public constant returns (bool) {
     return ucacs[_ucacId].owner1 == _owner || ucacs[_ucacId].owner2 == _owner;
   }
@@ -81,6 +78,7 @@ contract StakeData is Parentable {
      @param _numTokens Number of tokens the user wants to unstake
    **/
   function unstakeTokens(bytes32 _ucacId, uint _numTokens) public {
+    // SafeMath will throw if _numTokens is greater than a sender's stakedTokens amount
     uint256 updatedStakedTokens = stakedTokensMap[msg.sender][_ucacId].sub(_numTokens);
     stakedTokensMap[msg.sender][_ucacId] = updatedStakedTokens;
     uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
