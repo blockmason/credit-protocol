@@ -20,6 +20,6 @@ contract FriendData is Parentable {
     bytes memory prefix = "\x19Ethereum Signed Message:\n32";
     bool validSig1 = ecrecover(keccak256(prefix, keccak256(ucac, friend2)), sig1v, sig1r, sig1s) == friend1;
     bool validSig2 = ecrecover(keccak256(prefix, keccak256(ucac, friend1)), sig2v, sig2r, sig2s) == friend2;
-    return validSig1; //  && validSig2;
+    return validSig1 && validSig2;
   }
 }
