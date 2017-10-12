@@ -37,12 +37,15 @@ contract('FriendCreationTest', function([p1, p2]) {
 
     describe("Friend Creation", () => {
         it("allows two parties to sign a message and create a friendship", async function() {
+            let noFriendshipPreCreation = await this.friendData.friendships(p1, p2);
+            assert(noFriendshipPreCreation == 0, "friendship created before call to initFriendship");
             let content1 = ucacId1 + p2.substr(2, p2.length);
             let sig1 = sign(p1, content1);
             let content2 = ucacId1 + p1.substr(2, p1.length);
             let sig2 = sign(p2, content2);
-            let a = await this.friendData.initFriendship(ucacId1, p1, p2, sig1.r, sig1.s, sig1.v, sig2.r, sig2.s, sig2.v, {from: p1});
-            assert(a, "signatures are not correct and friendship was not initialized");
+            await this.friendData.initFriendship(ucacId1, p1, p2, sig1.r, sig1.s, sig1.v, sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
+            let friendshipCreated = await this.friendData.friendships(p1, p2);
+            assert(friendshipCreated == 1, "friendship not created after call to initFriendship");
         });
     });
 
