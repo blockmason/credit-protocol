@@ -7,29 +7,41 @@ const should = require('chai')
 
 const FriendData = artifacts.require('./FriendData.sol');
 
-const ucacId1 = web3.fromAscii("hi");
-const ucacId2 = web3.fromAscii("yo");
+const ucacId1 = web3.sha3("hi");
+const ucacId2 = web3.sha3("yo");
 
-contract('FriendCreationTest', function([p1, p2, p3, p4, p5]) {
+
+const sign = function(signer, content) {
+    let sig = web3.eth.sign(signer, content, {encoding: 'hex'});
+    sig = sig.substr(2, sig.length);
+
+    let res = {};
+    res.r = "0x" + sig.substr(0, 64);
+    res.s = "0x" + sig.substr(64, 64);
+    res.v = web3.toDecimal("0x" + sig.substr(128, 2));
+
+    if (res.v < 27) res.v += 27;
+
+    return res
+}
+
+contract('FriendCreationTest', function([p1, p2]) {
 
     before(async function() {
     });
 
     beforeEach(async function() {
-        this.friendData = await FriendData.new({from: p5});
+        this.friendData = await FriendData.new({from: p2});
     });
 
     describe("Friend Creation", () => {
         it("allows two parties to sign a message and create a friendship", async function() {
-            let data = ucacId1;
-            let sig1 = web3.eth.sign(p1, ucacId1);
-            sig1 = sig1.substr(2, sig1.length);
-            let r1 = '0x' + sig1.substr(0, 64);
-            let s1 = '0x' + sig1.substr(64, 64);
-            let v1 = web3.toDecimal(sig1.substr(128, 2)) + 27;
-
-            let a = await this.friendData.initFriendship(ucacId1, p1, p2, ucacId1, r1, s1, v1, r1, s1, v1);
-            console.log(a);
+            let data = web3.sha3("\x19Ethereum Signed Message:\n32" + ucacId1, {encoding: 'hex'});
+            let res = sign(p1, ucacId1);
+            console.log(res);
+            await this.friendData.initFriendship.sendTransaction(ucacId1, p1, p2, data, res.r, res.s, res.v, {from: p1}); // , r1, s1, v1);
+            let a = await this.friendData.initFriendship(ucacId1, p1, p2, data, res.r, res.s, res.v, {from: p1}); //, r1, s1, v1);
+            assert(a, "signatures are not correct and friendship was not initialized");
         });
     });
 
