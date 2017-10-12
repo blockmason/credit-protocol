@@ -12,6 +12,8 @@ const ucacId2 = web3.sha3("yo");
 
 
 const sign = function(signer, content) {
+    // let contentHash = web3.sha3(content);
+    // console.log("content hash: " + contentHash);
     let sig = web3.eth.sign(signer, content, {encoding: 'hex'});
     sig = sig.substr(2, sig.length);
 
@@ -36,11 +38,12 @@ contract('FriendCreationTest', function([p1, p2]) {
 
     describe("Friend Creation", () => {
         it("allows two parties to sign a message and create a friendship", async function() {
-            let data = web3.sha3("\x19Ethereum Signed Message:\n32" + ucacId1, {encoding: 'hex'});
-            let res = sign(p1, ucacId1);
-            console.log(res);
-            await this.friendData.initFriendship.sendTransaction(ucacId1, p1, p2, data, res.r, res.s, res.v, {from: p1}); // , r1, s1, v1);
-            let a = await this.friendData.initFriendship(ucacId1, p1, p2, data, res.r, res.s, res.v, {from: p1}); //, r1, s1, v1);
+            let content1 = ucacId1 + p2.substr(2, p2.length);
+            let sig1 = sign(p1, ucacId1);
+            let content2 = ucacId1 + p1.substr(2, p1.length);
+            let sig2 = sign(p2, ucacId2);
+            await this.friendData.initFriendship.sendTransaction(ucacId1, p1, p2, sig1.r, sig1.s, sig1.v, sig2.r, sig2.s, sig2.v, {from: p1});
+            let a = await this.friendData.initFriendship(ucacId1, p1, p2, sig1.r, sig1.s, sig1.v, sig2.r, sig2.s, sig2.v, {from: p1});
             assert(a, "signatures are not correct and friendship was not initialized");
         });
     });
