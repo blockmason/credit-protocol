@@ -7,6 +7,13 @@ contract FriendData is Parentable {
     // ucac -> friend1 -> friend2 -> status
     mapping(bytes32 => mapping(address => mapping(address => bool))) public friendships;
 
+    event IssueDebt(bytes32 ucac, address friend1, address friend2, uint256 amount);
+
+    function issueDebt(bytes32 ucac, address friend1, address friend2) public {
+        require(friendships[ucac][friend1][friend2]);
+        IssueDebt(ucac, friend1, friend2, 10);
+    }
+
     function initFriendship( bytes32 ucac, address friend1, address friend2
                            , bytes32 sig1r, bytes32 sig1s, uint8 sig1v
                            , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
