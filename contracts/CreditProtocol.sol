@@ -41,8 +41,8 @@ contract CreditProtocol is Ownable {
         // checking for underflow
         require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
 
-        // checking that ucac has tx capacity
-        require(stakeContract.executeUcacTx(ucac));
+        // executeUcacTx will throw if txLimit has been reached or ucac is uninitialized
+        stakeContract.executeUcacTx(ucac);
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);

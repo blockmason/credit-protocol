@@ -11,7 +11,7 @@ contract Stake is Ownable {
         address ucacContractAddr;
         uint256 totalStakedTokens;
         address owner;
-        uint256 txsLevel;
+        uint256 txLevel;
         uint256 lastTxTimestamp;
         // bytes32 denomination; TODO do we want this?
     }
@@ -47,21 +47,22 @@ contract Stake is Ownable {
     // debt and a debt object should be created for storage in a separate
     // contract.
     // TODO who should be able to call this?
-    function executeUcacTx(bytes32 _ucacId) public returns (bool) {
+    function executeUcacTx(bytes32 _ucacId) public {
         require(ucacInitialized(_ucacId));
+
         // get number of staked tokens
         uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
 
         uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacId].lastTxTimestamp);
-        if (ucacs[_ucacId].txsLevel < currentDecay) {
-            ucacs[_ucacId].txsLevel = 10 ** 18 / txPerTokenPerHour;
+        if (ucacs[_ucacId].txLevel < currentDecay) {
+            ucacs[_ucacId].txLevel = 10 ** 18 / txPerTokenPerHour;
         } else {
-            ucacs[_ucacId].txsLevel = ucacs[_ucacId].txsLevel - currentDecay + 10 ** 18 / txPerTokenPerHour;
+            ucacs[_ucacId].txLevel = ucacs[_ucacId].txLevel - currentDecay + 10 ** 18 / txPerTokenPerHour;
         }
 
-        require(totalStaked >= ucacs[_ucacId].txsLevel);
+        // check ucac has tx capacity TODO do this check before txLevel is set
+        require(totalStaked >= ucacs[_ucacId].txLevel);
         ucacs[_ucacId].lastTxTimestamp = now;
-        return true;
     }
 
     /**
