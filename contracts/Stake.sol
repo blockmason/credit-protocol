@@ -82,6 +82,11 @@ contract Stake is Ownable {
         stakeTokens(_ucacId, msg.sender, _tokensToStake);
     }
 
+
+    // TODO is this the best way to check initialization?
+    // perhaps I could add a test that tokensStaked > tokensToOwnUcac
+    // TODO ask Tim about minimum staking... what if people want to pool funds to stake
+    // and not designate an owner?
     function ucacInitialized(bytes32 _ucacId) public constant returns (bool) {
         return ucacs[_ucacId].ucacContractAddr != address(0);
     }
