@@ -4,15 +4,16 @@ import "blockmason-solidity-libs/contracts/Parentable.sol";
 
 contract FriendData is Parentable {
 
+    // id -> id -> # of transactions in all UCACs
     mapping(address => mapping(address => uint256)) public nonces;
+    // ucac -> id -> balance
     mapping(bytes32 => mapping(address => int256)) public balances;
-
     bytes prefix = "\x19Ethereum Signed Message:\n32";
+
     event IssueDebt(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
 
     function getNonce(address p1, address p2) public constant returns (uint256) {
-        uint256 nonce = p1 < p2 ? nonces[p1][p2] : nonces[p2][p1];
-        return nonce;
+        return p1 < p2 ? nonces[p1][p2] : nonces[p2][p1];
     }
 
     function issueDebt( bytes32 ucac, address creditor, address debtor, uint256 amount
@@ -20,14 +21,18 @@ contract FriendData is Parentable {
                       , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
                       ) public {
         require(creditor != debtor);
-        uint256 nonce = getNonce(creditor, debtor);
-        bool validSigC = ecrecover(keccak256(prefix, keccak256(ucac, creditor, debtor, amount, nonce)), sig1v, sig1r, sig1s) == creditor;
-        bool validSigD = ecrecover(keccak256(prefix, keccak256(ucac, creditor, debtor, amount, nonce)), sig2v, sig2r, sig2s) == debtor;
-        require(validSigC && validSigD);
+        bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor)));
+        require(ecrecover(hash, sig1v, sig1r, sig1s) == creditor);
+        require(ecrecover(hash, sig2v, sig2r, sig2s) == debtor);
         IssueDebt(ucac, creditor, debtor, amount);
-        // TODO check over- / underflow
+
+        // checking for overflow
+        require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
+        // checking for underflow
+        require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
+
         incrementNonce(creditor, debtor);
     }
 
@@ -38,7 +43,4 @@ contract FriendData is Parentable {
             nonces[p2][p1] = nonces[p2][p1] + 1;
         }
     }
-
-
-
 }
