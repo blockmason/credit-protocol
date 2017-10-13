@@ -22,18 +22,21 @@ contract FriendData is Parentable {
                       , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
                       ) public {
         require(creditor != debtor);
+
         bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor)));
+
+        // verifying signatures
         require(ecrecover(hash, sig1v, sig1r, sig1s) == creditor);
         require(ecrecover(hash, sig2v, sig2r, sig2s) == debtor);
-        IssueDebt(ucac, creditor, debtor, amount);
 
         // checking for overflow
         require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
-        balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         // checking for underflow
         require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
-        balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
 
+        balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
+        balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
+        IssueDebt(ucac, creditor, debtor, amount);
         incrementNonce(creditor, debtor);
     }
 
