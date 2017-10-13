@@ -29,8 +29,8 @@ contract Stake is Ownable {
 
     function Stake(address _tokenContract, uint256 _txPerTokenPerHour, uint256 _tokensToOwnUcac) {
         token = CPToken(_tokenContract);
-        // txPerTokenPerHour = _txPerTokenPerHour;
-        // tokensToOwnUcac = _tokensToOwnUcac;
+        txPerTokenPerHour = _txPerTokenPerHour;
+        tokensToOwnUcac = _tokensToOwnUcac;
     }
 
     // TODO make onlyAdmin
@@ -50,17 +50,17 @@ contract Stake is Ownable {
     function executeUcacTx(bytes32 _ucacId) public returns (bool) {
         // require(ucacInitialized(_ucacId));
         // get number of staked tokens
-        // uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
+        uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
 
-        // uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacId].lastTxTimestamp);
-        // if (ucacs[_ucacId].txsLevel < currentDecay) {
-        //     ucacs[_ucacId].txsLevel = 10 ** 18 / txPerTokenPerHour;
-        // } else {
-        //     ucacs[_ucacId].txsLevel = ucacs[_ucacId].txsLevel - currentDecay + 10 ** 18 / txPerTokenPerHour;
-        // }
+        uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacId].lastTxTimestamp);
+        if (ucacs[_ucacId].txsLevel < currentDecay) {
+            ucacs[_ucacId].txsLevel = 10 ** 18 / txPerTokenPerHour;
+        } else {
+            ucacs[_ucacId].txsLevel = ucacs[_ucacId].txsLevel - currentDecay + 10 ** 18 / txPerTokenPerHour;
+        }
 
         // require(totalStaked >= ucacs[_ucacId].txsLevel);
-        // ucacs[_ucacId].lastTxTimestamp = now;
+        ucacs[_ucacId].lastTxTimestamp = now;
         return true;
     }
 

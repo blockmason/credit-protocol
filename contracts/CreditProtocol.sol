@@ -42,9 +42,7 @@ contract CreditProtocol is Ownable {
         require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
 
         // checking that ucac has tx capacity
-        // require(stakeContract.executeUcacTx(ucac));
-
-        stakeContract.executeUcacTx(ucac);
+        require(stakeContract.executeUcacTx(ucac));
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
