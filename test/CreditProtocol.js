@@ -33,7 +33,7 @@ const hexy = function(num) {
     return "0x" + '0'.repeat(64 - a.length) + a;
 }
 
-contract('FriendCreationTest', function([admin, p1, p2]) {
+contract('FriendCreationTest', function([admin, p1, p2, ucacAddr]) {
 
     before(async function() {
     });
@@ -41,12 +41,20 @@ contract('FriendCreationTest', function([admin, p1, p2]) {
     beforeEach(async function() {
         this.cpToken = await CPToken.new({from: admin});
         this.stake = await Stake.new( this.cpToken.address, web3.toBigNumber(2)
-                                    , web3.toBigNumber(1000), {from: admin});
+                                    , web3.toBigNumber(1), {from: admin});
         this.creditProtocol = await CreditProtocol.new(this.stake.address, {from: admin});
+        await this.cpToken.mint(admin, h.toWei(20000));
+        await this.cpToken.mint(p1, h.toWei(20000));
+        await this.cpToken.mint(p2, h.toWei(20000));
+        await this.cpToken.finishMinting();
+        await this.cpToken.endSale();
     });
 
     describe("Debt Creation", () => {
         it("allows two parties to sign a message and issue a debt", async function() {
+            // initialize UCAC with minimum staking amount
+            await this.cpToken.approve(this.stake.address, h.toWei(1), {from: p1}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac(ucacAddr, ucacId1, h.toWei(1), {from: p1}).should.be.fulfilled;
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(0);
             nonce = hexy(nonce);

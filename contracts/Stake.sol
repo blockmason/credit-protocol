@@ -48,7 +48,7 @@ contract Stake is Ownable {
     // contract.
     // TODO who should be able to call this?
     function executeUcacTx(bytes32 _ucacId) public returns (bool) {
-        // require(ucacInitialized(_ucacId));
+        require(ucacInitialized(_ucacId));
         // get number of staked tokens
         uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
 
@@ -59,7 +59,7 @@ contract Stake is Ownable {
             ucacs[_ucacId].txsLevel = ucacs[_ucacId].txsLevel - currentDecay + 10 ** 18 / txPerTokenPerHour;
         }
 
-        // require(totalStaked >= ucacs[_ucacId].txsLevel);
+        require(totalStaked >= ucacs[_ucacId].txsLevel);
         ucacs[_ucacId].lastTxTimestamp = now;
         return true;
     }
@@ -67,7 +67,7 @@ contract Stake is Ownable {
     /**
        @dev msg.sender must have approved StakeData to spend enough tokens
      **/
-    function createAndStakeUcac(address _owner2, address _ucacContractAddr, bytes32 _ucacId, uint256 _tokensToStake) public {
+    function createAndStakeUcac(address _ucacContractAddr, bytes32 _ucacId, uint256 _tokensToStake) public {
         require(_tokensToStake >= tokensToOwnUcac);
         stakeTokens(_ucacId, msg.sender, _tokensToStake);
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
