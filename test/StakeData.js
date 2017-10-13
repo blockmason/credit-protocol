@@ -35,7 +35,8 @@ contract('StakeData', function([admin1, admin2, parent, p1, p2]) {
             await this.stakeData.setUcacAddr(ucacId1, this.cpToken.address, {from: parent}).should.be.fulfilled;
             await this.stakeData.setOwner1(ucacId1, admin1, {from: parent}).should.be.fulfilled;
             await this.stakeData.setOwner2(ucacId1, admin1, {from: parent}).should.be.fulfilled;
-            const addr1 = await this.stakeData.getUcacAddr(ucacId1).should.be.fulfilled;
+            const addr1 = await this.stakeData.ucacs(ucacId1).should.be.fulfilled;
+            console.log(addr1);
             addr1.should.be.bignumber.equal(this.cpToken.address);
             const owner1 = await this.stakeData.getUcacAddr(ucacId1).should.be.fulfilled;
             addr1.should.be.bignumber.equal(this.cpToken.address);

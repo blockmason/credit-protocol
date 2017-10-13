@@ -2,6 +2,7 @@ pragma solidity 0.4.15;
 
 import "blockmason-solidity-libs/contracts/Parentable.sol";
 
+// Should be renamed something more general
 contract FriendData is Parentable {
 
     // id -> id -> # of transactions in all UCACs
@@ -22,6 +23,7 @@ contract FriendData is Parentable {
                       , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
                       ) public {
         require(creditor != debtor);
+        // require(ucacHasCapacity(ucac));
 
         bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor)));
 
