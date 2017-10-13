@@ -73,7 +73,7 @@ contract('FriendCreationTest', function([admin, p1, p2, ucacAddr]) {
             let debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
             debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).neg());
 
-            // can create second debt with different order
+            // fail to create a third debt by exceeding TX cap
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
             nonce = hexy(nonce);
@@ -86,6 +86,24 @@ contract('FriendCreationTest', function([admin, p1, p2, ucacAddr]) {
             await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
+            debtCreated = await this.creditProtocol.balances(ucacId1, p1);
+            debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
+            debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
+            debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
+            // can create second debt with different order
+            nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+            nonce.should.be.bignumber.equal(2);
+            nonce = hexy(nonce);
+            content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            sig1 = sign(p1, content1);
+            content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            sig2 = sign(p2, content2);
+            // tx per hour = 2, so a 3rd should fail
+            await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
+                                           , sig1.r, sig1.s, sig1.v
+                                           , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.rejectedWith(h.EVMThrow);
             debtCreated = await this.creditProtocol.balances(ucacId1, p1);
             debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
             debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
