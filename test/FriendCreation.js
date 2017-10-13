@@ -5,7 +5,7 @@ const should = require('chai')
           .use(require('chai-bignumber')(h.BigNumber))
           .should();
 
-const FriendData = artifacts.require('./FriendData.sol');
+const CreditProtocol = artifacts.require('./CreditProtocol.sol');
 
 const ucacId1 = web3.sha3("hi");
 const ucacId2 = web3.sha3("yo");
@@ -37,7 +37,7 @@ contract('FriendCreationTest', function([admin, p1, p2]) {
     });
 
     beforeEach(async function() {
-        this.friendData = await FriendData.new({from: admin});
+        this.friendData = await CreditProtocol.new({from: admin});
     });
 
     describe("Debt Creation", () => {

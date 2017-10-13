@@ -1,9 +1,9 @@
 pragma solidity 0.4.15;
 
-import "blockmason-solidity-libs/contracts/Parentable.sol";
+import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 // Should be renamed something more general
-contract FriendData is Parentable {
+contract CreditProtocol is Ownable {
 
     // id -> id -> # of transactions in all UCACs
     // lesser id is must always be the first argument
