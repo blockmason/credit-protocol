@@ -5,6 +5,7 @@ import "blockmason-solidity-libs/contracts/Parentable.sol";
 contract FriendData is Parentable {
 
     // id -> id -> # of transactions in all UCACs
+    // lesser id is must always be the first argument
     mapping(address => mapping(address => uint256)) public nonces;
     // ucac -> id -> balance
     mapping(bytes32 => mapping(address => int256)) public balances;
