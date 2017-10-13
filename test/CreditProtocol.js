@@ -6,6 +6,8 @@ const should = require('chai')
           .should();
 
 const CreditProtocol = artifacts.require('./CreditProtocol.sol');
+const CPToken = artifacts.require('tce-contracts/contracts/CPToken.sol');
+const Stake = artifacts.require('./Stake.sol');
 
 const ucacId1 = web3.sha3("hi");
 const ucacId2 = web3.sha3("yo");
@@ -23,7 +25,7 @@ const sign = function(signer, content) {
 
     if (res.v < 27) res.v += 27;
 
-    return res
+    return res;
 }
 
 const hexy = function(num) {
@@ -37,12 +39,15 @@ contract('FriendCreationTest', function([admin, p1, p2]) {
     });
 
     beforeEach(async function() {
-        this.friendData = await CreditProtocol.new({from: admin});
+        this.cpToken = await CPToken.new({from: admin});
+        this.stake = await Stake.new( this.cpToken.address, web3.toBigNumber(2)
+                                    , web3.toBigNumber(1000), {from: admin});
+        this.creditProtocol = await CreditProtocol.new(this.stake.address, {from: admin});
     });
 
     describe("Debt Creation", () => {
         it("allows two parties to sign a message and issue a debt", async function() {
-            let nonce = p1 < p2 ? await this.friendData.nonces(p1, p2) : await this.friendData.nonces(p2, p1);
+            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(0);
             nonce = hexy(nonce);
             let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
@@ -52,16 +57,16 @@ contract('FriendCreationTest', function([admin, p1, p2]) {
             let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
                                      + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             let sig2 = sign(p2, content2);
-            await this.friendData.issueDebt( ucacId1, p1, p2, amount
+            await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
-            let debtCreated = await this.friendData.balances(ucacId1, p1);
+            let debtCreated = await this.creditProtocol.balances(ucacId1, p1);
             debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount));
-            let debtCreated2 = await this.friendData.balances(ucacId1, p2);
+            let debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
             debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).neg());
 
             // can create second debt with different order
-            nonce = p1 < p2 ? await this.friendData.nonces(p1, p2) : await this.friendData.nonces(p2, p1);
+            nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
             nonce = hexy(nonce);
             content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
@@ -70,12 +75,12 @@ contract('FriendCreationTest', function([admin, p1, p2]) {
             content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
                                  + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             sig2 = sign(p2, content2);
-            await this.friendData.issueDebt( ucacId1, p1, p2, amount
+            await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
-            debtCreated = await this.friendData.balances(ucacId1, p1);
+            debtCreated = await this.creditProtocol.balances(ucacId1, p1);
             debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
-            debtCreated2 = await this.friendData.balances(ucacId1, p2);
+            debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
             debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
         });
     });

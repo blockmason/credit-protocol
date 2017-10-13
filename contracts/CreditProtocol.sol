@@ -1,8 +1,8 @@
 pragma solidity 0.4.15;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./Stake.sol";
 
-// Should be renamed something more general
 contract CreditProtocol is Ownable {
 
     // id -> id -> # of transactions in all UCACs
@@ -14,6 +14,12 @@ contract CreditProtocol is Ownable {
 
     event IssueDebt(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
 
+    Stake public stakeContract;
+
+    function CreditProtocol(Stake _stakeContract) {
+        stakeContract = _stakeContract;
+    }
+
     function getNonce(address p1, address p2) public constant returns (uint256) {
         return p1 < p2 ? nonces[p1][p2] : nonces[p2][p1];
     }
@@ -23,7 +29,6 @@ contract CreditProtocol is Ownable {
                       , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
                       ) public {
         require(creditor != debtor);
-        // require(ucacHasCapacity(ucac));
 
         bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor)));
 
@@ -35,6 +40,11 @@ contract CreditProtocol is Ownable {
         require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
         // checking for underflow
         require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
+
+        // checking that ucac has tx capacity
+        // require(stakeContract.executeUcacTx(ucac));
+
+        stakeContract.executeUcacTx(ucac);
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
