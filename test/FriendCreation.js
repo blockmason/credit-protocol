@@ -26,43 +26,57 @@ const sign = function(signer, content) {
     return res
 }
 
-contract('FriendCreationTest', function([p1, p2]) {
+const hexy = function(num) {
+    const a = num.toString(16);
+    return "0x" + '0'.repeat(64 - a.length) + a;
+}
+
+contract('FriendCreationTest', function([admin, p1, p2]) {
 
     before(async function() {
     });
 
     beforeEach(async function() {
-        this.friendData = await FriendData.new({from: p2});
-    });
-
-    describe("Friend Creation", () => {
-        it("allows two parties to sign a message and create a friendship", async function() {
-            let noFriendshipPreCreation = await this.friendData.friendships(ucacId1, p1, p2);
-            assert(noFriendshipPreCreation == 0, "friendship created before call to initFriendship");
-            let content1 = ucacId1 + p2.substr(2, p2.length);
-            let sig1 = sign(p1, content1);
-            let content2 = ucacId1 + p1.substr(2, p1.length);
-            let sig2 = sign(p2, content2);
-            await this.friendData.initFriendship( ucacId1, p1, p2
-                                                , sig1.r, sig1.s, sig1.v
-                                                , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
-            let friendshipCreated = await this.friendData.friendships(ucacId1, p1, p2);
-            assert(friendshipCreated == 1, "friendship not created after call to initFriendship");
-        });
+        this.friendData = await FriendData.new({from: admin});
     });
 
     describe("Debt Creation", () => {
         it("allows two parties to sign a message and issue a debt", async function() {
+            let nonce = p1 < p2 ? await this.friendData.nonces(p1, p2) : await this.friendData.nonces(p2, p1);
+            nonce.should.be.bignumber.equal(0);
+            nonce = hexy(nonce);
             let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-            let content1 = ucacId1 + p2.substr(2, p2.length) + amount.substr(2, amount.length);
+            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             let sig1 = sign(p1, content1);
-            let content2 = ucacId1 + p1.substr(2, p1.length) + amount.substr(2, amount.length);
+            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             let sig2 = sign(p2, content2);
             await this.friendData.issueDebt( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
             let debtCreated = await this.friendData.balances(ucacId1, p1);
-            assert(debtCreated > 0, "debt was not issued");
+            debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount));
+            let debtCreated2 = await this.friendData.balances(ucacId1, p2);
+            debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).neg());
+
+            // can create second debt with different order
+            nonce = p1 < p2 ? await this.friendData.nonces(p1, p2) : await this.friendData.nonces(p2, p1);
+            nonce.should.be.bignumber.equal(1);
+            nonce = hexy(nonce);
+            content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            sig1 = sign(p1, content1);
+            content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            sig2 = sign(p2, content2);
+            await this.friendData.issueDebt( ucacId1, p1, p2, amount
+                                           , sig1.r, sig1.s, sig1.v
+                                           , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
+            debtCreated = await this.friendData.balances(ucacId1, p1);
+            debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
+            debtCreated2 = await this.friendData.balances(ucacId1, p2);
+            debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
         });
     });
 
