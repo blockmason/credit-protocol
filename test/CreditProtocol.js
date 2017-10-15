@@ -33,7 +33,7 @@ const hexy = function(num) {
     return "0x" + '0'.repeat(64 - a.length) + a;
 }
 
-contract('FriendCreationTest', function([admin, p1, p2, ucacAddr]) {
+contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
 
     before(async function() {
     });

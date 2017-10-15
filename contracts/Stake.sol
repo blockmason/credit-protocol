@@ -70,18 +70,13 @@ contract Stake is Ownable {
      **/
     function createAndStakeUcac(address _ucacContractAddr, bytes32 _ucacId, uint256 _tokensToStake) public {
         require(_tokensToStake >= tokensToOwnUcac);
-        stakeTokens(_ucacId, msg.sender, _tokensToStake);
+        require(token.allowance(msg.sender, this) >= _tokensToStake); // redundant check
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
         ucacs[_ucacId].owner = msg.sender;
+        stakeTokens(_ucacId, msg.sender, _tokensToStake);
     }
 
     // TODO set owner functions for existing UCACs
-
-    function stakeTokens(bytes32 _ucacId, uint256 _tokensToStake) public {
-        require(ucacInitialized(_ucacId));
-        stakeTokens(_ucacId, msg.sender, _tokensToStake);
-    }
-
 
     // TODO is this the best way to check initialization?
     // perhaps I could add a test that tokensStaked > tokensToOwnUcac
@@ -99,12 +94,12 @@ contract Stake is Ownable {
         // allowance must be exactly _numTokens.
      **/
     function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
-        require(token.allowance(_stakeholder, this) >= _numTokens);
+        require(ucacInitialized(_ucacId));
+        token.transferFrom(_stakeholder, this, _numTokens);
         uint256 updatedStakedTokens = stakedTokensMap[_stakeholder][_ucacId].add(_numTokens);
         stakedTokensMap[_stakeholder][_ucacId] = updatedStakedTokens;
         uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
-        token.transferFrom(_stakeholder, this, _numTokens);
     }
 
     /**
