@@ -2,7 +2,7 @@ var h = require("./helpers/helpers");
 
 const should = require('chai')
           .use(require('chai-as-promised'))
-          .use(require('chai-bignumber')(h.BigNumber))
+          .use(require('chai-bignumber')(web3.BigNumber))
           .should();
 
 const CreditProtocol = artifacts.require('./CreditProtocol.sol');
@@ -43,9 +43,9 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         this.stake = await Stake.new( this.cpToken.address, web3.toBigNumber(2)
                                     , web3.toBigNumber(1), {from: admin});
         this.creditProtocol = await CreditProtocol.new(this.stake.address, {from: admin});
-        await this.cpToken.mint(admin, h.toWei(20000));
-        await this.cpToken.mint(p1, h.toWei(20000));
-        await this.cpToken.mint(p2, h.toWei(20000));
+        await this.cpToken.mint(admin, web3.toWei(20000));
+        await this.cpToken.mint(p1, web3.toWei(20000));
+        await this.cpToken.mint(p2, web3.toWei(20000));
         await this.cpToken.finishMinting();
         await this.cpToken.endSale();
     });
@@ -53,8 +53,8 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
     describe("Debt Creation", () => {
         it("allows two parties to sign a message and issue a debt", async function() {
             // initialize UCAC with minimum staking amount
-            await this.cpToken.approve(this.stake.address, h.toWei(1), {from: p1}).should.be.fulfilled;
-            await this.stake.createAndStakeUcac(ucacAddr, ucacId1, h.toWei(1), {from: p1}).should.be.fulfilled;
+            await this.cpToken.approve(this.stake.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac(ucacAddr, ucacId1, web3.toWei(1), {from: p1}).should.be.fulfilled;
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(0);
             nonce = hexy(nonce);

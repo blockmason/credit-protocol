@@ -14,7 +14,7 @@ contract Stake is Ownable {
                        // or desire to transfer ownership
         uint256 txLevel;
         uint256 lastTxTimestamp;
-        // bytes32 denomination; TODO do we want this?
+        bytes32 denomination;
     }
 
     CPToken public token;
@@ -77,11 +77,11 @@ contract Stake is Ownable {
 
     function setUcacOwner(bytes32 _ucacId, address newOwner) public {
         bool senderIsOwner = msg.sender == ucacs[_ucacId].owner;
-        // existing owner unstaked, new owner staked and sender
-        bool takeover = stakedTokensMap[_ucacId][newOwner] >= tokensToOwnUcac
-                     && stakedTokensMap[_ucacId][ucacs[_ucacId].owner] < tokensToOwnUcac
+        bool newOwnerStaked = stakedTokensMap[_ucacId][newOwner] >= tokensToOwnUcac;
+        // existing owner unstaked, new owner is sender
+        bool takeover = stakedTokensMap[_ucacId][ucacs[_ucacId].owner] < tokensToOwnUcac
                      && newOwner == msg.sender;
-        require(senderIsOwner || takeover);
+        require(newOwnerStaked && (senderIsOwner || takeover));
         ucacs[_ucacId].owner = newOwner;
     }
 
