@@ -33,13 +33,11 @@ contract Stake is Ownable {
         tokensToOwnUcac = _tokensToOwnUcac;
     }
 
-    // TODO make onlyAdmin
-    function setTxPerTokenPerHour(uint256 _txPerTokenPerHour) public {
+    function setTxPerTokenPerHour(uint256 _txPerTokenPerHour) public onlyOwner {
         txPerTokenPerHour = _txPerTokenPerHour;
     }
 
-    // TODO make onlyAdmin
-    function setTokensToOwnUcac(uint256 _tokensToOwnUcac) public {
+    function setTokensToOwnUcac(uint256 _tokensToOwnUcac) public onlyOwner {
         tokensToOwnUcac = _tokensToOwnUcac;
     }
 
@@ -66,35 +64,43 @@ contract Stake is Ownable {
     }
 
     /**
-       @dev msg.sender must have approved StakeData to spend enough tokens
+       @dev msg.sender must have approved Stake to spend enough tokens
      **/
     function createAndStakeUcac(address _ucacContractAddr, bytes32 _ucacId, uint256 _tokensToStake) public {
         require(_tokensToStake >= tokensToOwnUcac);
-        require(token.allowance(msg.sender, this) >= _tokensToStake); // redundant check
+        stakeTokensInternal(_ucacId, msg.sender, _tokensToStake);
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
         ucacs[_ucacId].owner = msg.sender;
-        stakeTokens(_ucacId, msg.sender, _tokensToStake);
     }
-
-    // TODO set owner functions for existing UCACs
 
     // TODO is this the best way to check initialization?
     // perhaps I could add a test that tokensStaked > tokensToOwnUcac
     // TODO ask Tim about minimum staking... what if people want to pool funds to stake
     // and not designate an owner?
     function ucacInitialized(bytes32 _ucacId) public constant returns (bool) {
-        return ucacs[_ucacId].ucacContractAddr != address(0);
+        return ucacs[_ucacId].owner != address(0);
     }
 
+    // TODO set owner functions for existing UCACs
+
+    // address ucacContractAddr; // settable by owner at any time
+    // address owner; // may change depending on owner's staking level
+    //                // or desire to transfer ownership
+
     /* Token staking functionality */
+
+    function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
+        require(ucacInitialized(_ucacId));
+        stakeTokensInternal(_ucacId, _stakeholder, _numTokens);
+    }
 
     /**
         @dev only the parent contract can call this (to enable pausing of token staking for security reasons), but this locks in where tokens go to and how they are stored.
         // TODO who should be able to call this? I think everyone but we add a requirement that the token
         // allowance must be exactly _numTokens.
      **/
-    function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
-        require(ucacInitialized(_ucacId));
+    function stakeTokensInternal(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) private {
+        require(token.allowance(_stakeholder, this) == _numTokens);
         token.transferFrom(_stakeholder, this, _numTokens);
         uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
         stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;

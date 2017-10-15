@@ -31,15 +31,18 @@ contract('StakeTest', function([admin, p1, p2, ucacAddr]) {
             const creationStake = web3.toBigNumber(web3.toWei(3500));
             const postCreationStake = web3.toBigNumber(web3.toWei(100));
             await this.cpToken.approve( this.stake.address
-                                      , creationStake.add(postCreationStake)
+                                      , creationStake
                                       , {from: p1}).should.be.fulfilled;
             // stakeTokens call rejected prior to initialization
-            await this.stake.stakeTokens(ucacId2, p1, postCreationStake, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+            await this.stake.stakeTokens(ucacId2, p1, creationStake, {from: p1}).should.be.rejectedWith(h.EVMThrow);
             await this.stake.createAndStakeUcac(ucacAddr, ucacId2, creationStake, {from: p1}).should.be.fulfilled;
-            // // stakeTokens call successful post-initialization
-            // await this.stake.stakeTokens(ucacId2, postCreationStake, {from: p1}).should.be.fulfilled;
-            // const a = await this.stake.ucacStatus(ucacId2).should.be.fulfilled;
-            // a[0].should.be.bignumber.equal(creationStake.add(postCreationStake));
+            await this.cpToken.approve( this.stake.address
+                                      , postCreationStake
+                                      , {from: p1}).should.be.fulfilled;
+            // stakeTokens call successful post-initialization
+            await this.stake.stakeTokens(ucacId2, p1, postCreationStake, {from: p1}).should.be.fulfilled;
+            const a = await this.stake.ucacs(ucacId2).should.be.fulfilled;
+            a[1].should.be.bignumber.equal(creationStake.add(postCreationStake));
         });
     });
 
