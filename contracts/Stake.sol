@@ -8,9 +8,10 @@ contract Stake is Ownable {
     using SafeMath for uint256;
 
     struct Ucac {
-        address ucacContractAddr;
+        address ucacContractAddr; // settable by owner at any time
         uint256 totalStakedTokens;
-        address owner;
+        address owner; // may change depending on owner's staking level
+                       // or desire to transfer ownership
         uint256 txLevel;
         uint256 lastTxTimestamp;
         // bytes32 denomination; TODO do we want this?
@@ -22,10 +23,9 @@ contract Stake is Ownable {
 
     mapping (bytes32 => Ucac) public ucacs; // indexed by ucacId
     /**
-        @dev Indexed by token owner address => Ucac => amount of tokens
-        // TODO perhaps switch the order of this ucac -> id -> int?
+        @dev Indexed by UCAC -> token owner address -> amount of tokens
     **/
-    mapping (address => mapping (bytes32 => uint256)) public stakedTokensMap;
+    mapping (bytes32 => mapping (address => uint256)) public stakedTokensMap;
 
     function Stake(address _tokenContract, uint256 _txPerTokenPerHour, uint256 _tokensToOwnUcac) {
         token = CPToken(_tokenContract);
@@ -96,8 +96,8 @@ contract Stake is Ownable {
     function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
         require(ucacInitialized(_ucacId));
         token.transferFrom(_stakeholder, this, _numTokens);
-        uint256 updatedStakedTokens = stakedTokensMap[_stakeholder][_ucacId].add(_numTokens);
-        stakedTokensMap[_stakeholder][_ucacId] = updatedStakedTokens;
+        uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
+        stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;
         uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
     }
@@ -109,8 +109,8 @@ contract Stake is Ownable {
      **/
     function unstakeTokens(bytes32 _ucacId, uint256 _numTokens) public {
         // SafeMath will throw if _numTokens is greater than a sender's stakedTokens amount
-        uint256 updatedStakedTokens = stakedTokensMap[msg.sender][_ucacId].sub(_numTokens);
-        stakedTokensMap[msg.sender][_ucacId] = updatedStakedTokens;
+        uint256 updatedStakedTokens = stakedTokensMap[_ucacId][msg.sender].sub(_numTokens);
+        stakedTokensMap[_ucacId][msg.sender] = updatedStakedTokens;
         uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
         token.transfer(msg.sender, _numTokens);
