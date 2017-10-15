@@ -41,15 +41,9 @@ contract Stake is Ownable {
         tokensToOwnUcac = _tokensToOwnUcac;
     }
 
-    // TODO this is incomplete. the logging should include information about the
-    // debt and a debt object should be created for storage in a separate
-    // contract.
-    // TODO who should be able to call this?
     function executeUcacTx(bytes32 _ucacId) public {
-        require(ucacInitialized(_ucacId));
-
-        // get number of staked tokens
         uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
+        require(totalStaked > 0);
 
         uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacId].lastTxTimestamp);
         if (ucacs[_ucacId].txLevel < currentDecay) {
@@ -59,53 +53,44 @@ contract Stake is Ownable {
         }
 
         // check ucac has tx capacity TODO do this check before txLevel is set
+        // does this revert the above changes to txLevel?
         require(totalStaked >= ucacs[_ucacId].txLevel);
         ucacs[_ucacId].lastTxTimestamp = now;
     }
 
     /**
-       @dev msg.sender must have approved Stake to spend enough tokens
+       @dev msg.sender must have approved Stake to transfer enough tokens
      **/
     function createAndStakeUcac(address _ucacContractAddr, bytes32 _ucacId, uint256 _tokensToStake) public {
+        // check that _ucacId does not point to extant UCAC
+        require(ucacs[_ucacId].totalStakedTokens == 0 && ucacs[_ucacId].owner == address(0));
+        // checking that initial token staking amount is enough to own a UCAC
         require(_tokensToStake >= tokensToOwnUcac);
         stakeTokensInternal(_ucacId, msg.sender, _tokensToStake);
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
         ucacs[_ucacId].owner = msg.sender;
     }
 
-    // TODO is this the best way to check initialization?
-    // perhaps I could add a test that tokensStaked > tokensToOwnUcac
-    // TODO ask Tim about minimum staking... what if people want to pool funds to stake
-    // and not designate an owner?
-    function ucacInitialized(bytes32 _ucacId) public constant returns (bool) {
-        return ucacs[_ucacId].owner != address(0);
+    function setUcacContractAddr(bytes32 _ucacId, address newAddr) public {
+        require(msg.sender == ucacs[_ucacId].owner);
+        ucacs[_ucacId].ucacContractAddr = newAddr;
     }
 
-    // TODO set owner functions for existing UCACs
-
-    // address ucacContractAddr; // settable by owner at any time
-    // address owner; // may change depending on owner's staking level
-    //                // or desire to transfer ownership
+    function setUcacOwner(bytes32 _ucacId, address newOwner) public {
+        bool senderIsOwner = msg.sender == ucacs[_ucacId].owner;
+        // existing owner unstaked, new owner staked and sender
+        bool takeover = stakedTokensMap[_ucacId][newOwner] >= tokensToOwnUcac
+                     && stakedTokensMap[_ucacId][ucacs[_ucacId].owner] < tokensToOwnUcac
+                     && newOwner == msg.sender;
+        require(senderIsOwner || takeover);
+        ucacs[_ucacId].owner = newOwner;
+    }
 
     /* Token staking functionality */
 
     function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
-        require(ucacInitialized(_ucacId));
+        require(ucacs[_ucacId].owner != address(0));
         stakeTokensInternal(_ucacId, _stakeholder, _numTokens);
-    }
-
-    /**
-        @dev only the parent contract can call this (to enable pausing of token staking for security reasons), but this locks in where tokens go to and how they are stored.
-        // TODO who should be able to call this? I think everyone but we add a requirement that the token
-        // allowance must be exactly _numTokens.
-     **/
-    function stakeTokensInternal(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) private {
-        require(token.allowance(_stakeholder, this) == _numTokens);
-        token.transferFrom(_stakeholder, this, _numTokens);
-        uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
-        stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;
-        uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
-        ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
     }
 
     /**
@@ -120,5 +105,16 @@ contract Stake is Ownable {
         uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
         token.transfer(msg.sender, _numTokens);
+    }
+
+    // Private Functions
+
+    function stakeTokensInternal(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) private {
+        require(token.allowance(_stakeholder, this) == _numTokens);
+        token.transferFrom(_stakeholder, this, _numTokens);
+        uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
+        stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;
+        uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
+        ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
     }
 }
