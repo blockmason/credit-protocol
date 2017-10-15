@@ -21,10 +21,9 @@ contract Stake is Ownable {
     uint256 public txPerTokenPerHour;
     uint256 public tokensToOwnUcac;
 
-    mapping (bytes32 => Ucac) public ucacs; // indexed by ucacId
-    /**
-        @dev Indexed by UCAC -> token owner address -> amount of tokens
-    **/
+    mapping (bytes32 => Ucac) public ucacs; // ucacId -> Ucac struct
+
+    // ucacId -> token owner address -> amount of tokens
     mapping (bytes32 => mapping (address => uint256)) public stakedTokensMap;
 
     function Stake(address _tokenContract, uint256 _txPerTokenPerHour, uint256 _tokensToOwnUcac) {
@@ -59,7 +58,7 @@ contract Stake is Ownable {
     }
 
     /**
-       @dev msg.sender must have approved Stake to transfer enough tokens
+       @dev msg.sender must have approved Stake contract to transfer enough tokens
      **/
     function createAndStakeUcac(address _ucacContractAddr, bytes32 _ucacId, uint256 _tokensToStake) public {
         // check that _ucacId does not point to extant UCAC
@@ -88,6 +87,9 @@ contract Stake is Ownable {
 
     /* Token staking functionality */
 
+    /**
+       @dev msg.sender must have approved Stake contract to transfer enough tokens
+     **/
     function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
         require(ucacs[_ucacId].owner != address(0));
         stakeTokensInternal(_ucacId, _stakeholder, _numTokens);
