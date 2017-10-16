@@ -14,7 +14,7 @@ contract Stake is Ownable {
                        // or desire to transfer ownership
         uint256 txLevel;
         uint256 lastTxTimestamp;
-        bytes32 denomination;
+        bytes32 denomination; // TODO set this when UCAC is created
     }
 
     CPToken public token;
