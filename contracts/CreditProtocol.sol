@@ -1,6 +1,7 @@
 pragma solidity 0.4.15;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./BasicUCAC.sol";
 import "./Stake.sol";
 
 contract CreditProtocol is Ownable {
@@ -40,9 +41,10 @@ contract CreditProtocol is Ownable {
         require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
         // checking for underflow
         require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
-
         // executeUcacTx will throw if txLimit has been reached or ucac is uninitialized
         stakeContract.executeUcacTx(ucac);
+        // check that UCAC contract approves the transaction
+        require(BasicUCAC(stakeContract.getUcacAddr(ucac)).allowTransaction(creditor, debtor, amount));
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);

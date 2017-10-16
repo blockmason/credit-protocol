@@ -32,6 +32,10 @@ contract Stake is Ownable {
         tokensToOwnUcac = _tokensToOwnUcac;
     }
 
+    function getUcacAddr(bytes32 _ucacId) public constant returns (address) {
+        return ucacs[_ucacId].ucacContractAddr;
+    }
+
     function setTxPerTokenPerHour(uint256 _txPerTokenPerHour) public onlyOwner {
         txPerTokenPerHour = _txPerTokenPerHour;
     }

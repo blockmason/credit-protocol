@@ -7,11 +7,11 @@ const should = require('chai')
 
 const CreditProtocol = artifacts.require('./CreditProtocol.sol');
 const CPToken = artifacts.require('tce-contracts/contracts/CPToken.sol');
+const BasicUCAC = artifacts.require('./BasicUCAC.sol');
 const Stake = artifacts.require('./Stake.sol');
 
 const ucacId1 = web3.sha3("hi");
 const ucacId2 = web3.sha3("yo");
-
 
 const sign = function(signer, content) {
     let contentHash = web3.sha3(content, {encoding: 'hex'});
@@ -43,6 +43,8 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         this.stake = await Stake.new( this.cpToken.address, web3.toBigNumber(2)
                                     , web3.toBigNumber(1), {from: admin});
         this.creditProtocol = await CreditProtocol.new(this.stake.address, {from: admin});
+        this.basicUCAC = await BasicUCAC.new({from: admin});
+
         await this.cpToken.mint(admin, web3.toWei(20000));
         await this.cpToken.mint(p1, web3.toWei(20000));
         await this.cpToken.mint(p2, web3.toWei(20000));
@@ -54,7 +56,7 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         it("allows two parties to sign a message and issue a debt", async function() {
             // initialize UCAC with minimum staking amount
             await this.cpToken.approve(this.stake.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
-            await this.stake.createAndStakeUcac(ucacAddr, ucacId1, web3.toWei(1), {from: p1}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac(this.basicUCAC.address, ucacId1, web3.toWei(1), {from: p1}).should.be.fulfilled;
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(0);
             nonce = hexy(nonce);
