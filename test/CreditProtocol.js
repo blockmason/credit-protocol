@@ -69,6 +69,9 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
             assert.equal(txReciept.logs[0].event, "IssueDebt", "Expected Issue Debt event");
+            assert.equal(txReciept.logs[0].args.debtor, p2, "Incorrect debtor logged");
+            assert.equal(txReciept.logs[0].args.creditor, p1, "Incorrect creditor logged");
+            assert.equal(txReciept.logs[0].args.ucac, ucacId1, "Incorrect ucac logged");
 
             let debtCreated = await this.creditProtocol.balances(ucacId1, p1);
             debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount));
