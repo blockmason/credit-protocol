@@ -8,7 +8,7 @@ contract Stake is Ownable {
     using SafeMath for uint256;
 
     struct Ucac {
-        address ucacContractAddr; // settable by owner at any time
+        address ucacContractAddr;
         uint256 totalStakedTokens;
         address owner; // may change depending on owner's staking level
                        // or desire to transfer ownership
@@ -64,7 +64,8 @@ contract Stake is Ownable {
     /**
        @dev msg.sender must have approved Stake contract to transfer enough tokens
      **/
-    function createAndStakeUcac(address _ucacContractAddr, bytes32 _ucacId, uint256 _tokensToStake) public {
+    function createAndStakeUcac( address _ucacContractAddr, bytes32 _ucacId
+                               , bytes32 _denomination, uint256 _tokensToStake) public {
         // check that _ucacId does not point to extant UCAC
         require(ucacs[_ucacId].totalStakedTokens == 0 && ucacs[_ucacId].owner == address(0));
         // checking that initial token staking amount is enough to own a UCAC
@@ -72,11 +73,7 @@ contract Stake is Ownable {
         stakeTokensInternal(_ucacId, msg.sender, _tokensToStake);
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
         ucacs[_ucacId].owner = msg.sender;
-    }
-
-    function setUcacContractAddr(bytes32 _ucacId, address newAddr) public {
-        require(msg.sender == ucacs[_ucacId].owner);
-        ucacs[_ucacId].ucacContractAddr = newAddr;
+        ucacs[_ucacId].denomination = _denomination;
     }
 
     function setUcacOwner(bytes32 _ucacId, address newOwner) public {
