@@ -65,9 +65,11 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
                                      + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             let sig2 = sign(p2, content2);
-            await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
+            txReciept = await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
+            assert.equal(txReciept.logs[0].event, "IssueDebt", "Expected Issue Debt event");
+
             let debtCreated = await this.creditProtocol.balances(ucacId1, p1);
             debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount));
             let debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
@@ -83,9 +85,10 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
                                  + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             sig2 = sign(p2, content2);
-            await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
+            txReciept = await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
+            assert.equal(txReciept.logs[0].event, "IssueDebt", "Expected Issue Debt event");
             debtCreated = await this.creditProtocol.balances(ucacId1, p1);
             debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
             debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
