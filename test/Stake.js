@@ -56,40 +56,5 @@ contract('StakeTest', function([admin, p1, p2, ucacAddr, ucacAddr2]) {
 
     });
 
-    describe("Ucac manipulation", () => {
-        beforeEach(async function() {
-            // create ucac
-            await this.cpToken.approve( this.stake.address
-                                      , creationStake
-                                      , {from: p1}).should.be.fulfilled;
-            await this.stake.createAndStakeUcac(ucacAddr, ucacId1, usd, creationStake, {from: p1}).should.be.fulfilled;
-        });
-
-        it("ucac owner can transfer ownership", async function() {
-            // p2 approves stakes far beyond tokensToOwnUcac
-            await this.cpToken.approve( this.stake.address
-                                      , creationStake
-                                      , {from: p2}).should.be.fulfilled;
-            await this.stake.stakeTokens( ucacId1, p2, creationStake
-                                        , {from: p2}).should.be.fulfilled;
-            // fail to change ucac owner as non-owner
-            this.stake.setUcacOwner(ucacId1, p2, {from: p2}).should.be.rejectedWith(h.EVMThrow);
-            // change ucac owner
-            this.stake.setUcacOwner(ucacId1, p2, {from: p1}).should.be.fulfilled;
-        });
-
-        it("ucac ownership can be taken over", async function() {
-            // p2 approves stakes far beyond tokensToOwnUcac
-            await this.cpToken.approve( this.stake.address
-                                      , creationStake
-                                      , {from: p2}).should.be.fulfilled;
-            await this.stake.stakeTokens( ucacId1, p2, creationStake
-                                        , {from: p2}).should.be.fulfilled;
-            await this.stake.unstakeTokens( ucacId1, creationStake
-                                         , {from: p1}).should.be.fulfilled;
-            // take over ucac ownership
-            this.stake.setUcacOwner(ucacId1, p2, {from: p2}).should.be.fulfilled;
-        });
-    });
 
 });

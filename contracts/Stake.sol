@@ -10,8 +10,6 @@ contract Stake is Ownable {
     struct Ucac {
         address ucacContractAddr;
         uint256 totalStakedTokens;
-        address owner; // may change depending on owner's staking level
-                       // or desire to transfer ownership
         uint256 txLevel;
         uint256 lastTxTimestamp;
         bytes32 denomination; // TODO set this when UCAC is created
@@ -67,23 +65,13 @@ contract Stake is Ownable {
     function createAndStakeUcac( address _ucacContractAddr, bytes32 _ucacId
                                , bytes32 _denomination, uint256 _tokensToStake) public {
         // check that _ucacId does not point to extant UCAC
-        require(ucacs[_ucacId].totalStakedTokens == 0 && ucacs[_ucacId].owner == address(0));
+        require(ucacs[_ucacId].totalStakedTokens == 0 && ucacs[_ucacId].ucacContractAddr == address(0));
         // checking that initial token staking amount is enough to own a UCAC
         require(_tokensToStake >= tokensToOwnUcac);
         stakeTokensInternal(_ucacId, msg.sender, _tokensToStake);
+        require(_ucacContractAddr != address(0));
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
-        ucacs[_ucacId].owner = msg.sender;
         ucacs[_ucacId].denomination = _denomination;
-    }
-
-    function setUcacOwner(bytes32 _ucacId, address newOwner) public {
-        bool senderIsOwner = msg.sender == ucacs[_ucacId].owner;
-        bool newOwnerStaked = stakedTokensMap[_ucacId][newOwner] >= tokensToOwnUcac;
-        // existing owner unstaked, new owner is sender
-        bool takeover = stakedTokensMap[_ucacId][ucacs[_ucacId].owner] < tokensToOwnUcac
-                     && newOwner == msg.sender;
-        require(newOwnerStaked && (senderIsOwner || takeover));
-        ucacs[_ucacId].owner = newOwner;
     }
 
     /* Token staking functionality */
@@ -92,7 +80,7 @@ contract Stake is Ownable {
        @dev msg.sender must have approved Stake contract to transfer enough tokens
      **/
     function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
-        require(ucacs[_ucacId].owner != address(0));
+        require(ucacs[_ucacId].ucacContractAddr != address(0));
         stakeTokensInternal(_ucacId, _stakeholder, _numTokens);
     }
 
