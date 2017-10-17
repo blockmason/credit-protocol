@@ -34,7 +34,20 @@ function bignumToHexString(num) {
     return "0x" + '0'.repeat(64 - a.length) + a;
 }
 
-function makeTransaction() {
+async function makeTransaction(cp, ucacId, creditor, debtor, _amount) {
+    let nonce = creditor < debtor ? await cp.nonces(creditor, debtor) : await cp.nonces(debtor, creditor);
+    nonce = bignumToHexString(nonce);
+    let amount = bignumToHexString(_amount);
+    let content1 = ucacId + creditor.substr(2, creditor.length) + debtor.substr(2, debtor.length)
+                          + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    let sig1 = sign(creditor, content1);
+    let content2 = ucacId + creditor.substr(2, creditor.length) + debtor.substr(2, debtor.length)
+                          + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    let sig2 = sign(debtor, content2);
+    let txReciept = await cp.issueCredit( ucacId, creditor, debtor, amount
+                                   , sig1.r, sig1.s, sig1.v
+                                   , sig2.r, sig2.s, sig2.v, {from: creditor});
+    return txReciept;
 }
 
 contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
@@ -164,19 +177,10 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         });
 
         it("if a user unstakes tokens s.t. txLevel > totalStakedTokens, txs are rejected", async function() {
-            // do one tx
-            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce = bignumToHexString(nonce);
             let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig1 = sign(p1, content1);
-            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig2 = sign(p2, content2);
-            let txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                           , sig1.r, sig1.s, sig1.v
-                                           , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
+
+            // do one tx
+            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
             let txLevel = await this.stake.currentTxLevel(ucacId1).should.be.fulfilled;
             txLevel.should.be.bignumber.equal(web3.toWei(0.5));
 
@@ -184,6 +188,7 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             await this.stake.unstakeTokens(ucacId1, web3.toWei(0.1), {from: p1}).should.be.fulfilled;
 
             // user is unable to perform an additional tx
+
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
             nonce = bignumToHexString(nonce);
