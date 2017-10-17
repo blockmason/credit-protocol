@@ -5,24 +5,24 @@ tracking between any two parties.
 
 ## How the Credit Protocol works
 
-### `CreditProtocol.sol`
+### CreditProtocol.sol
 
 `CreditProtocol.sol` is mainly responsible for logging issuances of credit to
 the Ethereum blockchain. Credit can be issued under the following conditions:
 
 - Both parties in a debt relationship cryptographically sign the elements of
-a credit record with the private key that corresponds to thier public address
+a credit record
 
 - The UCAC contract which is referenced in the credit record acknowledges that
-the credit record is valid for the particular use case (see section
+the credit record is valid for its particular use case (see section
 [UCAC contract](#ucac-contract) for more information)
 
 - Users of the Credit Protocal have staked the UCAC contract with enough BCPT
 to handle the issuance of credit (see section [Stake.sol](#stakesol) for more information)
 
 In addition to logging issuances of credit, `CreditProtocol.sol` maintains
-a mapping of nonces for every pair of users that have ever entered into
-a credit relationship, and a mapping of balances for every user per UCAC.
+a mapping of the credit balances of all users. A unique user balance is
+maintained for every `(UCAC, user)` pair.
 
 #### What is logged
 
@@ -33,11 +33,9 @@ event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexe
 ### Stake.sol
 
 `Stake.sol` is responsible for registering UCACs and rate-limiting their
-issuances of credit based on how many BCPT have been staked for that particular
-UCAC. It maintains a mapping of `ucacId -> Ucac struct` and is the main
-resources of users of the Credit Protocol to .
-
-Users stake tokens in order to buy ...
+issuances of credit based on how many BCPT they've been staked with. The
+contract maintains a mapping of ucacIds to ucac information records; and is
+primary source of information on registerd UCACs.
 
 #### UCAC information stored by `Stake.sol`
 
@@ -46,13 +44,8 @@ Users stake tokens in order to buy ...
 - "txLevel" which is a measure of how many credit transactions have been
 performed in the recent past. This is used by `Stake.sol` to rate limit
 transactions based on the number of tokens staked to a particular UCAC
-
 - timestamp of the last UCAC transaction
 - denomination of credit issued in the UCAC
-
-#### Transaction Levels and their decay
-
-TODO
 
 ### UCAC Contract
 
