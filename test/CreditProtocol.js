@@ -37,9 +37,13 @@ const hexy = function(num) {
 contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
 
     before(async function() {
+        // Advance to the next block to correctly read time in the solidity
+        // "now" function interpreted by testrpc
+        await h.advanceBlock();
     });
 
     beforeEach(async function() {
+        this.latestTime = h.latestTime();
         this.cpToken = await CPToken.new({from: admin});
         this.stake = await Stake.new( this.cpToken.address, web3.toBigNumber(2)
                                     , web3.toBigNumber(1), {from: admin});
@@ -68,7 +72,7 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
                                      + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             let sig2 = sign(p2, content2);
-            txReciept = await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
+            let txReciept = await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
             assert.equal(txReciept.logs[0].event, "IssueDebt", "Expected Issue Debt event");
@@ -120,4 +124,48 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         });
     });
 
+    describe("txLevel decay", () => {
+        beforeEach(async function() {
+            await this.cpToken.approve(this.stake.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
+            await this.stake.createAndStakeUcac( this.basicUCAC.address
+                                               , ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
+        });
+
+        it("as time passes, txLevel decays as expected", async function() {
+            // do two txs (the max)
+            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+            nonce = hexy(nonce);
+            let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
+            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            let sig1 = sign(p1, content1);
+            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            let sig2 = sign(p2, content2);
+            let txReciept = await this.creditProtocol.issueDebt( ucacId1, p1, p2, amount
+                                           , sig1.r, sig1.s, sig1.v
+                                           , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
+            let txLevel = await this.stake.currentTxLevel(ucacId1).should.be.fulfilled;
+            txLevel.should.be.bignumber.equal(web3.toWei(0.5));
+
+
+            // 30 minutes pass, txLevel should be less than totalTokensStaked / 2
+            await h.increaseTimeTo(this.latestTime + h.duration.minutes(30));
+            txLevel = await this.stake.currentTxLevel(ucacId1).should.be.fulfilled;
+            txLevel.should.be.bignumber.lt(web3.toWei(0.25));
+
+            // 1 hour passes, txLevel should = 0
+            await h.increaseTimeTo(this.latestTime + h.duration.hours(1));
+            txLevel = await this.stake.currentTxLevel(ucacId1).should.be.fulfilled;
+            txLevel.should.be.bignumber.equal(0);
+        });
+
+        it("if a user unstakes tokens s.t. txLevel > totalStakedTokens, txs are rejected", async function() {
+
+        });
+
+        it("if txLevel > totalStakedTokens, user can stake more tokens and then successfully tx", async function() {
+
+        });
+    });
 });

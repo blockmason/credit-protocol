@@ -42,21 +42,19 @@ contract Stake is Ownable {
         tokensToOwnUcac = _tokensToOwnUcac;
     }
 
-    function executeUcacTx(bytes32 _ucacId) public {
+    function currentTxLevel(bytes32 _ucacId) public constant returns (uint256) {
         uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
-        require(totalStaked > 0);
-
         uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacId].lastTxTimestamp);
-        if (ucacs[_ucacId].txLevel < currentDecay) {
-            ucacs[_ucacId].txLevel = 10 ** 18 / txPerTokenPerHour;
-        } else {
-            ucacs[_ucacId].txLevel = ucacs[_ucacId].txLevel - currentDecay + 10 ** 18 / txPerTokenPerHour;
-        }
+        uint256 adjustedTxLevel = ucacs[_ucacId].txLevel < currentDecay ? 0 : ucacs[_ucacId].txLevel - currentDecay;
+        return adjustedTxLevel;
+    }
 
-        // check ucac has tx capacity TODO do this check before txLevel is set
-        // does this revert the above changes to txLevel?
-        require(totalStaked >= ucacs[_ucacId].txLevel);
+    function executeUcacTx(bytes32 _ucacId) public {
+        uint256 txLevelBeforeCurrentTx = currentTxLevel(_ucacId);
+        uint256 txLevelAfterCurrentTx = txLevelBeforeCurrentTx + 10 ** 18 / txPerTokenPerHour;
+        require(ucacs[_ucacId].totalStakedTokens >= txLevelAfterCurrentTx);
         ucacs[_ucacId].lastTxTimestamp = now;
+        ucacs[_ucacId].txLevel = txLevelAfterCurrentTx;
     }
 
     /**
