@@ -61,7 +61,7 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
     beforeEach(async function() {
         this.latestTime = h.latestTime();
         this.cpToken = await CPToken.new({from: admin});
-        this.stake = await Stake.new( this.cpToken.address, web3.toBigNumber(2)
+        this.stake = await Stake.new( this.cpToken.address, web3.toBigNumber(2 * 10 ** 9)
                                     , web3.toBigNumber(1), {from: admin});
         this.creditProtocol = await CreditProtocol.new(this.stake.address, {from: admin});
         this.basicUCAC = await BasicUCAC.new({from: admin});

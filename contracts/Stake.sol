@@ -16,7 +16,7 @@ contract Stake is Ownable {
     }
 
     CPToken public token;
-    uint256 public txPerTokenPerHour;
+    uint256 public txPerGigaTokenPerHour; // gigatoken = 10 ^ 9 nominal tokens
     uint256 public tokensToOwnUcac;
 
     mapping (bytes32 => Ucac) public ucacs; // ucacId -> Ucac struct
@@ -24,9 +24,9 @@ contract Stake is Ownable {
     // ucacId -> token owner address -> amount of tokens
     mapping (bytes32 => mapping (address => uint256)) public stakedTokensMap;
 
-    function Stake(address _tokenContract, uint256 _txPerTokenPerHour, uint256 _tokensToOwnUcac) {
+    function Stake(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
         token = CPToken(_tokenContract);
-        txPerTokenPerHour = _txPerTokenPerHour;
+        txPerGigaTokenPerHour = _txPerGigaTokenPerHour;
         tokensToOwnUcac = _tokensToOwnUcac;
     }
 
@@ -34,8 +34,8 @@ contract Stake is Ownable {
         return ucacs[_ucacId].ucacContractAddr;
     }
 
-    function setTxPerTokenPerHour(uint256 _txPerTokenPerHour) public onlyOwner {
-        txPerTokenPerHour = _txPerTokenPerHour;
+    function setTxPerTokenPerHour(uint256 _txPerGigaTokenPerHour) public onlyOwner {
+        txPerGigaTokenPerHour = _txPerGigaTokenPerHour;
     }
 
     function setTokensToOwnUcac(uint256 _tokensToOwnUcac) public onlyOwner {
@@ -51,7 +51,7 @@ contract Stake is Ownable {
 
     function executeUcacTx(bytes32 _ucacId) public {
         uint256 txLevelBeforeCurrentTx = currentTxLevel(_ucacId);
-        uint256 txLevelAfterCurrentTx = txLevelBeforeCurrentTx + 10 ** 18 / txPerTokenPerHour;
+        uint256 txLevelAfterCurrentTx = txLevelBeforeCurrentTx + 10 ** 27 / txPerGigaTokenPerHour;
         require(ucacs[_ucacId].totalStakedTokens >= txLevelAfterCurrentTx);
         ucacs[_ucacId].lastTxTimestamp = now;
         ucacs[_ucacId].txLevel = txLevelAfterCurrentTx;
