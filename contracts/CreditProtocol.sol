@@ -13,7 +13,7 @@ contract CreditProtocol is Ownable {
     mapping(bytes32 => mapping(address => int256)) public balances;
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
-    event IssueDebt(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
+    event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
 
     Stake public stakeContract;
 
@@ -25,7 +25,7 @@ contract CreditProtocol is Ownable {
         return p1 < p2 ? nonces[p1][p2] : nonces[p2][p1];
     }
 
-    function issueDebt( bytes32 ucac, address creditor, address debtor, uint256 amount
+    function issueCredit( bytes32 ucac, address creditor, address debtor, uint256 amount
                       , bytes32 sig1r, bytes32 sig1s, uint8 sig1v
                       , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
                       ) public {
@@ -48,7 +48,7 @@ contract CreditProtocol is Ownable {
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
-        IssueDebt(ucac, creditor, debtor, amount);
+        IssueCredit(ucac, creditor, debtor, amount);
         incrementNonce(creditor, debtor);
     }
 
