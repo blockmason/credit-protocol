@@ -22,17 +22,21 @@ event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexe
 
 ## `Stake.sol`
 
-`Stake.sol` is responsible for registering UCACs and rate-limiting their issuances of credit based on how many BCPT have been staked for that particular UCAC. It maintains a mapping of ucacId -> ucacInfo and is the main resources of users of the Credit Protocol to .
+`Stake.sol` is responsible for registering UCACs and rate-limiting their issuances of credit based on how many BCPT have been staked for that particular UCAC. It maintains a mapping of `ucacId -> Ucac struct` and is the main resources of users of the Credit Protocol to .
 
 Users stake tokens in order to buy ...
 
 ### UCAC information stored by `Stake.sol`
 
 - UCAC contract address
+- total number of tokens staked
+- "txLevel" which is a measure of how many credit transactions have been performed in the recent past. This is used by `Stake.sol` to rate limit transactions based on the number of tokens staked to a particular UCAC
 - timestamp of the last UCAC transaction
 - denomination of credit issued in the UCAC
 
 ### Transaction Levels and their decay
+
+TODO
 
 ## UCAC Contract
 

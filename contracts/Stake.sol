@@ -12,7 +12,7 @@ contract Stake is Ownable {
         uint256 totalStakedTokens;
         uint256 txLevel;
         uint256 lastTxTimestamp;
-        bytes32 denomination; // TODO set this when UCAC is created
+        bytes32 denomination;
     }
 
     CPToken public token;
