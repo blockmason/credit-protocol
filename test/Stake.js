@@ -55,6 +55,4 @@ contract('StakeTest', function([admin, p1, p2, ucacAddr, ucacAddr2]) {
         });
 
     });
-
-
 });
