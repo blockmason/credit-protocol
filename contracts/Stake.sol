@@ -58,16 +58,20 @@ contract Stake is Ownable {
     }
 
     /**
-       @dev msg.sender must have approved Stake contract to transfer enough tokens
+       @dev msg.sender must have approved Stake contract to transfer **exactly** `_tokensToStake` tokens.
+            This design decision is a security precaution since this is a public function and it is desirable
+            to have the token owner to control exactly how many tokens can be transferred to `Stake.sol`,
+            regardless of who calls the function.
      **/
     function createAndStakeUcac( address _ucacContractAddr, bytes32 _ucacId
                                , bytes32 _denomination, uint256 _tokensToStake) public {
-        // check that _ucacId does not point to extant UCAC
+        // check that _ucacContractAddr points to something meaningful
+        require(_ucacContractAddr != address(0));
+        // check that _ucacId does not point to an extant UCAC
         require(ucacs[_ucacId].totalStakedTokens == 0 && ucacs[_ucacId].ucacContractAddr == address(0));
         // checking that initial token staking amount is enough to own a UCAC
         require(_tokensToStake >= tokensToOwnUcac);
         stakeTokensInternal(_ucacId, msg.sender, _tokensToStake);
-        require(_ucacContractAddr != address(0));
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
         ucacs[_ucacId].denomination = _denomination;
     }
@@ -75,7 +79,7 @@ contract Stake is Ownable {
     /* Token staking functionality */
 
     /**
-       @dev msg.sender must have approved Stake contract to transfer enough tokens
+       @dev msg.sender must have approved Stake contract to transfer **exactly** `_numTokens` tokens
      **/
     function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
         require(ucacs[_ucacId].ucacContractAddr != address(0));
