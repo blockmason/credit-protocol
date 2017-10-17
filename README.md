@@ -58,7 +58,7 @@ function allowTransaction(address creditor, address debtor, uint256 amount) publ
 ```
 
 `allowTransaction` is called by `CreditProtocol.sol` in its function `issueCredit`.
-By returning `true`, `allowTransaction` approves the issuance of credit, by
+By returning `true`, `allowTransaction` approves the issuance of credit; by
 returning `false`, `allowTransaction` can block the issuance of credit.
 Typically, a UCAC will use its power to appove transactions to make sure the
 transactions satisfy certain requirements. For example, a UCAC may want to
