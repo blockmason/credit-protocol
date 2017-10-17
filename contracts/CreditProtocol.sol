@@ -11,6 +11,9 @@ contract CreditProtocol is Ownable {
     mapping(address => mapping(address => uint256)) public nonces;
     // ucac -> id -> balance
     mapping(bytes32 => mapping(address => int256)) public balances;
+
+    // the standard prefix appended to 32-byte-long messages when signed by an
+    // Ethereum client
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
     event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
@@ -41,7 +44,7 @@ contract CreditProtocol is Ownable {
         require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
         // checking for underflow
         require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
-        // executeUcacTx will throw if txLimit has been reached or ucac is uninitialized
+        // executeUcacTx will throw if a transaction limit has been reached or the ucac is uninitialized
         stakeContract.executeUcacTx(ucac);
         // check that UCAC contract approves the transaction
         require(BasicUCAC(stakeContract.getUcacAddr(ucac)).allowTransaction(creditor, debtor, amount));
