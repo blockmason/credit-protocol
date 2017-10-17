@@ -14,11 +14,11 @@ the Ethereum blockchain. Credit can be issued under the following conditions:
 a credit record with the private key that corresponds to thier public address
 
 - The UCAC contract which is referenced in the credit record acknowledges that
-the credit record is valid for the particular use case (see section [UCAC
-Contract] for more information)
+the credit record is valid for the particular use case (see section
+[UCAC contract](#UCAC-Contract) for more information)
 
 - Users of the Credit Protocal have staked the UCAC contract with enough BCPT
-to handle the issuance of credit (see section [Stake.sol] for more information)
+to handle the issuance of credit (see section [Stake.sol](#Stake.sol) for more information)
 
 In addition to logging issuances of credit, `CreditProtocol.sol` maintains
 a mapping of nonces for every pair of users that have ever entered into
@@ -30,7 +30,7 @@ a credit relationship, and a mapping of balances for every user per UCAC.
 event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
 ```
 
-### `Stake.sol`
+### Stake.sol
 
 `Stake.sol` is responsible for registering UCACs and rate-limiting their
 issuances of credit based on how many BCPT have been staked for that particular
