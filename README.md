@@ -1,59 +1,70 @@
 # Credit Protocol Smart Contracts
 
-Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt tracking between any two parties.
+Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt
+tracking between any two parties.
 
-## Ropsten Contract Addresses
-### DPData
-* 0x2f6c7dd0966f8aa217425201de970049192bfc7b
+## How the Credit Protocol works
 
-### Friend
-* 0xd1c12718271eb0e02fe45eff5aa08fad7e4d372c
+### CreditProtocol.sol
 
-### Flux Capacitor
-* 0xe43950c736a5b5ed6a72513d0a349e86cc3ffdb8
+`CreditProtocol.sol` is mainly responsible for logging issuances of credit to
+the Ethereum blockchain. Credit can be issued under the following conditions:
 
+- Both parties in a debt relationship cryptographically sign the elements of
+a credit record
 
-### security considerations for UCACs
-* UCACs must verify whether they want a user to add debts between ANY two parties, or only debts they are personally involved in
+- The UCAC contract which is referenced in the credit record acknowledges that
+the credit record is valid for its particular use case (see section
+[UCAC contract](#ucac-contract) for more information)
 
+- Users of the Credit Protocal have staked the UCAC contract with enough BCPT
+to handle the issuance of credit (see section [Stake.sol](#stakesol) for more information)
 
-## DebtData
+In addition to logging issuances of credit, `CreditProtocol.sol` maintains
+a mapping of the credit balances of all users. A unique user balance is
+maintained for every `(UCAC, user)` pair.
+
+#### What is logged
+
 ```
-0xb86341e3330abc4221552635ba20f1e6fbd41c9f
-```
-## FriendData
-```
-0x3719413d1bda8a80f3bcbba49b6c48d5de88a3d7
-```
-## FriendReader
-```
-0xc798d31b0326b666239ba264307684e5551902ae
-```
-## DebtReader
-```
-0x0eb4f311b6a5060a87377662e5b2f042471c72c8
-```
-## Flux
-```
-0x43705df4757191343b7ae24abe6d56ed07686d4f
-```
-## Fid
-```
-0x73ef61d966b60107fc21396ec61395be85972515
-(idUcac)
-0xeedb62eb265d2b42556ecd83324fe020d4731c19 
+event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
 ```
 
+### Stake.sol
 
-Staking notes:
+`Stake.sol` is responsible for registering UCACs and rate-limiting their
+issuances of credit based on how many BCPT they've been staked with. The
+contract maintains a mapping of ucacIds to ucac information records; and is
+primary source of information on registerd UCACs.
 
-Ucacs are indexed by ucacId and contain the following fields:
+#### UCAC information stored by `Stake.sol`
 
-- ucacAddr (contract address; can be changed)
-- ownerId1 (foundationId)
-- ownerId2 (foundationId)
-- numTokens (uint)
+- UCAC contract address
+- total number of tokens staked
+- "txLevel" which is a measure of how many credit transactions have been
+performed in the recent past. This is used by `Stake.sol` to rate limit
+transactions based on the number of tokens staked to a particular UCAC
+- timestamp of the last UCAC transaction
+- denomination of credit issued in the UCAC
 
+### UCAC Contract
 
-##To update:
-- change ucacContract parameters in Flux to bytes32 ucacId
+A UCAC contract, the most basic of which can be seen
+[here](contracts/BasicUCAC.sol), is required to implement a single fuction with
+the following signature:
+
+```
+function allowTransaction(address creditor, address debtor, uint256 amount) public returns (bool)
+```
+
+`allowTransaction` is called by `CreditProtocol.sol` in its function `issueCredit`.
+By returning `true`, `allowTransaction` approves the issuance of credit; by
+returning `false`, `allowTransaction` can block the issuance of credit.
+Typically, a UCAC will use its power to appove transactions to make sure the
+transactions satisfy certain requirements. For example, a UCAC may want to
+block a transaction which involves any party who is too heavily in debt.
+
+## Testing
+
+To run all `testrpc` tests, execute `./runtest.sh`. To run only a specific
+test, execute `./runtest.sh [path-to-test-file]`.

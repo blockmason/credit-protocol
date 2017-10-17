@@ -1,6 +1,7 @@
 pragma solidity 0.4.15;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./BasicUCAC.sol";
 import "./Stake.sol";
 
 contract CreditProtocol is Ownable {
@@ -10,9 +11,12 @@ contract CreditProtocol is Ownable {
     mapping(address => mapping(address => uint256)) public nonces;
     // ucac -> id -> balance
     mapping(bytes32 => mapping(address => int256)) public balances;
+
+    // the standard prefix appended to 32-byte-long messages when signed by an
+    // Ethereum client
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
-    event IssueDebt(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
+    event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
 
     Stake public stakeContract;
 
@@ -24,7 +28,7 @@ contract CreditProtocol is Ownable {
         return p1 < p2 ? nonces[p1][p2] : nonces[p2][p1];
     }
 
-    function issueDebt( bytes32 ucac, address creditor, address debtor, uint256 amount
+    function issueCredit( bytes32 ucac, address creditor, address debtor, uint256 amount
                       , bytes32 sig1r, bytes32 sig1s, uint8 sig1v
                       , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
                       ) public {
@@ -40,13 +44,14 @@ contract CreditProtocol is Ownable {
         require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
         // checking for underflow
         require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
-
-        // executeUcacTx will throw if txLimit has been reached or ucac is uninitialized
+        // executeUcacTx will throw if a transaction limit has been reached or the ucac is uninitialized
         stakeContract.executeUcacTx(ucac);
+        // check that UCAC contract approves the transaction
+        require(BasicUCAC(stakeContract.getUcacAddr(ucac)).allowTransaction(creditor, debtor, amount));
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
-        IssueDebt(ucac, creditor, debtor, amount);
+        IssueCredit(ucac, creditor, debtor, amount);
         incrementNonce(creditor, debtor);
     }
 
