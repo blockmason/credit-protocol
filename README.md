@@ -11,8 +11,12 @@ tracking between any two parties.
 
 ### CreditProtocol.sol
 
-`CreditProtocol.sol` is mainly responsible for logging issuances of credit to
-the Ethereum blockchain. Credit can be issued under the following conditions:
+`CreditProtocol.sol` serves two principle functions
+
+- creating and staking new UCACs
+- logging issuances of credit to the Ethereum blockchain.
+
+Credit can be issued under the following conditions:
 
 - Both parties in a debt relationship cryptographically sign the elements of
 a credit record
@@ -22,7 +26,7 @@ the credit record is valid for its particular use case (see section
 [UCAC contract](#ucac-contract) for more information)
 
 - Users of the Credit Protocal have staked the UCAC contract with enough BCPT
-to handle the issuance of credit (see section [Stake.sol](#stakesol) for more information)
+to handle the issuance of credit (see section [Staking](#staking) for more information)
 
 In addition to logging issuances of credit, `CreditProtocol.sol` maintains
 a mapping of the credit balances of all users. A unique user balance is
@@ -34,19 +38,19 @@ maintained for every `(UCAC, user)` pair.
 event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
 ```
 
-### Stake.sol
+#### Staking
 
-`Stake.sol` is responsible for registering UCACs and rate-limiting their
-issuances of credit based on how many BCPT they've been staked with. The
-contract maintains a mapping of ucacIds to ucac information records; and is
-primary source of information on registerd UCACs.
+As mentioned above, `CreditProtocol.sol` is responsible for registering UCACs
+and rate-limiting their issuances of credit based on how many BCPT they've been
+staked with. The contract maintains a mapping of ucacIds to ucac information
+records; and is primary source of information on registerd UCACs.
 
-#### UCAC information stored by `Stake.sol`
+UCAC information stored by `CreditProtocol.sol`:
 
 - UCAC contract address
 - total number of tokens staked
 - "txLevel" which is a measure of how many credit transactions have been
-performed in the recent past. This is used by `Stake.sol` to rate limit
+performed in the recent past. This is used by CreditProtocol to rate limit
 transactions based on the number of tokens staked to a particular UCAC
 - timestamp of the last UCAC transaction
 - denomination of credit issued in the UCAC
