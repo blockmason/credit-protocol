@@ -107,7 +107,12 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         it("allows two parties to sign a message and issue a debt", async function() {
             // initialize UCAC with minimum staking amount
             await this.cpToken.approve(this.creditProtocol.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
-            await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
+            let txReciept = await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
+            assert.equal(txReciept.logs[0].event, "UcacCreation", "Expected UcacCreation event");
+            assert.equal(txReciept.logs[0].args.ucac, ucacId1, "Incorrect ucacId logged");
+            assert.equal(txReciept.logs[0].args.contractAddr, this.basicUCAC.address, "Incorrect ucac contract address logged");
+
+
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(0);
             nonce = bignumToHexString(nonce);
@@ -118,7 +123,7 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
                                      + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             let sig2 = sign(p2, content2);
-            let txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+            txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
                                            , sig1.r, sig1.s, sig1.v
                                            , sig2.r, sig2.s, sig2.v, {from: p1}).should.be.fulfilled;
             assert.equal(txReciept.logs[0].event, "IssueCredit", "Expected Issue Debt event");

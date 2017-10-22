@@ -36,6 +36,7 @@ contract CreditProtocol is Ownable {
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
     event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
+    event UcacCreation(bytes32 indexed ucac, address indexed contractAddr, bytes32 denomination);
 
     function CreditProtocol(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
         token = CPToken(_tokenContract);
@@ -134,6 +135,7 @@ contract CreditProtocol is Ownable {
         stakeTokensInternal(_ucacId, msg.sender, _tokensToStake);
         ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
         ucacs[_ucacId].denomination = _denomination;
+        UcacCreation(_ucacId, _ucacContractAddr, _denomination);
     }
 
     /* Token staking functionality */
