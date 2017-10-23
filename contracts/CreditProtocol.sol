@@ -89,7 +89,7 @@ contract CreditProtocol is Ownable {
         return ucacs[_ucacId].ucacContractAddr;
     }
 
-    function setTxPerTokenPerHour(uint256 _txPerGigaTokenPerHour) public onlyOwner {
+    function setTxPerGigaTokenPerHour(uint256 _txPerGigaTokenPerHour) public onlyOwner {
         txPerGigaTokenPerHour = _txPerGigaTokenPerHour;
     }
 
