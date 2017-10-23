@@ -85,12 +85,6 @@ contract CreditProtocol is Ownable {
 
     // Staking
 
-    function Stake(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
-        token = CPToken(_tokenContract);
-        txPerGigaTokenPerHour = _txPerGigaTokenPerHour;
-        tokensToOwnUcac = _tokensToOwnUcac;
-    }
-
     function getUcacAddr(bytes32 _ucacId) public constant returns (address) {
         return ucacs[_ucacId].ucacContractAddr;
     }
