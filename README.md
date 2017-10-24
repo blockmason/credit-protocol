@@ -3,9 +3,8 @@
 Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt
 tracking between any two parties.
 
-## Contract Addresses
-* Stake.sol ```0x57d78a7969bbf8d2d7725c215e388958860730cd```
-* CreditProtocol.sol ```0xbd603d1129cb444ab8dedc979328c0183563ee8d```
+## Contract Address
+* CreditProtocol.sol ```0x694a92520101d8f78a7aba2578380628565e3621```
 
 ## How the Credit Protocol works
 
