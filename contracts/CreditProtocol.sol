@@ -49,9 +49,9 @@ contract CreditProtocol is Ownable {
     }
 
     function issueCredit( bytes32 ucac, address creditor, address debtor, uint256 amount
-                      , bytes32 sig1r, bytes32 sig1s, uint8 sig1v
-                      , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
-                      ) public {
+                        , bytes32 sig1r, bytes32 sig1s, uint8 sig1v
+                        , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
+                        ) public {
         require(creditor != debtor);
 
         bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor)));
