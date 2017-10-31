@@ -35,7 +35,7 @@ contract CreditProtocol is Ownable {
     // Ethereum client
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
-    event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount);
+    event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount, bytes32 memo);
     event UcacCreation(bytes32 indexed ucac, address indexed contractAddr, bytes32 denomination);
 
     function CreditProtocol(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
@@ -49,16 +49,17 @@ contract CreditProtocol is Ownable {
     }
 
     function issueCredit( bytes32 ucac, address creditor, address debtor, uint256 amount
-                      , bytes32 sig1r, bytes32 sig1s, uint8 sig1v
-                      , bytes32 sig2r, bytes32 sig2s, uint8 sig2v
-                      ) public {
+                        , bytes32[3] memory sig1
+                        , bytes32[3] memory sig2
+                        , bytes32 memo
+                        ) public {
         require(creditor != debtor);
 
         bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor)));
 
         // verifying signatures
-        require(ecrecover(hash, sig1v, sig1r, sig1s) == creditor);
-        require(ecrecover(hash, sig2v, sig2r, sig2s) == debtor);
+        require(ecrecover(hash, uint8(sig1[2]), sig1[0], sig1[1]) == creditor);
+        require(ecrecover(hash, uint8(sig2[2]), sig2[0], sig2[1]) == debtor);
 
         // checking for overflow
         require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
@@ -71,7 +72,7 @@ contract CreditProtocol is Ownable {
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
-        IssueCredit(ucac, creditor, debtor, amount);
+        IssueCredit(ucac, creditor, debtor, amount, memo);
         incrementNonce(creditor, debtor);
     }
 
@@ -137,10 +138,10 @@ contract CreditProtocol is Ownable {
     /**
        @dev msg.sender must have approved Stake contract to transfer **exactly** `_numTokens` tokens
      **/
-    function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
+    function stakeTokens(bytes32 _ucacId, uint256 _numTokens) public {
         // check that _ucacId points to an extant UCAC
         require(ucacs[_ucacId].ucacContractAddr != address(0));
-        stakeTokensInternal(_ucacId, _stakeholder, _numTokens);
+        stakeTokensInternal(_ucacId, msg.sender, _numTokens);
     }
 
     /**
@@ -153,6 +154,10 @@ contract CreditProtocol is Ownable {
         uint256 updatedStakedTokens = stakedTokensMap[_ucacId][msg.sender].sub(_numTokens);
         stakedTokensMap[_ucacId][msg.sender] = updatedStakedTokens;
         uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
+
+        // updating txLevel to ensure accurate decay calculation
+        ucacs[_ucacId].txLevel = currentTxLevel(_ucacId);
+
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
         token.transfer(msg.sender, _numTokens);
     }
@@ -160,10 +165,13 @@ contract CreditProtocol is Ownable {
     // Private Functions
 
     function stakeTokensInternal(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) private {
-        require(token.allowance(_stakeholder, this) == _numTokens);
         token.transferFrom(_stakeholder, this, _numTokens);
         uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
         stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;
+
+        // updating txLevel to ensure accurate decay calculation
+        ucacs[_ucacId].txLevel = currentTxLevel(_ucacId);
+
         uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
     }
