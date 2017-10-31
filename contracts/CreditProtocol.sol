@@ -138,10 +138,10 @@ contract CreditProtocol is Ownable {
     /**
        @dev msg.sender must have approved Stake contract to transfer **exactly** `_numTokens` tokens
      **/
-    function stakeTokens(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) public {
+    function stakeTokens(bytes32 _ucacId, uint256 _numTokens) public {
         // check that _ucacId points to an extant UCAC
         require(ucacs[_ucacId].ucacContractAddr != address(0));
-        stakeTokensInternal(_ucacId, _stakeholder, _numTokens);
+        stakeTokensInternal(_ucacId, msg.sender, _numTokens);
     }
 
     /**
@@ -165,7 +165,6 @@ contract CreditProtocol is Ownable {
     // Private Functions
 
     function stakeTokensInternal(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) private {
-        require(token.allowance(_stakeholder, this) == _numTokens);
         token.transferFrom(_stakeholder, this, _numTokens);
         uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
         stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;
