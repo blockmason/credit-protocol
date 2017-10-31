@@ -4,7 +4,7 @@ Ethereum Smart Contracts for the Debt Protocol dApp that faciliates debt
 tracking between any two parties.
 
 ## Contract Address
-* CreditProtocol.sol ```0x694a92520101d8f78a7aba2578380628565e3621```
+* CreditProtocol.sol `0x694a92520101d8f78a7aba2578380628565e3621`
 
 ## How the Credit Protocol works
 
@@ -53,6 +53,39 @@ performed in the recent past. This is used by CreditProtocol to rate limit
 transactions based on the number of tokens staked to a particular UCAC
 - timestamp of the last UCAC transaction
 - denomination of credit issued in the UCAC
+
+#### TxDecay Calculation
+
+Only one action can increase a UCAC's transaction level `txLevel`, i.e. issuing
+credit successfully via a call to the CreditProtocol's `issueCredit` function.
+The logic for increasing a UCAC's txLevel is contained in the `executeUcacTx`
+function.
+
+```
+uint256 txLevelBeforeCurrentTx = currentTxLevel(_ucacId);
+uint256 txLevelAfterCurrentTx = txLevelBeforeCurrentTx + 10 ** 27 / txPerGigaTokenPerHour;
+```
+
+The owner of the CreditProcol contract is able to set the value of
+`txPerGigaTorkenPerHour`. This value determines the amount which every
+transaction increases the txLevel, which, as shown above, is equal to
+`10 ** 27 / txPerGigaTokenPerHour`.
+
+Two actions can change the rate at which txLevel decays, specifically,
+unstaking tokens from a UCAC and staking tokens to a UCAC. The txDecay rate is
+independent of the value of `txPerGigaTokenPerHour`. The value of
+`currentDecay` is calculated precisely to ensure that over the course of one
+hour, a txLevel of `ucacs[_ucacId].totalStakedTokens` would decay to zero in
+one hour (3600 seconds).
+
+```
+function currentTxLevel(bytes32 _ucacId) public constant returns (uint256) {
+    uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
+    uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacId].lastTxTimestamp);
+    uint256 adjustedTxLevel = ucacs[_ucacId].txLevel < currentDecay ? 0 : ucacs[_ucacId].txLevel - currentDecay;
+    return adjustedTxLevel;
+}
+```
 
 ### UCAC Contract
 
