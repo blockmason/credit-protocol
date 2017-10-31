@@ -154,6 +154,10 @@ contract CreditProtocol is Ownable {
         uint256 updatedStakedTokens = stakedTokensMap[_ucacId][msg.sender].sub(_numTokens);
         stakedTokensMap[_ucacId][msg.sender] = updatedStakedTokens;
         uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
+
+        // updating txLevel to ensure accurate decay calculation
+        ucacs[_ucacId].txLevel = currentTxLevel(_ucacId);
+
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
         token.transfer(msg.sender, _numTokens);
     }
@@ -165,6 +169,10 @@ contract CreditProtocol is Ownable {
         token.transferFrom(_stakeholder, this, _numTokens);
         uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
         stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;
+
+        // updating txLevel to ensure accurate decay calculation
+        ucacs[_ucacId].txLevel = currentTxLevel(_ucacId);
+
         uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
         ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
     }
