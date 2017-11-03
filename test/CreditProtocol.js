@@ -185,6 +185,28 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
             debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
         });
+
+        it("allows multiple parties to sign messages and issue bulk debts", async function() {
+            // initialize UCAC with minimum staking amount
+            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
+            await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
+
+            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+            nonce.should.be.bignumber.equal(0);
+            nonce = bignumToHexString(nonce);
+            let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
+            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            let sig1 = sign(p1, content1);
+            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            let sig2 = sign(p2, content2);
+            txReciept = await this.creditProtocol.issueBulkCredit( ucacId1, [ p1 ], [ p2 ], [ amount ]
+                                                                 , [ sig1.r, sig1.s, sig1.v ]
+                                                                 , [ sig2.r, sig2.s, sig2.v ]
+                                                                 , [ testMemo ]
+                                                                 , {from: p1}).should.be.fulfilled;
+        });
     });
 
     describe("txLevel decay", () => {
