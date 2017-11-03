@@ -76,6 +76,44 @@ contract CreditProtocol is Ownable {
         incrementNonce(creditor, debtor);
     }
 
+    function issueBulkCredit( bytes32 ucac
+                            , address[] memory creditors, address[] memory debtors, uint256[] memory amounts
+                            , bytes32[] memory sig1 // 3 per record
+                            , bytes32[] memory sig2 // 3 per record
+                            , bytes32[] memos
+                            ) public {
+        require( creditors.length == debtors.length
+              && creditors.length == amounts.length
+              && creditors.length == memos.length
+              && creditors.length == sig1.length / 3
+              && creditors.length == sig2.length / 3 );
+
+        for (uint256 i = 0; i < creditors.length; i++) {
+            require(creditors[i] != debtors[i]);
+
+            bytes32 hash = keccak256(prefix, keccak256(ucac, creditors[i], debtors[i], amounts[i], getNonce(creditors[i], debtors[i])));
+
+            // verifying signatures
+            require(ecrecover(hash, uint8(sig1[3 * i + 2]), sig1[3 * i], sig1[3 * i + 1]) == creditors[i]);
+            require(ecrecover(hash, uint8(sig2[3 * i + 2]), sig2[3 * i], sig2[3 * i + 1]) == debtors[i]);
+
+            // checking for overflow
+            require(balances[ucac][creditors[i]] < balances[ucac][creditors[i]] + int256(amounts[i]));
+            // checking for underflow
+            require(balances[ucac][debtors[i]] > balances[ucac][debtors[i]] - int256(amounts[i]));
+            // executeUcacTx will throw if a transaction limit has been reached or the ucac is uninitialized
+            executeUcacTx(ucac);
+            // check that UCAC contract approves the transaction
+            require(BasicUCAC(getUcacAddr(ucac)).allowTransaction(creditors[i], debtors[i], amounts[i]));
+
+            balances[ucac][creditors[i]] = balances[ucac][creditors[i]] + int256(amounts[i]);
+            balances[ucac][debtors[i]] = balances[ucac][debtors[i]] - int256(amounts[i]);
+            IssueCredit(ucac, creditors[i], debtors[i], amounts[i], memos[i]);
+            incrementNonce(creditors[i], debtors[i]);
+        }
+    }
+
+
     function incrementNonce(address p1, address p2) private {
         if (p1 < p2) {
             nonces[p1][p2] = nonces[p1][p2] + 1;
