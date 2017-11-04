@@ -91,7 +91,8 @@ contract CreditProtocol is Ownable {
         for (uint256 i = 0; i < creditors.length; i++) {
             require(creditors[i] != debtors[i]);
 
-            bytes32 hash = keccak256(prefix, keccak256(ucac, creditors[i], debtors[i], amounts[i], getNonce(creditors[i], debtors[i])));
+            bytes32 hash = keccak256(prefix, keccak256( ucac, creditors[i], debtors[i], amounts[i]
+                                                      , getNonce(creditors[i], debtors[i])));
 
             // verifying signatures
             require(ecrecover(hash, uint8(sig1[3 * i + 2]), sig1[3 * i], sig1[3 * i + 1]) == creditors[i]);

@@ -124,12 +124,10 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             nonce.should.be.bignumber.equal(0);
             nonce = bignumToHexString(nonce);
             let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+            let content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
                                      + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig1 = sign(p1, content1);
-            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig2 = sign(p2, content2);
+            let sig1 = sign(p1, content);
+            let sig2 = sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
@@ -150,12 +148,10 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
             nonce = bignumToHexString(nonce);
-            content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig1 = sign(p1, content1);
-            content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig2 = sign(p2, content2);
+            content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                              + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            sig1 = sign(p1, content);
+            sig2 = sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
@@ -169,12 +165,10 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(2);
             nonce = bignumToHexString(nonce);
-            content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig1 = sign(p1, content1);
-            content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig2 = sign(p2, content2);
+            content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                              + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+            sig1 = sign(p1, content);
+            sig2 = sign(p2, content);
             // tx per hour = 2, so a 3rd should fail
             await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
@@ -188,24 +182,30 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
 
         it("allows multiple parties to sign messages and issue bulk debts", async function() {
             // initialize UCAC with minimum staking amount
-            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
-            await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
+            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(5), {from: p1}).should.be.fulfilled;
+            await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(5), {from: p1}).should.be.fulfilled;
+            let nonce1 = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+            let nonce2 = bignumToHexString(nonce1.add(1));
+            nonce1 = bignumToHexString(nonce1);
+            let amount = '0x0000000000000000000000000000000000000000000000000000000000000b1a';
+            let content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                  + amount.substr(2, amount.length) + nonce1.substr(2, nonce1.length);
+            let sig1 = sign(p1, content);
+            let sig2 = sign(p2, content);
 
-            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce.should.be.bignumber.equal(0);
-            nonce = bignumToHexString(nonce);
-            let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig1 = sign(p1, content1);
+            let amount2 = '0x0000000000000000000000000000000000000400000000020010000000000b1a';
             let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig2 = sign(p2, content2);
-            txReciept = await this.creditProtocol.issueBulkCredit( ucacId1, [ p1 ], [ p2 ], [ amount ]
-                                                                 , [ sig1.r, sig1.s, sig1.v ]
-                                                                 , [ sig2.r, sig2.s, sig2.v ]
-                                                                 , [ testMemo ]
-                                                                 , {from: p1}).should.be.fulfilled;
+                                   + amount2.substr(2, amount2.length) + nonce2.substr(2, nonce2.length);
+            let sig1_2 = sign(p1, content2);
+            let sig2_2 = sign(p2, content2);
+
+            txReciept = await this.creditProtocol.issueBulkCredit( ucacId1, [ p1 , p1 ] , [ p2 , p2 ] , [ amount , amount2 ]
+                                           , [ sig1.r, sig1.s, sig1.v
+                                             , sig1_2.r, sig1_2.s, sig1_2.v ]
+                                           , [ sig2.r, sig2.s, sig2.v
+                                             , sig2_2.r, sig2_2.s, sig2_2.v ]
+                                           , [ testMemo , testMemo ]
+                                           , {from: p1}).should.be.fulfilled;
         });
     });
 
@@ -304,10 +304,10 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
             nonce.should.be.bignumber.equal(2);
             nonce = bignumToHexString(nonce);
             content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+                               + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             sig1 = sign(p1, content1);
             content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+                               + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
             sig2 = sign(p2, content2);
             txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
                                        , [ sig1.r, sig1.s, sig1.v ]
