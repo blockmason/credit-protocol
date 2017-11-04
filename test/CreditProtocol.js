@@ -83,295 +83,333 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         await this.cpToken.endSale();
     });
 
-    describe("Staking", () => {
+    // describe("Staking", () => {
 
-        it("`stakeTokens` stakes appropriate number of tokens for initialized ucacs", async function() {
-            const postCreationStake = web3.toBigNumber(web3.toWei(100));
-            await this.cpToken.approve( this.creditProtocol.address
-                                      , creationStake
-                                      , {from: p1}).should.be.fulfilled;
-            // stakeTokens call rejected prior to initialization
-            await this.creditProtocol.stakeTokens(ucacId2, creationStake, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            await this.creditProtocol.createAndStakeUcac(ucacAddr, ucacId2, usd, creationStake, {from: p1}).should.be.fulfilled;
-            await this.cpToken.approve( this.creditProtocol.address
-                                      , postCreationStake
-                                      , {from: p1}).should.be.fulfilled;
-            // stakeTokens call successful post-initialization
-            await this.creditProtocol.stakeTokens(ucacId2, postCreationStake, {from: p1}).should.be.fulfilled;
-            const a = await this.creditProtocol.ucacs(ucacId2).should.be.fulfilled;
-            a[1].should.be.bignumber.equal(creationStake.add(postCreationStake));
-            // tokens can be unstaked
-            await this.creditProtocol.unstakeTokens(ucacId2, postCreationStake, {from: p1}).should.be.fulfilled;
-            const b = await this.creditProtocol.ucacs(ucacId2).should.be.fulfilled;
-            b[1].should.be.bignumber.equal(creationStake);
-            const userTokens = await this.cpToken.balanceOf(p1);
-            userTokens.should.be.bignumber.equal(mintAmount.sub(creationStake));
-        });
+    //     it("`stakeTokens` stakes appropriate number of tokens for initialized ucacs", async function() {
+    //         const postCreationStake = web3.toBigNumber(web3.toWei(100));
+    //         await this.cpToken.approve( this.creditProtocol.address
+    //                                   , creationStake
+    //                                   , {from: p1}).should.be.fulfilled;
+    //         // stakeTokens call rejected prior to initialization
+    //         await this.creditProtocol.stakeTokens(ucacId2, creationStake, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+    //         await this.creditProtocol.createAndStakeUcac(ucacAddr, ucacId2, usd, creationStake, {from: p1}).should.be.fulfilled;
+    //         await this.cpToken.approve( this.creditProtocol.address
+    //                                   , postCreationStake
+    //                                   , {from: p1}).should.be.fulfilled;
+    //         // stakeTokens call successful post-initialization
+    //         await this.creditProtocol.stakeTokens(ucacId2, postCreationStake, {from: p1}).should.be.fulfilled;
+    //         const a = await this.creditProtocol.ucacs(ucacId2).should.be.fulfilled;
+    //         a[1].should.be.bignumber.equal(creationStake.add(postCreationStake));
+    //         // tokens can be unstaked
+    //         await this.creditProtocol.unstakeTokens(ucacId2, postCreationStake, {from: p1}).should.be.fulfilled;
+    //         const b = await this.creditProtocol.ucacs(ucacId2).should.be.fulfilled;
+    //         b[1].should.be.bignumber.equal(creationStake);
+    //         const userTokens = await this.cpToken.balanceOf(p1);
+    //         userTokens.should.be.bignumber.equal(mintAmount.sub(creationStake));
+    //     });
 
-    });
+    // });
 
     describe("Debt Creation", () => {
-        it("allows two parties to sign a message and issue a debt", async function() {
+        // it("allows two parties to sign a message and issue a debt", async function() {
+        //     // initialize UCAC with minimum staking amount
+        //     await this.cpToken.approve(this.creditProtocol.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
+        //     let txReciept = await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
+        //     assert.equal(txReciept.logs[0].event, "UcacCreation", "Expected UcacCreation event");
+        //     assert.equal(txReciept.logs[0].args.ucac, ucacId1, "Incorrect ucacId logged");
+        //     assert.equal(txReciept.logs[0].args.contractAddr, this.basicUCAC.address, "Incorrect ucac contract address logged");
+        //     let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+        //     nonce.should.be.bignumber.equal(0);
+        //     nonce = bignumToHexString(nonce);
+        //     let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
+        //     let content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+        //                              + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+        //     let sig1 = sign(p1, content);
+        //     let sig2 = sign(p2, content);
+        //     txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+        //                                    , [ sig1.r, sig1.s, sig1.v ]
+        //                                    , [ sig2.r, sig2.s, sig2.v ]
+        //                                    , testMemo
+        //                                    , {from: p1}).should.be.fulfilled;
+        //     assert.equal(txReciept.logs[0].event, "IssueCredit", "Expected Issue Debt event");
+        //     assert.equal(txReciept.logs[0].args.debtor, p2, "Incorrect debtor logged");
+        //     assert.equal(txReciept.logs[0].args.creditor, p1, "Incorrect creditor logged");
+        //     assert.equal(txReciept.logs[0].args.ucac, ucacId1, "Incorrect ucac logged");
+        //     assert.equal(txReciept.logs[0].args.memo, fillBytes32(testMemo), "Incorrect memo logged");
+
+        //     let debtCreated = await this.creditProtocol.balances(ucacId1, p1);
+        //     debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount));
+        //     let debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
+        //     debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).neg());
+
+        //     // create 2nd debt
+        //     nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+        //     nonce.should.be.bignumber.equal(1);
+        //     nonce = bignumToHexString(nonce);
+        //     content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+        //                       + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+        //     sig1 = sign(p1, content);
+        //     sig2 = sign(p2, content);
+        //     txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+        //                                    , [ sig1.r, sig1.s, sig1.v ]
+        //                                    , [ sig2.r, sig2.s, sig2.v ]
+        //                                    , testMemo, {from: p1}).should.be.fulfilled;
+        //     console.log(txReciept);
+        //     assert.equal(txReciept.logs[0].event, "IssueCredit", "Expected Issue Debt event");
+        //     debtCreated = await this.creditProtocol.balances(ucacId1, p1);
+        //     debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
+        //     debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
+        //     debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
+        //     // fail to create 3rd debt
+        //     nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+        //     nonce.should.be.bignumber.equal(2);
+        //     nonce = bignumToHexString(nonce);
+        //     content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+        //                       + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+        //     sig1 = sign(p1, content);
+        //     sig2 = sign(p2, content);
+        //     // tx per hour = 2, so a 3rd should fail
+        //     await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+        //                                    , [ sig1.r, sig1.s, sig1.v ]
+        //                                    , [ sig2.r, sig2.s, sig2.v ]
+        //                                    , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+        //     debtCreated = await this.creditProtocol.balances(ucacId1, p1);
+        //     debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
+        //     debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
+        //     debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
+        // });
+
+        // it("allows multiple parties to sign messages and issue bulk debts", async function() {
+        //     // initialize UCAC with minimum staking amount
+        //     await this.cpToken.approve(this.creditProtocol.address, web3.toWei(5), {from: p1}).should.be.fulfilled;
+        //     await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(5), {from: p1}).should.be.fulfilled;
+        //     let nonce1 = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+        //     let nonce2 = bignumToHexString(nonce1.add(1));
+        //     nonce1 = bignumToHexString(nonce1);
+        //     let amount = '0x0000000000000000000000000000000000000000000000000000000000000b1a';
+        //     let content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+        //                           + amount.substr(2, amount.length) + nonce1.substr(2, nonce1.length);
+        //     let sig1 = sign(p1, content);
+        //     let sig2 = sign(p2, content);
+
+        //     let amount2 = '0x0000000000000000000000000000000000000400000000020010000000000b1a';
+        //     let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+        //                            + amount2.substr(2, amount2.length) + nonce2.substr(2, nonce2.length);
+        //     let sig1_2 = sign(p1, content2);
+        //     let sig2_2 = sign(p2, content2);
+
+        //     txReciept = await this.creditProtocol.issueBulkCredit( ucacId1, [ p1 , p1 ] , [ p2 , p2 ] , [ amount , amount2 ]
+        //                                    , [ sig1.r, sig1.s, sig1.v
+        //                                      , sig1_2.r, sig1_2.s, sig1_2.v ]
+        //                                    , [ sig2.r, sig2.s, sig2.v
+        //                                      , sig2_2.r, sig2_2.s, sig2_2.v ]
+        //                                    , [ testMemo , testMemo ]
+        //                                    , {from: p1}).should.be.fulfilled;
+        //     console.log(txReciept);
+        // });
+
+        it("gas usage increases at a monotonically decreasing rate as the number of bulk records increases", async function() {
             // initialize UCAC with minimum staking amount
-            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
-            let txReciept = await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
-            assert.equal(txReciept.logs[0].event, "UcacCreation", "Expected UcacCreation event");
-            assert.equal(txReciept.logs[0].args.ucac, ucacId1, "Incorrect ucacId logged");
-            assert.equal(txReciept.logs[0].args.contractAddr, this.basicUCAC.address, "Incorrect ucac contract address logged");
+            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(10000), {from: p1}).should.be.fulfilled;
+            await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(10000), {from: p1}).should.be.fulfilled;
 
+            for (var i = 1; i < 30; i++) {
+                var creditors = [];
+                var debtors = [];
+                var amounts = [];
+                var sig1s = [];
+                var sig2s = [];
+                var memos = [];
+                var startNonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
 
-            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce.should.be.bignumber.equal(0);
-            nonce = bignumToHexString(nonce);
-            let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-            let content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig1 = sign(p1, content);
-            let sig2 = sign(p2, content);
-            txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                           , [ sig1.r, sig1.s, sig1.v ]
-                                           , [ sig2.r, sig2.s, sig2.v ]
-                                           , testMemo
-                                           , {from: p1}).should.be.fulfilled;
-            assert.equal(txReciept.logs[0].event, "IssueCredit", "Expected Issue Debt event");
-            assert.equal(txReciept.logs[0].args.debtor, p2, "Incorrect debtor logged");
-            assert.equal(txReciept.logs[0].args.creditor, p1, "Incorrect creditor logged");
-            assert.equal(txReciept.logs[0].args.ucac, ucacId1, "Incorrect ucac logged");
-            assert.equal(txReciept.logs[0].args.memo, fillBytes32(testMemo), "Incorrect memo logged");
+                for (var j = 0; j < i; j++) {
+                    let nonce = bignumToHexString(web3.toBigNumber(j).add(startNonce));
+                    let amount = '0x0000000000000000000000000000000000000000000000000000000000000b1a';
+                    let content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+                                          + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+                    let sig1 = sign(p1, content);
+                    let sig2 = sign(p2, content);
 
-            let debtCreated = await this.creditProtocol.balances(ucacId1, p1);
-            debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount));
-            let debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
-            debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).neg());
+                    creditors.push(p1);
+                    debtors.push(p2);
+                    amounts.push(amount);
+                    memos.push(testMemo);
+                    sig1s = sig1s.concat([ sig1.r, sig1.s, sig1.v ]);
+                    sig2s = sig2s.concat([ sig2.r, sig2.s, sig2.v ]);
+                }
 
-            // create 2nd debt
-            nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce.should.be.bignumber.equal(1);
-            nonce = bignumToHexString(nonce);
-            content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                              + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig1 = sign(p1, content);
-            sig2 = sign(p2, content);
-            txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                           , [ sig1.r, sig1.s, sig1.v ]
-                                           , [ sig2.r, sig2.s, sig2.v ]
-                                           , testMemo, {from: p1}).should.be.fulfilled;
-            assert.equal(txReciept.logs[0].event, "IssueCredit", "Expected Issue Debt event");
-            debtCreated = await this.creditProtocol.balances(ucacId1, p1);
-            debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
-            debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
-            debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
-            // fail to create 3rd debt
-            nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce.should.be.bignumber.equal(2);
-            nonce = bignumToHexString(nonce);
-            content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                              + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig1 = sign(p1, content);
-            sig2 = sign(p2, content);
-            // tx per hour = 2, so a 3rd should fail
-            await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                           , [ sig1.r, sig1.s, sig1.v ]
-                                           , [ sig2.r, sig2.s, sig2.v ]
-                                           , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-            debtCreated = await this.creditProtocol.balances(ucacId1, p1);
-            debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2));
-            debtCreated2 = await this.creditProtocol.balances(ucacId1, p2);
-            debtCreated2.should.be.bignumber.equal(web3.toBigNumber(amount).mul(2).neg());
-        });
-
-        it("allows multiple parties to sign messages and issue bulk debts", async function() {
-            // initialize UCAC with minimum staking amount
-            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(5), {from: p1}).should.be.fulfilled;
-            await this.creditProtocol.createAndStakeUcac(this.basicUCAC.address, ucacId1, usd, web3.toWei(5), {from: p1}).should.be.fulfilled;
-            let nonce1 = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            let nonce2 = bignumToHexString(nonce1.add(1));
-            nonce1 = bignumToHexString(nonce1);
-            let amount = '0x0000000000000000000000000000000000000000000000000000000000000b1a';
-            let content = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                  + amount.substr(2, amount.length) + nonce1.substr(2, nonce1.length);
-            let sig1 = sign(p1, content);
-            let sig2 = sign(p2, content);
-
-            let amount2 = '0x0000000000000000000000000000000000000400000000020010000000000b1a';
-            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                   + amount2.substr(2, amount2.length) + nonce2.substr(2, nonce2.length);
-            let sig1_2 = sign(p1, content2);
-            let sig2_2 = sign(p2, content2);
-
-            txReciept = await this.creditProtocol.issueBulkCredit( ucacId1, [ p1 , p1 ] , [ p2 , p2 ] , [ amount , amount2 ]
-                                           , [ sig1.r, sig1.s, sig1.v
-                                             , sig1_2.r, sig1_2.s, sig1_2.v ]
-                                           , [ sig2.r, sig2.s, sig2.v
-                                             , sig2_2.r, sig2_2.s, sig2_2.v ]
-                                           , [ testMemo , testMemo ]
-                                           , {from: p1}).should.be.fulfilled;
-        });
-    });
-
-    describe("txLevel decay", () => {
-        beforeEach(async function() {
-            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
-            await this.creditProtocol.createAndStakeUcac( this.basicUCAC.address
-                                               , ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
-        });
-
-        it("as time passes, txLevel decays as expected", async function() {
-            // do one tx
-            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce = bignumToHexString(nonce);
-            let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig1 = sign(p1, content1);
-            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig2 = sign(p2, content2);
-            let txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                           , [ sig1.r, sig1.s, sig1.v ]
-                                           , [ sig2.r, sig2.s, sig2.v ]
-                                           , testMemo, {from: p1}).should.be.fulfilled;
-            let txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.equal(web3.toWei(0.5));
-
-
-            // 30 minutes pass, txLevel should be less than totalTokensStaked / 2
-            await h.increaseTimeTo(this.latestTime + h.duration.minutes(30));
-            txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.lt(web3.toWei(0.25));
-
-            // 1 hour passes, txLevel should = 0
-            await h.increaseTimeTo(this.latestTime + h.duration.hours(1));
-            txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.equal(0);
-        });
-
-        it("if a user unstakes tokens s.t. txLevel > totalStakedTokens, txs are rejected", async function() {
-            let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-
-            // do one tx
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            let txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.equal(web3.toWei(0.5));
-
-            // user unstakes 0.1 tokens
-            await this.creditProtocol.unstakeTokens(ucacId1, web3.toWei(0.1), {from: p1}).should.be.fulfilled;
-
-            // user is unable to perform an additional tx
-
-            nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce.should.be.bignumber.equal(1);
-            nonce = bignumToHexString(nonce);
-            content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig1 = sign(p1, content1);
-            content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig2 = sign(p2, content2);
-            txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                           , [ sig1.r, sig1.s, sig1.v ]
-                                           , [ sig2.r, sig2.s, sig2.v ]
-                                           , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-        });
-
-        it("if txLevel > totalStakedTokens, user can stake more tokens and then successfully tx", async function() {
-            // two txs are performed (the max given 1 staked token)
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-
-            // user fails to perform an additional tx
-            let amount = '0x0000000000000000000000000000000000000000000000000000000000000cba';
-            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce.should.be.bignumber.equal(2);
-            nonce = bignumToHexString(nonce);
-            let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig1 = sign(p1, content1);
-            let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                     + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            let sig2 = sign(p2, content2);
-            let txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                           , [ sig1.r, sig1.s, sig1.v ]
-                                           , [ sig2.r, sig2.s, sig2.v ]
-                                           , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
-
-            // user stakes 0.5 additional tokens
-            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(0.5), {from: p1}).should.be.fulfilled;
-            await this.creditProtocol.stakeTokens(ucacId1, web3.toWei(0.5), {from: p1}).should.be.fulfilled;
-
-            // user successfully performs and addtional tx
-            nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce.should.be.bignumber.equal(2);
-            nonce = bignumToHexString(nonce);
-            content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                               + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig1 = sign(p1, content1);
-            content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                               + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig2 = sign(p2, content2);
-            txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
-                                       , [ sig1.r, sig1.s, sig1.v ]
-                                       , [ sig2.r, sig2.s, sig2.v ]
-                                       , testMemo, {from: p1}).should.be.fulfilled;
+                txReciept = await this.creditProtocol.issueBulkCredit( ucacId1, creditors , debtors , amounts
+                                                                     , sig1s , sig2s , memos
+                                                                     , {from: p1}).should.be.fulfilled;
+                console.log("records: " + i +  ", gas: " + txReciept.receipt.gasUsed + ", cost per record: " + txReciept.receipt.gasUsed / i + "\n");
+            }
         });
 
     });
 
-    describe("more txLevel decay", () => {
+    // describe("txLevel decay", () => {
+    //     beforeEach(async function() {
+    //         await this.cpToken.approve(this.creditProtocol.address, web3.toWei(1), {from: p1}).should.be.fulfilled;
+    //         await this.creditProtocol.createAndStakeUcac( this.basicUCAC.address
+    //                                            , ucacId1, usd, web3.toWei(1), {from: p1}).should.be.fulfilled;
+    //     });
 
-        beforeEach(async function() {
-            await this.cpToken.approve(this.creditProtocol.address, web3.toWei(2), {from: p1}).should.be.fulfilled;
-            await this.creditProtocol.createAndStakeUcac( this.basicUCAC.address
-                                               , ucacId1, usd, web3.toWei(2), {from: p1}).should.be.fulfilled;
-        });
+    //     it("as time passes, txLevel decays as expected", async function() {
+    //         // do one tx
+    //         let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+    //         nonce = bignumToHexString(nonce);
+    //         let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
+    //         let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                                  + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         let sig1 = sign(p1, content1);
+    //         let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                                  + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         let sig2 = sign(p2, content2);
+    //         let txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+    //                                        , [ sig1.r, sig1.s, sig1.v ]
+    //                                        , [ sig2.r, sig2.s, sig2.v ]
+    //                                        , testMemo, {from: p1}).should.be.fulfilled;
+    //         let txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.equal(web3.toWei(0.5));
 
-        it("precise txLevel decay tests with chaning decay rates due to staking & unstaking", async function() {
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            let txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(1.5)).sub(web3.toWei(0.001)));
-            txLevel.should.be.bignumber.lt(web3.toBigNumber(web3.toWei(1.5)).add(web3.toWei(0.001)));
 
-            // 30 minutes pass, txLevel should be roughly equal to (1 / 4) * totalTokensStaked.
-            await h.increaseTimeTo(this.latestTime + h.duration.minutes(30));
-            txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(0.5)).sub(web3.toWei(0.001)));
-            txLevel.should.be.bignumber.lt(web3.toBigNumber(web3.toWei(0.5)).add(web3.toWei(0.001)));
+    //         // 30 minutes pass, txLevel should be less than totalTokensStaked / 2
+    //         await h.increaseTimeTo(this.latestTime + h.duration.minutes(30));
+    //         txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.lt(web3.toWei(0.25));
 
-            // 1 hour passes, txLevel should = 0
-            await h.increaseTimeTo(this.latestTime + h.duration.hours(1));
-            txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.equal(0);
+    //         // 1 hour passes, txLevel should = 0
+    //         await h.increaseTimeTo(this.latestTime + h.duration.hours(1));
+    //         txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.equal(0);
+    //     });
 
-            // max out txLevel with four transactions
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //     it("if a user unstakes tokens s.t. txLevel > totalStakedTokens, txs are rejected", async function() {
+    //         let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
 
-            // txLevel should be maxed out
-            txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(2)).sub(web3.toWei(0.001)));
-            txLevel.should.be.bignumber.lte(web3.toBigNumber(web3.toWei(2)));
+    //         // do one tx
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         let txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.equal(web3.toWei(0.5));
 
-            // decay for 30 minutes at normal rate
-            await h.increaseTimeTo(this.latestTime + h.duration.minutes(90));
-            txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(1)).sub(web3.toWei(0.001)));
-            txLevel.should.be.bignumber.lt(web3.toBigNumber(web3.toWei(1)).add(web3.toWei(0.001)));
+    //         // user unstakes 0.1 tokens
+    //         await this.creditProtocol.unstakeTokens(ucacId1, web3.toWei(0.1), {from: p1}).should.be.fulfilled;
 
-            // double amount of staked tokens
-            await this.cpToken.approve( this.creditProtocol.address
-                                      , web3.toWei(2)
-                                      , {from: p1}).should.be.fulfilled;
-            // stakeTokens call successful post-initialization
-            await this.creditProtocol.stakeTokens(ucacId1, web3.toWei(2), {from: p1}).should.be.fulfilled;
+    //         // user is unable to perform an additional tx
 
-            // advance 15 minutes and show that txLevel has hit 0
-            await h.increaseTimeTo(this.latestTime + h.duration.minutes(105));
-            txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
-            txLevel.should.be.bignumber.equal(0);
-        });
-    });
+    //         nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+    //         nonce.should.be.bignumber.equal(1);
+    //         nonce = bignumToHexString(nonce);
+    //         content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                              + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         sig1 = sign(p1, content1);
+    //         content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                              + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         sig2 = sign(p2, content2);
+    //         txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+    //                                        , [ sig1.r, sig1.s, sig1.v ]
+    //                                        , [ sig2.r, sig2.s, sig2.v ]
+    //                                        , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+    //     });
+
+    //     it("if txLevel > totalStakedTokens, user can stake more tokens and then successfully tx", async function() {
+    //         // two txs are performed (the max given 1 staked token)
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+
+    //         // user fails to perform an additional tx
+    //         let amount = '0x0000000000000000000000000000000000000000000000000000000000000cba';
+    //         let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+    //         nonce.should.be.bignumber.equal(2);
+    //         nonce = bignumToHexString(nonce);
+    //         let content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                                  + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         let sig1 = sign(p1, content1);
+    //         let content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                                  + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         let sig2 = sign(p2, content2);
+    //         let txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+    //                                        , [ sig1.r, sig1.s, sig1.v ]
+    //                                        , [ sig2.r, sig2.s, sig2.v ]
+    //                                        , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
+
+    //         // user stakes 0.5 additional tokens
+    //         await this.cpToken.approve(this.creditProtocol.address, web3.toWei(0.5), {from: p1}).should.be.fulfilled;
+    //         await this.creditProtocol.stakeTokens(ucacId1, web3.toWei(0.5), {from: p1}).should.be.fulfilled;
+
+    //         // user successfully performs and addtional tx
+    //         nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+    //         nonce.should.be.bignumber.equal(2);
+    //         nonce = bignumToHexString(nonce);
+    //         content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                            + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         sig1 = sign(p1, content1);
+    //         content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
+    //                            + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
+    //         sig2 = sign(p2, content2);
+    //         txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+    //                                    , [ sig1.r, sig1.s, sig1.v ]
+    //                                    , [ sig2.r, sig2.s, sig2.v ]
+    //                                    , testMemo, {from: p1}).should.be.fulfilled;
+    //     });
+
+    // });
+
+    // describe("more txLevel decay", () => {
+
+    //     beforeEach(async function() {
+    //         await this.cpToken.approve(this.creditProtocol.address, web3.toWei(2), {from: p1}).should.be.fulfilled;
+    //         await this.creditProtocol.createAndStakeUcac( this.basicUCAC.address
+    //                                            , ucacId1, usd, web3.toWei(2), {from: p1}).should.be.fulfilled;
+    //     });
+
+    //     it("precise txLevel decay tests with chaning decay rates due to staking & unstaking", async function() {
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         let txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(1.5)).sub(web3.toWei(0.001)));
+    //         txLevel.should.be.bignumber.lt(web3.toBigNumber(web3.toWei(1.5)).add(web3.toWei(0.001)));
+
+    //         // 30 minutes pass, txLevel should be roughly equal to (1 / 4) * totalTokensStaked.
+    //         await h.increaseTimeTo(this.latestTime + h.duration.minutes(30));
+    //         txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(0.5)).sub(web3.toWei(0.001)));
+    //         txLevel.should.be.bignumber.lt(web3.toBigNumber(web3.toWei(0.5)).add(web3.toWei(0.001)));
+
+    //         // 1 hour passes, txLevel should = 0
+    //         await h.increaseTimeTo(this.latestTime + h.duration.hours(1));
+    //         txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.equal(0);
+
+    //         // max out txLevel with four transactions
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
+    //         txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+
+    //         // txLevel should be maxed out
+    //         txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(2)).sub(web3.toWei(0.001)));
+    //         txLevel.should.be.bignumber.lte(web3.toBigNumber(web3.toWei(2)));
+
+    //         // decay for 30 minutes at normal rate
+    //         await h.increaseTimeTo(this.latestTime + h.duration.minutes(90));
+    //         txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(1)).sub(web3.toWei(0.001)));
+    //         txLevel.should.be.bignumber.lt(web3.toBigNumber(web3.toWei(1)).add(web3.toWei(0.001)));
+
+    //         // double amount of staked tokens
+    //         await this.cpToken.approve( this.creditProtocol.address
+    //                                   , web3.toWei(2)
+    //                                   , {from: p1}).should.be.fulfilled;
+    //         // stakeTokens call successful post-initialization
+    //         await this.creditProtocol.stakeTokens(ucacId1, web3.toWei(2), {from: p1}).should.be.fulfilled;
+
+    //         // advance 15 minutes and show that txLevel has hit 0
+    //         await h.increaseTimeTo(this.latestTime + h.duration.minutes(105));
+    //         txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+    //         txLevel.should.be.bignumber.equal(0);
+    //     });
+    // });
 });
