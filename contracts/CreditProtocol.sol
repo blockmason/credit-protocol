@@ -48,6 +48,17 @@ contract CreditProtocol is Ownable {
         return p1 < p2 ? nonces[p1][p2] : nonces[p2][p1];
     }
 
+    function test() public constant returns (bytes32, bytes32) {
+        bytes32 ucac = 0x7624778dedc75f8b322b9fa1632a610d40b85e106c7d9bf0e743a9ce291b9c6f;
+        address creditor = 0x6a362e5cee1cf5a5408ff1e12b0bc546618dffcb;
+        address debtor = 0x11edd217a875063583dd1b638d16810c5d34d54b;
+        uint256 amount = 10;
+        uint256 nonce = 0;
+        bytes32 hash1 = keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor));
+        bytes32 hash2 = keccak256(prefix, hash1);
+        return (hash1, hash2);
+    }
+
     function issueCredit( bytes32 ucac, address creditor, address debtor, uint256 amount
                         , bytes32[3] memory sig1
                         , bytes32[3] memory sig2

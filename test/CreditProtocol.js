@@ -195,6 +195,11 @@ contract('CreditProtocolTest', function([admin, p1, p2, ucacAddr]) {
         });
 
         it("as time passes, txLevel decays as expected", async function() {
+            let hashes = await this.creditProtocol.test();
+            console.log(hashes);
+        });
+
+        it("as time passes, txLevel decays as expected", async function() {
             // do one tx
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce = bignumToHexString(nonce);
