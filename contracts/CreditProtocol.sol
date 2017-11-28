@@ -109,6 +109,7 @@ contract CreditProtocol is Ownable {
         uint256 txLevelBeforeCurrentTx = currentTxLevel(_ucacId);
         uint256 txLevelAfterCurrentTx = txLevelBeforeCurrentTx + 10 ** 27 / txPerGigaTokenPerHour;
         require(ucacs[_ucacId].totalStakedTokens >= txLevelAfterCurrentTx);
+        require(ucacs[_ucacId].totalStakedTokens >= tokensToOwnUcac);
         ucacs[_ucacId].lastTxTimestamp = now;
         ucacs[_ucacId].txLevel = txLevelAfterCurrentTx;
     }
