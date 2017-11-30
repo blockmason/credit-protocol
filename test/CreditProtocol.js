@@ -14,49 +14,6 @@ const testMemo = web3.fromAscii("test1")
 const creationStake = web3.toBigNumber(web3.toWei(3500));
 const mintAmount = web3.toBigNumber(web3.toWei(20000));
 
-function sign(signer, content) {
-    let contentHash = web3.sha3(content, {encoding: 'hex'});
-    let sig = web3.eth.sign(signer, contentHash, {encoding: 'hex'});
-    sig = sig.substr(2, sig.length);
-
-    let res = {};
-    res.r = "0x" + sig.substr(0, 64);
-    res.s = "0x" + sig.substr(64, 64);
-    res.v = web3.toDecimal("0x" + sig.substr(128, 2));
-    if (res.v < 27) res.v += 27;
-    res.v = bignumToHexString(web3.toBigNumber(res.v));
-
-    return res;
-}
-
-function bignumToHexString(num) {
-    const a = num.toString(16);
-    return "0x" + '0'.repeat(64 - a.length) + a;
-}
-
-function fillBytes32(ascii) {
-    // 66 instead of 64 to account for the '0x' prefix
-    return ascii + '0'.repeat(66 - ascii.length);
-}
-
-function stripHex(addr) {
-    return addr.substr(2, addr.length);
-}
-
-async function makeTransaction(cp, ucacAddr, creditor, debtor, _amount) {
-    let nonce = creditor < debtor ? await cp.nonces(creditor, debtor) : await cp.nonces(debtor, creditor);
-    nonce = bignumToHexString(nonce);
-    let amount = bignumToHexString(_amount);
-    let content = [ucacAddr, creditor, debtor, amount, nonce].map(stripHex).join("")
-    let sig1 = sign(creditor, content);
-    let sig2 = sign(debtor, content);
-    let txReciept = await cp.issueCredit( ucacAddr, creditor, debtor, amount
-                                   , [ sig1.r, sig1.s, sig1.v ]
-                                   , [ sig2.r, sig2.s, sig2.v ]
-                                   , testMemo, {from: creditor});
-    return txReciept;
-}
-
 contract('CreditProtocolTest', function([admin, p1, p2]) {
 
     before(async function() {
@@ -119,11 +76,11 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
 
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(0);
-            nonce = bignumToHexString(nonce);
-            let amount = bignumToHexString(10);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
-            let sig1 = sign(p1, content);
-            let sig2 = sign(p2, content);
+            nonce = h.bignumToHexString(nonce);
+            let amount = h.bignumToHexString(10);
+            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let sig1 = h.sign(p1, content);
+            let sig2 = h.sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
@@ -133,7 +90,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             assert.equal(txReciept.logs[0].args.debtor, p2, "Incorrect debtor logged");
             assert.equal(txReciept.logs[0].args.creditor, p1, "Incorrect creditor logged");
             assert.equal(txReciept.logs[0].args.ucac, this.basicUCAC.address, "Incorrect ucac logged");
-            assert.equal(txReciept.logs[0].args.memo, fillBytes32(testMemo), "Incorrect memo logged");
+            assert.equal(txReciept.logs[0].args.memo, h.fillBytes32(testMemo), "Incorrect memo logged");
 
             let debtCreated = await this.creditProtocol.balances(this.basicUCAC.address, p1);
             debtCreated.should.be.bignumber.equal(web3.toBigNumber(amount));
@@ -143,10 +100,10 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             // create 2nd debt
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
-            nonce = bignumToHexString(nonce);
-            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
-            sig1 = sign(p1, content);
-            sig2 = sign(p2, content);
+            nonce = h.bignumToHexString(nonce);
+            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            sig1 = h.sign(p1, content);
+            sig2 = h.sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
@@ -159,10 +116,10 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             // fail to create 3rd debt
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(2);
-            nonce = bignumToHexString(nonce);
-            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
-            sig1 = sign(p1, content);
-            sig2 = sign(p2, content);
+            nonce = h.bignumToHexString(nonce);
+            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            sig1 = h.sign(p1, content);
+            sig2 = h.sign(p2, content);
             // tx per hour = 2, so a 3rd should fail
             await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
@@ -185,11 +142,11 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
         it("as time passes, txLevel decays as expected", async function() {
             // do one tx
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
-            nonce = bignumToHexString(nonce);
-            let amount = bignumToHexString(10);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
-            let sig1 = sign(p1, content);
-            let sig2 = sign(p2, content);
+            nonce = h.bignumToHexString(nonce);
+            let amount = h.bignumToHexString(10);
+            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let sig1 = h.sign(p1, content);
+            let sig2 = h.sign(p2, content);
             let txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
@@ -211,7 +168,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
 
         it("if a user unstakes tokens s.t. txLevel > totalStakedTokens, txs are rejected", async function() {
             // do one tx
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
             let txLevel = await this.creditProtocol.currentTxLevel(this.basicUCAC.address).should.be.fulfilled;
             txLevel.should.be.bignumber.equal(web3.toWei(0.5));
 
@@ -222,11 +179,11 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
 
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
-            nonce = bignumToHexString(nonce);
-            let amount = bignumToHexString(10);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
-            let sig1 = sign(p1, content);
-            let sig2 = sign(p2, content);
+            nonce = h.bignumToHexString(nonce);
+            let amount = h.bignumToHexString(10);
+            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let sig1 = h.sign(p1, content);
+            let sig2 = h.sign(p2, content);
             await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
@@ -240,17 +197,17 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
 
         it("if txLevel > totalStakedTokens, user can stake more tokens and then successfully tx", async function() {
             // two txs are performed (the max given 1 staked token)
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
 
             // user fails to perform an additional tx
-            let amount = bignumToHexString(3258);
+            let amount = h.bignumToHexString(3258);
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(2);
-            nonce = bignumToHexString(nonce);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
-            let sig1 = sign(p1, content);
-            let sig2 = sign(p2, content);
+            nonce = h.bignumToHexString(nonce);
+            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let sig1 = h.sign(p1, content);
+            let sig2 = h.sign(p2, content);
             let txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
@@ -263,10 +220,10 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             // user successfully performs and addtional tx
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(2);
-            nonce = bignumToHexString(nonce);
-            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
-            sig1 = sign(p1, content);
-            sig2 = sign(p2, content);
+            nonce = h.bignumToHexString(nonce);
+            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            sig1 = h.sign(p1, content);
+            sig2 = h.sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                        , [ sig1.r, sig1.s, sig1.v ]
                                        , [ sig2.r, sig2.s, sig2.v ]
@@ -284,9 +241,9 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
         });
 
         it("precise txLevel decay tests with chaning decay rates due to staking & unstaking", async function() {
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
             let txLevel = await this.creditProtocol.currentTxLevel(this.basicUCAC.address).should.be.fulfilled;
             txLevel.should.be.bignumber.gt(web3.toBigNumber(web3.toWei(1.5)).sub(web3.toWei(0.001)));
             txLevel.should.be.bignumber.lt(web3.toBigNumber(web3.toWei(1.5)).add(web3.toWei(0.001)));
@@ -303,10 +260,10 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             txLevel.should.be.bignumber.equal(0);
 
             // max out txLevel with four transactions
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
-            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            await h.makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
             txLevel = await this.creditProtocol.currentTxLevel(this.basicUCAC.address).should.be.fulfilled;
 
             // txLevel should be maxed out
