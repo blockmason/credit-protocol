@@ -50,7 +50,7 @@ async function makeTransaction(cp, ucacAddr, creditor, debtor, _amount) {
     let content = [ucacAddr, creditor, debtor, amount, nonce].map(stripHex).join("")
     let sig1 = sign(creditor, content);
     let sig2 = sign(debtor, content);
-    let txReciept = await cp.issueCredit( ucacId, creditor, debtor, amount
+    let txReciept = await cp.issueCredit( ucacAddr, creditor, debtor, amount
                                    , [ sig1.r, sig1.s, sig1.v ]
                                    , [ sig2.r, sig2.s, sig2.v ]
                                    , testMemo, {from: creditor});
@@ -210,28 +210,24 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
         });
 
         it("if a user unstakes tokens s.t. txLevel > totalStakedTokens, txs are rejected", async function() {
-            let amount = '0x000000000000000000000000000000000000000000000000000000000000000a';
-
             // do one tx
-            await makeTransaction(this.creditProtocol, ucacId1, p1, p2, web3.toBigNumber(10));
-            let txLevel = await this.creditProtocol.currentTxLevel(ucacId1).should.be.fulfilled;
+            await makeTransaction(this.creditProtocol, this.basicUCAC.address, p1, p2, web3.toBigNumber(10));
+            let txLevel = await this.creditProtocol.currentTxLevel(this.basicUCAC.address).should.be.fulfilled;
             txLevel.should.be.bignumber.equal(web3.toWei(0.5));
 
             // user unstakes 0.1 tokens
-            await this.creditProtocol.unstakeTokens(ucacId1, web3.toWei(0.1), {from: p1}).should.be.fulfilled;
+            await this.creditProtocol.unstakeTokens(this.basicUCAC.address, web3.toWei(0.1), {from: p1}).should.be.fulfilled;
 
             // user is unable to perform an additional tx
 
-            nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
             nonce = bignumToHexString(nonce);
-            content1 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig1 = sign(p1, content1);
-            content2 = ucacId1 + p1.substr(2, p1.length) + p2.substr(2, p2.length)
-                                 + amount.substr(2, amount.length) + nonce.substr(2, nonce.length);
-            sig2 = sign(p2, content2);
-            txReciept = await this.creditProtocol.issueCredit( ucacId1, p1, p2, amount
+            let amount = bignumToHexString(10);
+            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(stripHex).join("")
+            let sig1 = sign(p1, content);
+            let sig2 = sign(p2, content);
+            await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
                                            , [ sig1.r, sig1.s, sig1.v ]
                                            , [ sig2.r, sig2.s, sig2.v ]
                                            , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
