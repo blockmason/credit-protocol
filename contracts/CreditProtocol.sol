@@ -20,23 +20,23 @@ contract CreditProtocol is Ownable {
     uint256 public txPerGigaTokenPerHour; // gigatoken = 10 ^ 9 nominal tokens
     uint256 public tokensToOwnUcac;
 
-    mapping (bytes32 => Ucac) public ucacs; // ucacId -> Ucac struct
+    mapping (address => Ucac) public ucacs; // ucacAddress -> Ucac struct
 
-    // ucacId -> token owner address -> amount of tokens
-    mapping (bytes32 => mapping (address => uint256)) public stakedTokensMap;
+    // ucacAddr -> token owner address -> amount of tokens
+    mapping (address => mapping (address => uint256)) public stakedTokensMap;
 
     // id -> id -> # of transactions in all UCACs
     // lesser id is must always be the first argument
     mapping(address => mapping(address => uint256)) public nonces;
-    // ucac -> id -> balance
-    mapping(bytes32 => mapping(address => int256)) public balances;
+    // ucacAddr -> id -> balance
+    mapping(address => mapping(address => int256)) public balances;
 
     // the standard prefix appended to 32-byte-long messages when signed by an
     // Ethereum client
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
-    event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount, uint256 nonce, bytes32 memo);
-    event UcacCreation(bytes32 indexed ucac, address indexed contractAddr, bytes32 denomination);
+    event IssueCredit(address indexed ucac, address indexed creditor, address indexed debtor, uint256 amount, uint256 nonce, bytes32 memo);
+    event UcacCreation(address indexed contractAddr, bytes32 denomination);
 
     function CreditProtocol(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
         token = CPToken(_tokenContract);
@@ -48,31 +48,31 @@ contract CreditProtocol is Ownable {
         return p1 < p2 ? nonces[p1][p2] : nonces[p2][p1];
     }
 
-    function issueCredit( bytes32 ucac, address creditor, address debtor, uint256 amount
+    function issueCredit( address _ucacContractAddr, address creditor, address debtor, uint256 amount
                         , bytes32[3] memory sig1
                         , bytes32[3] memory sig2
                         , bytes32 memo
                         ) public {
         require(creditor != debtor);
         uint256 nonce = getNonce(creditor, debtor);
-        bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, nonce));
+        bytes32 hash = keccak256(prefix, keccak256(_ucacContractAddr, creditor, debtor, amount, nonce));
 
         // verifying signatures
         require(ecrecover(hash, uint8(sig1[2]), sig1[0], sig1[1]) == creditor);
         require(ecrecover(hash, uint8(sig2[2]), sig2[0], sig2[1]) == debtor);
 
         // checking for overflow
-        require(balances[ucac][creditor] < balances[ucac][creditor] + int256(amount));
+        require(balances[_ucacContractAddr][creditor] < balances[_ucacContractAddr][creditor] + int256(amount));
         // checking for underflow
-        require(balances[ucac][debtor] > balances[ucac][debtor] - int256(amount));
+        require(balances[_ucacContractAddr][debtor] > balances[_ucacContractAddr][debtor] - int256(amount));
         // executeUcacTx will throw if a transaction limit has been reached or the ucac is uninitialized
-        executeUcacTx(ucac);
+        executeUcacTx(_ucacContractAddr);
         // check that UCAC contract approves the transaction
-        require(BasicUCAC(getUcacAddr(ucac)).allowTransaction(creditor, debtor, amount));
+        require(BasicUCAC(_ucacContractAddr).allowTransaction(creditor, debtor, amount));
 
-        balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
-        balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
-        IssueCredit(ucac, creditor, debtor, amount, nonce, memo);
+        balances[_ucacContractAddr][creditor] = balances[_ucacContractAddr][creditor] + int256(amount);
+        balances[_ucacContractAddr][debtor] = balances[_ucacContractAddr][debtor] - int256(amount);
+        IssueCredit(_ucacContractAddr, creditor, debtor, amount, nonce, memo);
         incrementNonce(creditor, debtor);
     }
 
@@ -86,10 +86,6 @@ contract CreditProtocol is Ownable {
 
     // Staking
 
-    function getUcacAddr(bytes32 _ucacId) public constant returns (address) {
-        return ucacs[_ucacId].ucacContractAddr;
-    }
-
     function setTxPerGigaTokenPerHour(uint256 _txPerGigaTokenPerHour) public onlyOwner {
         txPerGigaTokenPerHour = _txPerGigaTokenPerHour;
     }
@@ -98,20 +94,20 @@ contract CreditProtocol is Ownable {
         tokensToOwnUcac = _tokensToOwnUcac;
     }
 
-    function currentTxLevel(bytes32 _ucacId) public constant returns (uint256) {
-        uint256 totalStaked = ucacs[_ucacId].totalStakedTokens;
-        uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacId].lastTxTimestamp);
-        uint256 adjustedTxLevel = ucacs[_ucacId].txLevel < currentDecay ? 0 : ucacs[_ucacId].txLevel - currentDecay;
+    function currentTxLevel(address _ucacContractAddr) public constant returns (uint256) {
+        uint256 totalStaked = ucacs[_ucacContractAddr].totalStakedTokens;
+        uint256 currentDecay = totalStaked / 3600 * (now - ucacs[_ucacContractAddr].lastTxTimestamp);
+        uint256 adjustedTxLevel = ucacs[_ucacContractAddr].txLevel < currentDecay ? 0 : ucacs[_ucacContractAddr].txLevel - currentDecay;
         return adjustedTxLevel;
     }
 
-    function executeUcacTx(bytes32 _ucacId) public {
-        uint256 txLevelBeforeCurrentTx = currentTxLevel(_ucacId);
+    function executeUcacTx(address _ucacContractAddr) public {
+        uint256 txLevelBeforeCurrentTx = currentTxLevel(_ucacContractAddr);
         uint256 txLevelAfterCurrentTx = txLevelBeforeCurrentTx + 10 ** 27 / txPerGigaTokenPerHour;
-        require(ucacs[_ucacId].totalStakedTokens >= txLevelAfterCurrentTx);
-        require(ucacs[_ucacId].totalStakedTokens >= tokensToOwnUcac);
-        ucacs[_ucacId].lastTxTimestamp = now;
-        ucacs[_ucacId].txLevel = txLevelAfterCurrentTx;
+        require(ucacs[_ucacContractAddr].totalStakedTokens >= txLevelAfterCurrentTx);
+        require(ucacs[_ucacContractAddr].totalStakedTokens >= tokensToOwnUcac);
+        ucacs[_ucacContractAddr].lastTxTimestamp = now;
+        ucacs[_ucacContractAddr].txLevel = txLevelAfterCurrentTx;
     }
 
     /**
@@ -120,18 +116,18 @@ contract CreditProtocol is Ownable {
             to have the token owner to control exactly how many tokens can be transferred to `Stake.sol`,
             regardless of who calls the function.
      **/
-    function createAndStakeUcac( address _ucacContractAddr, bytes32 _ucacId
-                               , bytes32 _denomination, uint256 _tokensToStake) public {
+    function createAndStakeUcac( address _ucacContractAddr, bytes32 _denomination
+                               , uint256 _tokensToStake) public {
         // check that _ucacContractAddr points to something meaningful
         require(_ucacContractAddr != address(0));
-        // check that _ucacId does not point to an extant UCAC
-        require(ucacs[_ucacId].totalStakedTokens == 0 && ucacs[_ucacId].ucacContractAddr == address(0));
+        // check that _ucacContractAddr does not point to an extant UCAC
+        require(ucacs[_ucacContractAddr].totalStakedTokens == 0 && ucacs[_ucacContractAddr].ucacContractAddr == address(0));
         // checking that initial token staking amount is enough to own a UCAC
         require(_tokensToStake >= tokensToOwnUcac);
-        stakeTokensInternal(_ucacId, msg.sender, _tokensToStake);
-        ucacs[_ucacId].ucacContractAddr = _ucacContractAddr;
-        ucacs[_ucacId].denomination = _denomination;
-        UcacCreation(_ucacId, _ucacContractAddr, _denomination);
+        stakeTokensInternal(_ucacContractAddr, msg.sender, _tokensToStake);
+        ucacs[_ucacContractAddr].ucacContractAddr = _ucacContractAddr;
+        ucacs[_ucacContractAddr].denomination = _denomination;
+        UcacCreation(_ucacContractAddr, _denomination);
     }
 
     /* Token staking functionality */
@@ -139,42 +135,42 @@ contract CreditProtocol is Ownable {
     /**
        @dev msg.sender must have approved Stake contract to transfer **exactly** `_numTokens` tokens
      **/
-    function stakeTokens(bytes32 _ucacId, uint256 _numTokens) public {
-        // check that _ucacId points to an extant UCAC
-        require(ucacs[_ucacId].ucacContractAddr != address(0));
-        stakeTokensInternal(_ucacId, msg.sender, _numTokens);
+    function stakeTokens(address _ucacContractAddr, uint256 _numTokens) public {
+        // check that _ucacContractAddr points to an extant UCAC
+        require(ucacs[_ucacContractAddr].ucacContractAddr != address(0));
+        stakeTokensInternal(_ucacContractAddr, msg.sender, _numTokens);
     }
 
     /**
        @notice Checks if this address is already in this name.
-       @param _ucacId Id of the ucac tokens are staked to
+       @param _ucacContractAddr Id of the ucac tokens are staked to
        @param _numTokens Number of tokens the user wants to unstake
      **/
-    function unstakeTokens(bytes32 _ucacId, uint256 _numTokens) public {
+    function unstakeTokens(address _ucacContractAddr, uint256 _numTokens) public {
         // SafeMath will throw if _numTokens is greater than a sender's stakedTokens amount
-        uint256 updatedStakedTokens = stakedTokensMap[_ucacId][msg.sender].sub(_numTokens);
-        stakedTokensMap[_ucacId][msg.sender] = updatedStakedTokens;
-        uint256 updatedNumTokens = ucacs[_ucacId].totalStakedTokens.sub(_numTokens);
+        uint256 updatedStakedTokens = stakedTokensMap[_ucacContractAddr][msg.sender].sub(_numTokens);
+        stakedTokensMap[_ucacContractAddr][msg.sender] = updatedStakedTokens;
+        uint256 updatedNumTokens = ucacs[_ucacContractAddr].totalStakedTokens.sub(_numTokens);
 
         // updating txLevel to ensure accurate decay calculation
-        ucacs[_ucacId].txLevel = currentTxLevel(_ucacId);
+        ucacs[_ucacContractAddr].txLevel = currentTxLevel(_ucacContractAddr);
 
-        ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
+        ucacs[_ucacContractAddr].totalStakedTokens = updatedNumTokens;
         token.transfer(msg.sender, _numTokens);
     }
 
     // Private Functions
 
-    function stakeTokensInternal(bytes32 _ucacId, address _stakeholder, uint256 _numTokens) private {
+    function stakeTokensInternal(address _ucacContractAddr, address _stakeholder, uint256 _numTokens) private {
         token.transferFrom(_stakeholder, this, _numTokens);
-        uint256 updatedStakedTokens = stakedTokensMap[_ucacId][_stakeholder].add(_numTokens);
-        stakedTokensMap[_ucacId][_stakeholder] = updatedStakedTokens;
+        uint256 updatedStakedTokens = stakedTokensMap[_ucacContractAddr][_stakeholder].add(_numTokens);
+        stakedTokensMap[_ucacContractAddr][_stakeholder] = updatedStakedTokens;
 
         // updating txLevel to ensure accurate decay calculation
-        ucacs[_ucacId].txLevel = currentTxLevel(_ucacId);
+        ucacs[_ucacContractAddr].txLevel = currentTxLevel(_ucacContractAddr);
 
-        uint256 updatedNumTokens =  ucacs[_ucacId].totalStakedTokens.add(_numTokens);
-        ucacs[_ucacId].totalStakedTokens = updatedNumTokens;
+        uint256 updatedNumTokens =  ucacs[_ucacContractAddr].totalStakedTokens.add(_numTokens);
+        ucacs[_ucacContractAddr].totalStakedTokens = updatedNumTokens;
     }
 
 }
