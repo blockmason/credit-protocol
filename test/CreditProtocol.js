@@ -28,7 +28,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
         this.creditProtocol =
             await CreditProtocol.new( this.cpToken.address
                                     , web3.toBigNumber(2 * 10 ** 9)
-                                    , web3.toBigNumber(1)
+                                    , web3.toWei(0.8)
                                     , {from: admin});
         this.basicUCAC = await BasicUCAC.new({from: admin});
 
@@ -191,7 +191,21 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
         });
 
         it("if a user unstakes tokens s.t. tokensToOwnUcac > totalStakedTokens, txs are rejected", async function() {
-            assert(false, "implement this");
+           // user unstakes 0.1 tokens
+            await this.creditProtocol.unstakeTokens(this.basicUCAC.address, web3.toWei(0.25), {from: p1}).should.be.fulfilled;
+
+            // user is unable to perform an additional tx
+
+            let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
+            nonce = h.bignumToHexString(nonce);
+            let amount = h.bignumToHexString(10);
+            let content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce);
+            let sig1 = h.sign(p1, content);
+            let sig2 = h.sign(p2, content);
+            await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
+                                           , [ sig1.r, sig1.s, sig1.v ]
+                                           , [ sig2.r, sig2.s, sig2.v ]
+                                           , testMemo, {from: p1}).should.be.rejectedWith(h.EVMThrow);
         });
 
 
