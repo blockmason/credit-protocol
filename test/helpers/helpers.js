@@ -116,7 +116,7 @@ async function makeTransaction(cp, ucacAddr, creditor, debtor, _amount) {
     let nonce = creditor < debtor ? await cp.nonces(creditor, debtor) : await cp.nonces(debtor, creditor);
     nonce = bignumToHexString(nonce);
     let amount = bignumToHexString(_amount);
-    let content = [ucacAddr, creditor, debtor, amount, nonce].map(stripHex).join("")
+    let content = creditHash(ucacAddr, creditor, debtor, amount, nonce);
     let sig1 = sign(creditor, content);
     let sig2 = sign(debtor, content);
     let txReciept = await cp.issueCredit( ucacAddr, creditor, debtor, amount
@@ -126,3 +126,8 @@ async function makeTransaction(cp, ucacAddr, creditor, debtor, _amount) {
     return txReciept;
 }
 exports.makeTransaction = makeTransaction;
+
+function creditHash(ucacAddr, p1, p2, amount, nonce) {
+    return [ucacAddr, p1, p2, amount, nonce].map(stripHex).join("")
+}
+exports.creditHash = creditHash;

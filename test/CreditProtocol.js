@@ -78,7 +78,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             nonce.should.be.bignumber.equal(0);
             nonce = h.bignumToHexString(nonce);
             let amount = h.bignumToHexString(10);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce)
             let sig1 = h.sign(p1, content);
             let sig2 = h.sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
@@ -101,7 +101,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(1);
             nonce = h.bignumToHexString(nonce);
-            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce);
             sig1 = h.sign(p1, content);
             sig2 = h.sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
@@ -117,7 +117,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(2);
             nonce = h.bignumToHexString(nonce);
-            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce);
             sig1 = h.sign(p1, content);
             sig2 = h.sign(p2, content);
             // tx per hour = 2, so a 3rd should fail
@@ -144,7 +144,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce = h.bignumToHexString(nonce);
             let amount = h.bignumToHexString(10);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce);
             let sig1 = h.sign(p1, content);
             let sig2 = h.sign(p2, content);
             let txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
@@ -181,7 +181,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             nonce.should.be.bignumber.equal(1);
             nonce = h.bignumToHexString(nonce);
             let amount = h.bignumToHexString(10);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce);
             let sig1 = h.sign(p1, content);
             let sig2 = h.sign(p2, content);
             await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
@@ -205,7 +205,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             let nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(2);
             nonce = h.bignumToHexString(nonce);
-            let content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            let content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce);
             let sig1 = h.sign(p1, content);
             let sig2 = h.sign(p2, content);
             let txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
@@ -221,7 +221,7 @@ contract('CreditProtocolTest', function([admin, p1, p2]) {
             nonce = p1 < p2 ? await this.creditProtocol.nonces(p1, p2) : await this.creditProtocol.nonces(p2, p1);
             nonce.should.be.bignumber.equal(2);
             nonce = h.bignumToHexString(nonce);
-            content = [this.basicUCAC.address, p1, p2, amount, nonce].map(h.stripHex).join("")
+            content = h.creditHash(this.basicUCAC.address, p1, p2, amount, nonce);
             sig1 = h.sign(p1, content);
             sig2 = h.sign(p2, content);
             txReciept = await this.creditProtocol.issueCredit( this.basicUCAC.address, p1, p2, amount
