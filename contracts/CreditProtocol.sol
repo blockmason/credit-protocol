@@ -35,7 +35,7 @@ contract CreditProtocol is Ownable {
     // Ethereum client
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
-    event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount, bytes32 memo);
+    event IssueCredit(bytes32 indexed ucac, address indexed creditor, address indexed debtor, uint256 amount, uint256 nonce, bytes32 memo);
     event UcacCreation(bytes32 indexed ucac, address indexed contractAddr, bytes32 denomination);
 
     function CreditProtocol(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
@@ -54,8 +54,8 @@ contract CreditProtocol is Ownable {
                         , bytes32 memo
                         ) public {
         require(creditor != debtor);
-
-        bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, getNonce(creditor, debtor)));
+        uint256 nonce = getNonce(creditor, debtor);
+        bytes32 hash = keccak256(prefix, keccak256(ucac, creditor, debtor, amount, nonce));
 
         // verifying signatures
         require(ecrecover(hash, uint8(sig1[2]), sig1[0], sig1[1]) == creditor);
@@ -72,7 +72,7 @@ contract CreditProtocol is Ownable {
 
         balances[ucac][creditor] = balances[ucac][creditor] + int256(amount);
         balances[ucac][debtor] = balances[ucac][debtor] - int256(amount);
-        IssueCredit(ucac, creditor, debtor, amount, memo);
+        IssueCredit(ucac, creditor, debtor, amount, nonce, memo);
         incrementNonce(creditor, debtor);
     }
 
