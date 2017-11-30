@@ -36,7 +36,7 @@ contract CreditProtocol is Ownable {
     bytes prefix = "\x19Ethereum Signed Message:\n32";
 
     event IssueCredit(address indexed ucac, address indexed creditor, address indexed debtor, uint256 amount, uint256 nonce, bytes32 memo);
-    event UcacCreation(address indexed contractAddr, bytes32 denomination);
+    event UcacCreation(address indexed ucac, bytes32 denomination);
 
     function CreditProtocol(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
         token = CPToken(_tokenContract);
