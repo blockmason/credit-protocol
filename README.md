@@ -7,7 +7,7 @@ tracking between any two parties.
 * CreditProtocol.sol 
 * `0x5c98fbbdba76a44475e831cf84202f596da0f007` 
 * `0xb558e46A365424522934a768CEc3DE0ac01DC5AD`  vb
-* ``  va
+* `0xed5ceb7730af034218d77130d96f46970f170c05`  va
 
 ## How the Credit Protocol works
 
