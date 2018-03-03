@@ -86,6 +86,10 @@ contract CreditProtocol is Ownable {
 
     // Staking
 
+    /**
+       @dev The gigatokens of `_txPerGigaTokenPerHour` are nominal giga tokens, that is
+       10 ^ 18 * 10 ^ 9 = 10 ^ 27 attotokens
+     **/
     function setTxPerGigaTokenPerHour(uint256 _txPerGigaTokenPerHour) public onlyOwner {
         txPerGigaTokenPerHour = _txPerGigaTokenPerHour;
     }
@@ -111,10 +115,8 @@ contract CreditProtocol is Ownable {
     }
 
     /**
-       @dev msg.sender must have approved Stake contract to transfer **exactly** `_tokensToStake` tokens.
-            This design decision is a security precaution since this is a public function and it is desirable
-            to have the token owner to control exactly how many tokens can be transferred to `Stake.sol`,
-            regardless of who calls the function.
+       @dev msg.sender must have approved Stake contract to transfer at least `_tokensToStake` tokens.
+            `_tokensToStake` is measured in attotokens.
      **/
     function createAndStakeUcac( address _ucacContractAddr, bytes32 _denomination
                                , uint256 _tokensToStake) public {
@@ -133,7 +135,8 @@ contract CreditProtocol is Ownable {
     /* Token staking functionality */
 
     /**
-       @dev msg.sender must have approved Stake contract to transfer **exactly** `_numTokens` tokens
+       @dev msg.sender must have approved Stake contract to transfer at least `_numTokens` tokens
+       `_numTokens` is measured in attotokens.
      **/
     function stakeTokens(address _ucacContractAddr, uint256 _numTokens) public {
         // check that _ucacContractAddr points to an extant UCAC
@@ -144,7 +147,7 @@ contract CreditProtocol is Ownable {
     /**
        @notice Checks if this address is already in this name.
        @param _ucacContractAddr Id of the ucac tokens are staked to
-       @param _numTokens Number of tokens the user wants to unstake
+       @param _numTokens Number of attotokens the user wants to unstake
      **/
     function unstakeTokens(address _ucacContractAddr, uint256 _numTokens) public {
         // SafeMath will throw if _numTokens is greater than a sender's stakedTokens amount
