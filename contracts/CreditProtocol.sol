@@ -53,6 +53,7 @@ contract CreditProtocol is Ownable {
                         , bytes32[3] memory sig2
                         , bytes32 memo
                         ) public {
+        require(amount > 0);
         require(creditor != debtor);
         uint256 nonce = getNonce(creditor, debtor);
         bytes32 hash = keccak256(prefix, keccak256(_ucacContractAddr, creditor, debtor, amount, nonce));
