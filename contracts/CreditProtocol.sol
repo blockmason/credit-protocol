@@ -105,7 +105,7 @@ contract CreditProtocol is Ownable {
         return adjustedTxLevel;
     }
 
-    function executeUcacTx(address _ucacContractAddr) public {
+    function executeUcacTx(address _ucacContractAddr) private {
         uint256 txLevelBeforeCurrentTx = currentTxLevel(_ucacContractAddr);
         uint256 txLevelAfterCurrentTx = txLevelBeforeCurrentTx + 10 ** 27 / txPerGigaTokenPerHour;
         require(ucacs[_ucacContractAddr].totalStakedTokens >= txLevelAfterCurrentTx);
