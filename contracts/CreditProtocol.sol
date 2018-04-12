@@ -55,6 +55,11 @@ contract CreditProtocol is Ownable {
                         ) public {
         require(amount > 0);
         require(creditor != debtor);
+        // checking for overflow
+        require(balances[_ucacContractAddr][creditor] < balances[_ucacContractAddr][creditor] + int256(amount));
+        // checking for underflow
+        require(balances[_ucacContractAddr][debtor] > balances[_ucacContractAddr][debtor] - int256(amount));
+
         uint256 nonce = getNonce(creditor, debtor);
         bytes32 hash = keccak256(prefix, keccak256(_ucacContractAddr, creditor, debtor, amount, nonce));
 
@@ -62,10 +67,6 @@ contract CreditProtocol is Ownable {
         require(ecrecover(hash, uint8(sig1[2]), sig1[0], sig1[1]) == creditor);
         require(ecrecover(hash, uint8(sig2[2]), sig2[0], sig2[1]) == debtor);
 
-        // checking for overflow
-        require(balances[_ucacContractAddr][creditor] < balances[_ucacContractAddr][creditor] + int256(amount));
-        // checking for underflow
-        require(balances[_ucacContractAddr][debtor] > balances[_ucacContractAddr][debtor] - int256(amount));
         // executeUcacTx will throw if a transaction limit has been reached or the ucac is uninitialized
         executeUcacTx(_ucacContractAddr);
         // check that UCAC contract approves the transaction
