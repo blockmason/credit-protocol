@@ -1,13 +1,10 @@
 pragma solidity 0.4.15;
 
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "tce-contracts/contracts/CPToken.sol";
 import "./BasicUCAC.sol";
 
 contract CreditProtocol is Ownable {
-    using SafeMath for uint256;
-
     struct Ucac {
         address ucacContractAddr;
         uint256 totalStakedTokens;
@@ -152,30 +149,32 @@ contract CreditProtocol is Ownable {
        @param _numTokens Number of attotokens the user wants to unstake
      **/
     function unstakeTokens(address _ucacContractAddr, uint256 _numTokens) public {
-        // SafeMath will throw if _numTokens is greater than a sender's stakedTokens amount
-        uint256 updatedStakedTokens = stakedTokensMap[_ucacContractAddr][msg.sender].sub(_numTokens);
-        stakedTokensMap[_ucacContractAddr][msg.sender] = updatedStakedTokens;
-        uint256 updatedNumTokens = ucacs[_ucacContractAddr].totalStakedTokens.sub(_numTokens);
+        require(ucacs[_ucacContractAddr].totalStakedTokens - _numTokens < ucacs[_ucacContractAddr].totalStakedTokens);
+        require(stakedTokensMap[_ucacContractAddr][msg.sender] - _numTokens < stakedTokensMap[_ucacContractAddr][msg.sender]);
+
+        stakedTokensMap[_ucacContractAddr][msg.sender] = stakedTokensMap[_ucacContractAddr][msg.sender] - _numTokens;
 
         // updating txLevel to ensure accurate decay calculation
         ucacs[_ucacContractAddr].txLevel = currentTxLevel(_ucacContractAddr);
 
-        ucacs[_ucacContractAddr].totalStakedTokens = updatedNumTokens;
+        ucacs[_ucacContractAddr].totalStakedTokens = ucacs[_ucacContractAddr].totalStakedTokens - _numTokens;
+
         token.transfer(msg.sender, _numTokens);
     }
 
     // Private Functions
 
     function stakeTokensInternal(address _ucacContractAddr, address _stakeholder, uint256 _numTokens) private {
+        require(stakedTokensMap[_ucacContractAddr][_stakeholder] < stakedTokensMap[_ucacContractAddr][_stakeholder] + _numTokens);
+        require(ucacs[_ucacContractAddr].totalStakedTokens < ucacs[_ucacContractAddr].totalStakedTokens + _numTokens);
+
         token.transferFrom(_stakeholder, this, _numTokens);
-        uint256 updatedStakedTokens = stakedTokensMap[_ucacContractAddr][_stakeholder].add(_numTokens);
-        stakedTokensMap[_ucacContractAddr][_stakeholder] = updatedStakedTokens;
+        stakedTokensMap[_ucacContractAddr][_stakeholder] = stakedTokensMap[_ucacContractAddr][_stakeholder] + _numTokens;
 
         // updating txLevel to ensure accurate decay calculation
         ucacs[_ucacContractAddr].txLevel = currentTxLevel(_ucacContractAddr);
 
-        uint256 updatedNumTokens =  ucacs[_ucacContractAddr].totalStakedTokens.add(_numTokens);
-        ucacs[_ucacContractAddr].totalStakedTokens = updatedNumTokens;
+        ucacs[_ucacContractAddr].totalStakedTokens = ucacs[_ucacContractAddr].totalStakedTokens + _numTokens;
     }
 
 }
