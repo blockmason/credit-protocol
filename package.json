@@ -7,26 +7,26 @@
     "test": "test"
   },
   "scripts": {
-    "compile": "bash scripts/compile.sh",
-    "test": "bash scripts/test.sh"
+    "compile": "scripts/compile.sh",
+    "test": "scripts/test.sh"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/blockmason/credit-protocol.git"
   },
   "author": "",
-  "license": "All rights reserved by BlockMason Inc.",
+  "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
     "url": "https://github.com/blockmason/credit-protocol/issues"
   },
   "homepage": "https://github.com/blockmason/credit-protocol#readme",
   "devDependencies": {
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^2.0.1",
-    "ethereumjs-testrpc": "4.1.1",
-    "tce-contracts": "https://github.com/blockmason/tce-contracts.git#92de2e06e55581e3d3a6c9fcd2a2bd30a53c4ff5",
-    "truffle": "3.4.9",
-    "zeppelin-solidity": "1.3.0"
+    "chai": "4.1.2",
+    "chai-as-promised": "7.1.1",
+    "chai-bignumber": "2.0.2",
+    "ganache-cli": "6.1.3",
+    "tce-contracts": "https://github.com/canterberry/credit-protocol-token.git#cc6e7f17807316a77da73cfa8528785bd8900d78",
+    "truffle": "4.1.11",
+    "zeppelin-solidity": "1.10.0"
   }
 }
