@@ -1,4 +1,4 @@
-pragma solidity 0.4.15;
+pragma solidity ^0.4.24;
 
 import "tce-contracts/contracts/CPToken.sol";
 import "./BasicUCAC.sol";
@@ -131,7 +131,7 @@ contract CreditProtocol {
     bytes prefix = "\x19Ethereum Signed Message:\n32";
     address owner;
 
-    function CreditProtocol(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) {
+    constructor(address _tokenContract, uint256 _txPerGigaTokenPerHour, uint256 _tokensToOwnUcac) public {
         owner = msg.sender;
         token = CPToken(_tokenContract);
         txPerGigaTokenPerHour = _txPerGigaTokenPerHour;
@@ -179,7 +179,7 @@ contract CreditProtocol {
           nonces[debtor][creditor] = nonces[debtor][creditor] + 1;
         }
 
-        IssueCredit(_ucacContractAddr, creditor, debtor, amount, nonce, memo);
+        emit IssueCredit(_ucacContractAddr, creditor, debtor, amount, nonce, memo);
     }
 
     /**
@@ -203,7 +203,7 @@ contract CreditProtocol {
 
         token.transferFrom(msg.sender, this, _tokensToStake);
 
-        UcacCreation(_ucacContractAddr, _denomination);
+        emit UcacCreation(_ucacContractAddr, _denomination);
     }
 
     /**
@@ -299,7 +299,7 @@ contract CreditProtocol {
      *
      * @param _ucacContractAddr {address} - The address of the UCAC whose level is to be inspected.
      *
-     * @returns {uint256} - The current transaction level, expressed in tokens.
+     * @return {uint256} - The current transaction level, expressed in tokens.
      */
     function currentTxLevel(address _ucacContractAddr) public view returns (uint256) {
         uint256 currentDecay = ucacs[_ucacContractAddr].totalStakedTokens / 3600 * (now - ucacs[_ucacContractAddr].lastTxTimestamp);
@@ -313,7 +313,7 @@ contract CreditProtocol {
      * @param creditor {address} - One of the addresses in the pair.
      * @param debtor {address} - The other address in the pair.
      *
-     * @returns {uint256} - Returns the current nonce between the two given addresses.
+     * @return {uint256} - Returns the current nonce between the two given addresses.
      */
     function getNonce(address creditor, address debtor) public view returns (uint256) {
         require(creditor != address(0));

@@ -1,4 +1,4 @@
-exports.EVMThrow = 'invalid opcode';
+exports.EVMThrow = 'VM Exception while processing transaction: revert';
 
 const testMemo = web3.fromAscii("test1")
 
